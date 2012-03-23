@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Product Id="{00A4F729-3EF1-487d-A412-42F8DA3E07BD}"
+           Name="Bshouty Lung Model"
+           UpgradeCode="{01BC86DD-F8AB-452D-B395-D2FB46113752}"
+           Language="1033" Version="1.3.2014" Manufacturer="Dr. Zoheir Bshouty">
+    <Package Description="Bshouty Lung Model"
+             Comments="Lung Disease Computational Model"
+             InstallerVersion="300" Compressed="yes"
+             Platform="x64"
+             ShortNames="no" InstallPrivileges="elevated" ReadOnly="yes" Manufacturer="Dr. Zoheir Bshouty" />
+
+    <Property Id="ALLUSERS">1</Property>
+    <Property Id="DISABLEADVTSHORTCUTS" Value="1" />
+
+    <Upgrade Id="{01BC86DD-F8AB-452D-B395-D2FB46113752}">
+        <UpgradeVersion Minimum="1.0.0"
+                        IncludeMinimum="yes"
+                        Maximum="1.3.2014"
+                        IncludeMaximum="no"
+                        ExcludeLanguages="yes"
+                        Property="OLDVERSIONBEINGUPGRADED" />
+        <UpgradeVersion Minimum="1.3.2014"
+                        OnlyDetect="yes"
+                        ExcludeLanguages="yes"
+                        Property="NEWERVERSIONDETECTED" />
+    </Upgrade>
+
+    <InstallExecuteSequence>
+        <RemoveExistingProducts After="InstallInitialize" />
+    </InstallExecuteSequence>
+    <CustomActionRef Id="WixExitEarlyWithSuccess"/>
+
+
+    <Media Id="1" Cabinet="Product.cab" EmbedCab="yes" CompressionLevel="high" />
+    <!--
+    <UIRef Id="WixUI_Minimal" /> -->
+    <UIRef Id="WixUI_ErrorProgressText" />
+    
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLLOCATION" Name="Bshouty Lung Model">
+
+            <!-- Application Install -->
+            <Component Id="LungModel" Guid="{E50FB0F7-0BCE-4ef8-B543-62AE6FD7D7D4}" DiskId="1" Win64="yes">
+              <File Id="source.cl" Name="vessel_integration.cl" Source="C:\src\bshouty_lung_model\vessel_integration.cl" />
+              <File Id="model1.exe" Name="lung_model.exe" Source="C:\src\bshouty_lung_model\release\bshouty_model.exe" DiskId="1" KeyPath="yes" />
+              <ProgId Id="modelext">
+                <Extension Id="lungmodel">
+                  <Verb Id="open" Target="[INSTALLLOCATION]lung_model.exe" Argument="%1"/>
+                </Extension>
+              </ProgId>
+
+              <!-- Shortcut in the program menu folder -->
+              <Shortcut Id="LungModel_shortcut"
+                        Directory="ProgramMenuFolder"
+                        Name="Bshouty Lung Model"
+                        WorkingDirectory="INSTALLDIR"
+                        Advertise="yes" />
+              <Shortcut Id="LungModelDesktop_shortcut"
+                        Directory="DesktopFolder"
+                        Name="Bshouty Lung Model"
+                        WorkingDirectory="INSTALLDIR"
+                        Advertise="yes" />
+            </Component> 
+            <!-- Core Qt componenets and drivers -->
+            <Component Id="Qt" Guid="{7DFF0031-58D2-4C9E-B508-D85EADBEE111}" DiskId="1" Win64="yes">
+              <File Id="QtCore4" Name="QtCore4.dll" Source="C:\src\qt\4.8\bin\QtCore4.dll" />
+              <File Id="QtSql4" Name="QtSql4.dll" Source="C:\src\qt\4.8\bin\QtSql4.dll" />
+              <File Id="QtGUI4" Name="QtGUI4.dll" Source="C:\src\qt\4.8\bin\QtGUI4.dll" />
+              <File Id="QtScript4" Name="QtScript4.dll" Source="C:\src\qt\4.8\bin\QtScript4.dll" />
+            </Component>
+            <Directory Id="imageformats" Name="imageformats">
+              <Component Id="QtImgPlugins" Guid="{09B9D793-58FB-4C6C-BA73-A63A5E2F4158}" DiskId="1" Win64="yes">
+                <File Id="qgif" Name="qgif4.dll" Source="C:\src\qt\4.8\plugins\imageformats\qgif4.dll" />
+                <File Id="qjpeg" Name="qjpeg4.dll" Source="C:\src\qt\4.8\plugins\imageformats\qjpeg4.dll" />
+                <File Id="qmng" Name="qmng4.dll" Source="C:\src\qt\4.8\plugins\imageformats\qmng4.dll" />
+              </Component>
+            </Directory>
+          <Directory Id="sqldrivers" Name="sqldrivers">
+            <Component Id="QtSqlPlugins" Guid="{8944DA48-3338-46D1-A102-61A2EEFEA054}" DiskId="1" Win64="yes">
+              <File Id="qsqlite" Name="qsqlite4.dll" Source="C:\src\qt\4.8\plugins\sqldrivers\qsqlite4.dll" />
+            </Component>
+          </Directory>
+          <Directory Id="data" Name="data">
+            <Component Id="data" Guid="{5CD8BE8B-C4C0-4EBF-89C0-3B3609316E3D}" DiskId="1" Win64="yes">
+              <File Id='data1' Name='area_calculation.html' Source='C:\src\bshouty_lung_model\data\area_calculation.html' />
+              <File Id='data2' Name='fullmodel.html' Source='C:\src\bshouty_lung_model\data\fullmodel.html' />
+              <File Id='data3' Name='full_ph.html' Source='C:\src\bshouty_lung_model\data\full_ph.html' />
+              <File Id='data4' Name='generations.html' Source='C:\src\bshouty_lung_model\data\generations.html' />
+              <File Id='data5' Name='intro_html_13c734df.gif' Source='C:\src\bshouty_lung_model\data\intro_html_13c734df.gif' />
+              <File Id='data6' Name='intro_html_1b980c0b.gif' Source='C:\src\bshouty_lung_model\data\intro_html_1b980c0b.gif' />
+              <File Id='data7' Name='intro_html_1b980c0b.png' Source='C:\src\bshouty_lung_model\data\intro_html_1b980c0b.png' />
+              <File Id='data8' Name='intro_html_40bd0578.gif' Source='C:\src\bshouty_lung_model\data\intro_html_40bd0578.gif' />
+              <File Id='data9' Name='intro_html_570bec6a.gif' Source='C:\src\bshouty_lung_model\data\intro_html_570bec6a.gif' />
+              <File Id='data10' Name='intro_html_665dfb7.gif' Source='C:\src\bshouty_lung_model\data\intro_html_665dfb7.gif' />
+              <File Id='data11' Name='intro_html_67865f18.gif' Source='C:\src\bshouty_lung_model\data\intro_html_67865f18.gif' />
+              <File Id='data12' Name='intro_html_6866f664.gif' Source='C:\src\bshouty_lung_model\data\intro_html_6866f664.gif' />
+              <File Id='data13' Name='intro_html_m40e0cf90.gif' Source='C:\src\bshouty_lung_model\data\intro_html_m40e0cf90.gif' />
+              <File Id='data14' Name='intro_html_m4332175d.gif' Source='C:\src\bshouty_lung_model\data\intro_html_m4332175d.gif' />
+              <File Id='data15' Name='intro_html_m43d551ef.gif' Source='C:\src\bshouty_lung_model\data\intro_html_m43d551ef.gif' />
+              <File Id='data16' Name='intro_html_m62f8c102.gif' Source='C:\src\bshouty_lung_model\data\intro_html_m62f8c102.gif' />
+              <File Id='data17' Name='intro_html_m63a755c6.gif' Source='C:\src\bshouty_lung_model\data\intro_html_m63a755c6.gif' />
+              <File Id='data18' Name='intro_html_m6daf8b73.gif' Source='C:\src\bshouty_lung_model\data\intro_html_m6daf8b73.gif' />
+              <File Id='data19' Name='Overview.html' Source='C:\src\bshouty_lung_model\data\Overview.html' />
+              <File Id='data20' Name='pap_calculation.html' Source='C:\src\bshouty_lung_model\data\pap_calculation.html' />
+              <File Id='data21' Name='papm_compromise.html' Source='C:\src\bshouty_lung_model\data\papm_compromise.html' />
+              <File Id='data22' Name='ph.html' Source='C:\src\bshouty_lung_model\data\ph.html' />
+              <File Id='data23' Name='wizard_intro.html' Source='C:\src\bshouty_lung_model\data\wizard_intro.html' />
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>
+      
+      <Directory Id="ProgramMenuFolder" Name="PMFolder" />
+      <Directory Id="DesktopFolder" Name="Desktop" />
+
+      <Merge Id="MSVC90" DiskId="1" Language="1033" SourceFile="C:\Program Files (x86)\Common Files\Merge Modules\Microsoft_VC90_CRT_x86_x64.msm" FileCompression="yes" />
+    </Directory>
+
+
+    <Feature Id="LungModelApp" Title="Bshouty Lung Model" Level="1" InstallDefault="local"  TypicalDefault="install">
+      
+      <!-- Install the runtime the "correct" way (so it works in installer) on different version -->
+      <ComponentRef Id="LungModel" />
+      <ComponentRef Id="Qt" />
+      <ComponentRef Id="QtImgPlugins" />
+      <ComponentRef Id="QtSqlPlugins"/>
+      <ComponentRef Id="data"/>
+      <MergeRef Id="MSVC90" />
+    </Feature>
+
+  </Product>
+</Wix>

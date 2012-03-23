@@ -1,0 +1,9 @@
+
+
+Build Prerequisites
+-------------------
+  + Qt 4.8.0 or later
+  + OpenCL headers
+  + SQLite (including Qt plugin)
+
+OpenCL is not required for runtime operation.

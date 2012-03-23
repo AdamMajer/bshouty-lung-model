@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+out = []
+
+STDOUT.write "static const char sample_function_js[] = { \n\t"
+i = 0;
+STDIN.each_byte{ |char|
+	i = i+1
+	if i>8 then
+		i = 0
+		STDOUT.write "\n\t"
+	end
+	STDOUT.write "'\\x#{char.to_s(16)}', "
+}
+
+puts " '\\0' };"
+
