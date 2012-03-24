@@ -19,6 +19,7 @@
 
 #include <QLineEdit>
 
+extern const char range_property[];
 
 class ClickableLineEdit : public QLineEdit
 {
@@ -32,6 +33,9 @@ protected:
 	virtual void contextMenuEvent(QContextMenuEvent *);
 	virtual void focusInEvent(QFocusEvent *);
 	virtual void focusOutEvent(QFocusEvent *);
+
+protected slots:
+	void setRange();
 
 signals:
 	void focusChange(bool in_focus);

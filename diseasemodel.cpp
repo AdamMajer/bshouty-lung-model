@@ -21,6 +21,8 @@
 #include "diseasemodel.h"
 #include <algorithm>
 #include <stdexcept>
+#include <QSqlError>
+#include <QSqlQuery>
 
 #define HEADER_ID 0xFFFF
 
@@ -50,9 +52,20 @@ DiseaseModel::DiseaseModel(DiseaseList &diseases, QObject *parent)
         : QAbstractItemModel(parent)
 {
 	disease_list.reserve(diseases.size());
+	disease_param_ranges.reserve(diseases.size());
 
-	for(DiseaseList::const_iterator i=diseases.begin(); i!=diseases.end(); ++i)
+	for(DiseaseList::const_iterator i=diseases.begin(); i!=diseases.end(); ++i) {
 		disease_list.push_back(*i);
+
+		const int n_params = i->paramCount();
+		std::vector<Range> params;
+		params.reserve(n_params);
+
+		for (int param_no=0; param_no<n_params; ++param_no)
+			params.push_back(Range(QString::number(i->parameterValue(param_no), 'f')));
+
+		disease_param_ranges.push_back(params);
+	}
 }
 
 DiseaseModel::~DiseaseModel()
@@ -101,8 +114,7 @@ QVariant DiseaseModel::data(const QModelIndex &index, int role) const
 	case Qt::BackgroundRole:
 		if (diseaseParamNo(index.internalId()) == HEADER_ID)
 			return QBrush(QColor(0xa0, 0xa0, 0xff));
-		if (disease_index.row() == index.row() &&
-		    disease_index.internalId() == index.internalId())
+		if (disease_index.internalId() == index.internalId())
 			return QBrush(QColor(0xff, 0xff, 0xa0));
 		break;
 	case Qt::DisplayRole:
@@ -120,8 +132,7 @@ QVariant DiseaseModel::data(const QModelIndex &index, int role) const
 
 			if (index.column() == 0)
 				return d.parameterName(param_no);
-			else
-				return d.parameterValue(param_no);
+			return disease_param_ranges.at(disease_no).at(param_no).toString();
 		}
 		break;
 	}
@@ -149,11 +160,16 @@ bool DiseaseModel::setData(const QModelIndex &index, const QVariant &value, int 
 		QAbstractItemModel::setData(index, value, role);
 
 	switch (role) {
-	case Qt::EditRole:
-		disease_list[index.parent().row()].setParameter(index.row(), value.toDouble());
+	case Qt::EditRole: {
+		const int disease_no = diseaseNo(index.internalId());
+		const int param_no = diseaseParamNo(index.internalId());
+		Range range(value.toString());
+		disease_list[disease_no].setParameter(index.row(), range.firstValue());
+		disease_param_ranges[disease_no][param_no] = range;
 		emit dataChanged(index, index);
 		return true;
-	}
+	} // Qt::EditRole
+	} // switch
 
 	return false;
 }
@@ -192,6 +208,14 @@ void DiseaseModel::addDisease(const Disease &d)
 
 	beginInsertRows(root_node, size, size);
 	disease_list.push_back(d);
+
+	const int param_count = d.paramCount();
+	std::vector<Range> params;
+	params.reserve(param_count);
+	for (int i=0; i<param_count; ++i)
+		params.push_back(Range(QString::number(d.parameterValue(i), 'f')));
+
+	disease_param_ranges.push_back(params);
 	endInsertRows();
 
 	emit diseaseAdded(index(size, 0, root_node));
@@ -208,6 +232,7 @@ void DiseaseModel::removeDisease(const Disease &d)
 		if (disease_list[row].id()== d.id()) {
 			beginRemoveRows(root_node, row, row);
 			disease_list.erase(disease_list.begin() + row);
+			disease_param_ranges.erase(disease_param_ranges.begin() + row);
 
 			if (disease_index.isValid()) {
 				int dis_no = diseaseNo(disease_index.internalId());
@@ -234,6 +259,7 @@ void DiseaseModel::clear()
 	beginResetModel();
 	disease_list.clear();
 	disease_index = QModelIndex();
+	disease_param_ranges.clear();
 	endResetModel();
 }
 
@@ -249,12 +275,36 @@ DiseaseList DiseaseModel::diseases() const
 	return ret;
 }
 
+std::vector<std::vector<Range> > DiseaseModel::diseaseParamRanges() const
+{
+	return disease_param_ranges;
+}
+
 void DiseaseModel::setDiseases(const DiseaseList &list)
+{
+	beginResetModel();
+	disease_list.clear();
+	disease_param_ranges.clear();
+	for (DiseaseList::const_iterator i=list.begin(); i!=list.end(); ++i) {
+		disease_list.push_back(*i);
+
+		std::vector<Range> param_ranges;
+		const int param_count = i->paramCount();
+		for (int param_no=0; param_no<param_count; ++param_no)
+			param_ranges.push_back(Range(QString::number(i->parameterValue(param_no), 'f')));
+		disease_param_ranges.push_back(param_ranges);
+	}
+	disease_index = QModelIndex();
+	endResetModel();
+}
+
+void DiseaseModel::setDiseases(const DiseaseList &list, std::vector<std::vector<Range> >param_ranges)
 {
 	beginResetModel();
 	disease_list.clear();
 	for (DiseaseList::const_iterator i=list.begin(); i!=list.end(); ++i)
 		disease_list.push_back(*i);
+	disease_param_ranges = param_ranges;
 	disease_index = QModelIndex();
 	endResetModel();
 }
@@ -289,6 +339,62 @@ void DiseaseModel::setSlewParameter(const Disease &d, int param_no)
 	setCompromiseModelSlewParameter(index(param_no, 0, index(disease_no, 0, root_node)));
 }
 
+void DiseaseModel::load(QSqlDatabase db)
+{
+	QSqlQuery query(db);
+	query.exec("SELECT version FROM disease_model_version");
+
+	if (!query.next())
+		throw std::runtime_error("Corrupted database file - cannot read");
+
+	const int version = query.value(0).toInt();
+	switch (version) {
+	case 1:
+		loadVersion1Db(db);
+		break;
+	default:
+		throw std::runtime_error("Invalid database file - cannot read");
+	}
+}
+
+void DiseaseModel::save(QSqlDatabase db) const
+{
+	initDb(db);
+
+	// Save diseases and its parameters
+	db.exec("DELETE FROM disease_model_params");
+	db.exec("DELETE FROM disease_model");
+
+	const int disease_count = disease_list.size();
+	QSqlQuery param_query(db), disease_query(db);
+	param_query.prepare("INSERT INTO disease_model_params "
+	                    "(disease_id, param_no, selected_param, param_range) "
+	                    "VALUES (?,?,?,?)");
+	disease_query.prepare("INSERT INTO disease_model (disease_id, disease_script) VALUES (?,?)");
+
+	for (int disease_no=0; disease_no<disease_count; ++disease_no) {
+		const std::vector<Range> &param_ranges = disease_param_ranges.at(disease_no);
+		const int param_count = param_ranges.size();
+
+		disease_query.addBindValue(disease_no);
+		disease_query.addBindValue(disease_list.at(disease_no).script());
+		if (!disease_query.exec())
+			throw std::runtime_error(disease_query.lastError().text().toUtf8().constData());
+
+		for (int param_no=0; param_no<param_count; ++param_no) {
+			const bool is_slew_param = diseaseId(disease_no, param_no) == disease_index.internalId();
+
+			param_query.addBindValue(disease_no);
+			param_query.addBindValue(param_no);
+			param_query.addBindValue(is_slew_param);
+			param_query.addBindValue(param_ranges.at(param_no).toString());
+			if (!param_query.exec())
+				throw std::runtime_error(param_query.lastError().text().toUtf8().constData());
+		}
+	}
+
+}
+
 void DiseaseModel::setCompromiseModelSlewParameter(const QModelIndex &idx)
 {
 	if (idx.column() != 0 || diseaseParamNo(idx.internalId()) == HEADER_ID)
@@ -303,4 +409,79 @@ void DiseaseModel::setCompromiseModelSlewParameter(const QModelIndex &idx)
 		emit dataChanged(old_disease_index,
 		                 index(old_disease_index.row(), 1, old_disease_index.parent()));
 	emit dataChanged(idx, index(idx.row(), 1, idx.parent()));
+}
+
+void DiseaseModel::initDb(QSqlDatabase db) const
+{
+	const int cur_version = 1;
+	QStringList db_sql[cur_version] =
+	{
+	        QStringList() <<
+	        "CREATE TABLE disease_model_params (disease_id INTEGER NOT NULL, "
+	             "param_no INTEGER NOT NULL, selected_param INTEGER NOT NULL, "
+	             "param_range NOT NULL)" <<
+	        "CREATE TABLE disease_model (disease_id INTEGER NOT NULL, disease_script NOT NULL)" <<
+	        "CREATE TABLE disease_model_version (version INTEGER NOT NULL)" <<
+	        "INSERT INTO disease_model_version VALUES(1)"
+	};
+
+	QSqlQuery q = db.exec("SELECT version FROM disease_model_version");
+	int ver = 0;
+	if (q.next())
+		ver = q.value(0).toInt();
+
+	while (ver < cur_version) {
+		foreach (QString query, db_sql[ver]) {
+			db.exec(query);
+
+			if (db.lastError().type() != QSqlError::NoError)
+				throw std::runtime_error(db.lastError().text().toUtf8().constData());
+		}
+
+		ver++;
+	}
+}
+
+void DiseaseModel::loadVersion1Db(QSqlDatabase db)
+{
+	beginResetModel();
+	disease_list.clear();
+	disease_param_ranges.clear();
+	disease_index = QModelIndex();
+
+	QSqlQuery disease_query(db), param_query(db);
+	if (!disease_query.exec("SELECT disease_id, disease_script FROM disease_model ORDER BY disease_id ASC"))
+		throw std::runtime_error(disease_query.lastError().text().toUtf8().constData());
+	param_query.prepare("SELECT selected_param, param_range FROM disease_model_params WHERE disease_id=? ORDER BY param_no ASC");
+
+	while (disease_query.next()) {
+		const int disease_id = disease_query.value(0).toInt();
+		Disease disease(disease_query.value(1).toString());
+		std::vector<Range> params;
+
+		param_query.addBindValue(disease_id);
+		if (!param_query.exec())
+			throw std::runtime_error(disease_query.lastError().text().toUtf8().constData());
+
+		while(param_query.next()) {
+			if (params.size() >= (size_t)disease.paramCount())
+				throw std::runtime_error("Too many disease parameters. Modified database.");
+
+			Range r(param_query.value(1).toString());
+			if (!r.isValid())
+				throw std::runtime_error("Invalid parameter range in saved DB");
+
+			if (param_query.value(0).toBool())
+				disease_index = createIndex(params.size(), 0, diseaseId(disease_id, params.size()));
+			params.push_back(r);
+		}
+
+		if (params.size() != (size_t)disease.paramCount())
+			throw std::runtime_error("Number of disease parameters too small in saved file");
+
+		disease_list.push_back(disease);
+		disease_param_ranges.push_back(params);
+	}
+
+	endResetModel();
 }

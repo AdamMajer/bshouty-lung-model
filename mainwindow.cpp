@@ -30,7 +30,6 @@
 #include "model/compromisemodel.h"
 #include "opencldlg.h"
 #include "opencl.h"
-#include "rangestepdlg.h"
 #include "wizard.h"
 
 #include <QActionGroup>
@@ -54,7 +53,6 @@
 #endif
 #include <errno.h>
 
-static const char range_property[] = "range";
 static const QLatin1String db_name("modeldb");
 
 
@@ -142,29 +140,6 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->CO->setProperty(range_property, "0 to 25;0.1");
 	ui->PAPm->setProperty(range_property, "0 to 120;0.1");
 
-	// range actions for edit controls
-	QList<QLineEdit*> editors;
-
-	editors << ui->patHt << ui->patWt << ui->lungHt << ui->MV << ui->CL
-	        << ui->Pal << ui->Ppl << ui->LAP << ui->CO << ui->PAPm;
-	foreach (QLineEdit *e, editors) {
-		QList<QAction*> a_list;
-
-		QAction *ac = new QAction("&Set Range", e);
-		connect(ac, SIGNAL(triggered()), SLOT(editRangeControl()));
-		a_list << ac;
-
-		ac = new QAction(e);
-		ac->setSeparator(true);
-		a_list << ac;
-
-		QList<QAction*> curr_actions = e->actions();
-		if (curr_actions.isEmpty())
-			e->insertActions(0, a_list);
-		else
-			e->insertActions(curr_actions.first(), a_list);
-	}
-
 	// on_actionModelWizard_triggered();
 	ui->diseaseView->hide();
 	ui->diseaseViewLabel->hide();
@@ -235,17 +210,25 @@ void MainWindow::load(const QString &filename)
 		QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", db_name);
 		db.setDatabaseName(filename);
 
-		if (db.open() && baseline->load(db, 0, &dlg)) {
-			if (!model->load(db, 1, &dlg))
-				*model = *baseline;
-			save_filename = filename;
-			setupNewModelScene();
-			updateInputsOutputs();
-			updateTitleFilename();
+		try {
+			// TODO: move to exception based error detection only
+			if (db.open() && baseline->load(db, 0, &dlg)) {
+				if (!model->load(db, 1, &dlg))
+					*model = *baseline;
+				save_filename = filename;
+				setupNewModelScene();
+				updateInputsOutputs();
+				disease_model->load(db);
+				updateTitleFilename();
+			}
+			else
+				throw std::runtime_error("Cannot load file");
 		}
-		else
+		catch (std::runtime_error error) {
+			qDebug() << error.what();
 			QMessageBox::critical(this, "Error loading file",
 			                      QString("An error occured trying to load \n%1.").arg(filename));
+		}
 
 		db.close();
 	}
@@ -284,16 +267,25 @@ void MainWindow::save(const QString &filename)
 		// in block so we are certain to destroy the `db` object prior to DB removal
 		QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", db_name);
 		db.setDatabaseName(fn);
-		if (db.open() &&
-		    baseline->save(db, 0, &dlg) &&
-		    model->save(db, 1, &dlg)) {
-			save_filename = fn;
+		try {
+			// TODO: move to exception based error detection only
+			if (db.open() &&
+			                baseline->save(db, 0, &dlg) &&
+			                model->save(db, 1, &dlg)) {
+				disease_model->save(db);
+				save_filename = fn;
+			}
+			else
+				save_error = true;
 		}
-		else {
-			QMessageBox::critical(this, "Error saving file",
-			                      QString("An error occurred trying to save to \n%1").arg(fn));
+		catch (std::runtime_error error) {
+			qDebug() << error.what();
 			save_error = true;
 		}
+
+		if (save_error)
+			QMessageBox::critical(this, "Error saving file",
+			                      QString("An error occurred trying to save to \n%1").arg(fn));
 
 		db.close();
 	}
@@ -361,6 +353,20 @@ void MainWindow::updateResults()
 	}
 
 	DiseaseList diseases = disease_model->diseases();
+	const std::vector<std::vector<Range> > disease_param_ranges = disease_model->diseaseParamRanges();
+	for (int disease_no=0; disease_no<disease_param_ranges.size(); ++disease_no) {
+		const std::vector<Range> &param_ranges = disease_param_ranges.at(disease_no);
+
+		for (int param_no=0; param_no<param_ranges.size(); ++param_no) {
+			Range range = param_ranges.at(param_no);
+
+			if (range.sequenceCount() > 0) {
+				Model::DataType type = Model::diseaseHybridType(disease_no, param_no);
+				data_ranges.push_back(QPair<Model::DataType, Range>(type, range));
+			}
+		}
+	}
+
 	baseline->clearDiseases();
 	for (DiseaseList::const_iterator i=diseases.begin(); i!=diseases.end(); ++i)
 		baseline->addDisease(*i);
@@ -437,7 +443,7 @@ void MainWindow::on_actionModelWizard_triggered()
 		}
 
 	for (DiseaseList::const_iterator i=diseases.begin(); i!=diseases.end(); ++i)
-		if (i->id() == -1) {
+		if (i->id() == -3) {
 			pvod_pah_disease.push_back(*i);
 			break;
 		}
@@ -953,26 +959,6 @@ void MainWindow::calculationCompleted()
 
 	connect(mres, SIGNAL(finished(int)), SLOT(multiModelWindowClosed()));
 	connect(mres, SIGNAL(doubleClicked(Model*)), SLOT(modelSelected(Model*)));
-}
-
-void MainWindow::editRangeControl()
-{
-	ClickableLineEdit *edit = qobject_cast<ClickableLineEdit*>(sender());
-	QAction *ac = qobject_cast<QAction*>(sender());
-	if (ac != 0 && edit == 0)
-		edit = qobject_cast<ClickableLineEdit*>(ac->parent());
-	if (edit == 0)
-		return;
-
-	Range range(edit->property(range_property).toString());
-	RangeStepDlg dlg(range, this);
-	dlg.setRange(Range(edit->text()));
-
-	if (dlg.exec() == QDialog::Accepted) {
-		range = dlg.range();
-		edit->setText(range.toString());
-		edit->setReadOnly(range.sequence().size() > 1);
-	}
 }
 
 void MainWindow::modelSelected(Model *new_model)

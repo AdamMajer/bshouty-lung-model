@@ -91,7 +91,7 @@ QString MultiModelOutput::toCSV(QChar sep) const
 	lines << line.join(QString(sep));
 	line.clear();
 
-	// values8
+	// values
 	for (int row=0; row<ui->tableWidget->rowCount(); ++row) {
 		for(int col=0; col<ui->tableWidget->columnCount(); ++col)
 			line << quote + ui->tableWidget->item(row, col)->text() + quote;
@@ -196,9 +196,10 @@ void MultiModelOutput::updateView()
 		case Model::CO_value:
 			labels << QLatin1String("CO");
 			break;
+		case Model::DiseaseParam:
+			break;
 		}
 	}
-
 	ui->tableWidget->setHorizontalHeaderLabels(labels);
 
 	int row = 0;
@@ -248,14 +249,38 @@ void MultiModelOutput::updateView()
 
 	for (QList<QPair<Model::DataType,QString> >::const_iterator i=types.begin(); i!=types.end(); ++i) {
 		QList<double> values;
+		values.reserve(models.count());
+
 		foreach (Model *model, models)
 			values.append(model->getResult(i->first));
 
-		insertValue(i->second, i->first, values);
+		insertValue(i->second, values);
+	}
+
+
+	// Add disease parameters
+	const DiseaseList diseases = models.first()->diseases();
+	const int n_disesases = diseases.size();
+	for (int disease_no=0; disease_no<n_disesases; ++disease_no) {
+		const Disease &d = diseases.at(disease_no);
+		const QString disease_name = d.name();
+		const int n_params = d.paramCount();
+
+		for (int param_no=0; param_no<n_params; ++param_no) {
+			const QString param_name = d.parameterName(param_no);
+			const QString label = disease_name + "." + param_name;
+			QList<double> values;
+
+			values.reserve(models.size());
+			foreach (Model *m, models)
+				values.push_back(m->diseases().at(disease_no).parameterValue(param_no));
+
+			insertValue(label, values);
+		}
 	}
 }
 
-void MultiModelOutput::insertValue(QString header, Model::DataType type, QList<double> values)
+void MultiModelOutput::insertValue(QString header, QList<double> values)
 {
 	/* insert value either at row 3 of modelData or column 1 of tableWidget,
 	 * depending on spread of values

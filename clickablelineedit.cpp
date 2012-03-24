@@ -20,7 +20,9 @@
 #include "clickablelineedit.h"
 #include <QContextMenuEvent>
 #include <QMenu>
+#include "rangestepdlg.h"
 
+const char range_property[] = "range";
 
 ClickableLineEdit::ClickableLineEdit(QWidget *parent)
         : QLineEdit(parent)
@@ -38,9 +40,11 @@ void ClickableLineEdit::contextMenuEvent(QContextMenuEvent *e)
 {
 	QMenu *menu = createStandardContextMenu();
 	QList<QAction*> ac = menu->actions();
-	ac = actions() + ac;
+	// ac = actions() + ac;
+	QAction *range_ac = menu->addAction("&Set Range", this, SLOT(setRange()));
 	menu->addActions(ac);
-	menu->setDefaultAction(ac.first());
+	menu->setDefaultAction(range_ac);
+	range_ac->setDisabled(property(range_property).isNull());
 	menu->popup(mapToGlobal(e->pos()));
 }
 
@@ -54,4 +58,17 @@ void ClickableLineEdit::focusOutEvent(QFocusEvent *e)
 {
 	emit focusChange(false);
 	QLineEdit::focusOutEvent(e);
+}
+
+void ClickableLineEdit::setRange()
+{
+	Range range(property(range_property).toString());
+	RangeStepDlg dlg(range, this);
+	dlg.setRange(Range(text()));
+
+	if (dlg.exec() == QDialog::Accepted) {
+		range = dlg.range();
+		setText(range.toString());
+		setReadOnly(range.sequence().size() > 1);
+	}
 }

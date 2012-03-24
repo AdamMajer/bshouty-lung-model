@@ -103,7 +103,6 @@ protected:
 
 protected slots:
 	void calculationCompleted();
-	void editRangeControl();
 	void modelSelected(Model *model);
 	void multiModelWindowClosed();
 

@@ -49,19 +49,29 @@ public:
 	void clear(); // remove all diseases
 
 	DiseaseList diseases() const;
+	std::vector<std::vector<Range> > diseaseParamRanges() const;
 	void setDiseases(const DiseaseList &list);
+	void setDiseases(const DiseaseList &list, std::vector<std::vector<Range> > param_ranges);
 
 	// slew parameter for compromise model
 	bool hasSlewParameter() const { return disease_index.isValid(); }
 	Disease slewParameter(int &param_no) const;
 	void setSlewParameter(const Disease &, int param_no);
 
+	void load(QSqlDatabase db);
+	void save(QSqlDatabase db) const;
+
 public slots:
 	/* called when user double clicks on a disease parameter in disease_view */
 	void setCompromiseModelSlewParameter(const QModelIndex &index);
 
+protected:
+	void initDb(QSqlDatabase db) const;
+	void loadVersion1Db(QSqlDatabase db);
+
 private:
 	std::vector<Disease> disease_list;
+	std::vector<std::vector<Range> > disease_param_ranges;
 	QModelIndex root_node, disease_index;
 
 signals:

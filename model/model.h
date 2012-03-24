@@ -72,12 +72,16 @@ class Model {
 	friend class AbstractIntegrationHelper;
 
 public:
+	/* DiseaseParam indicates that high-dword (16-bits of the integer)
+	 * indicate Disease index in the disease list and its parameter number.
+	 */
 	enum DataType { Lung_Ht_value, Flow_value, LAP_value, Pal_value, Ppl_value,
 	                Ptp_value, PAP_value, Rus_value, Rds_value, Rm_value,
 	                Rt_value, PciA_value, PcoA_value, Tlrns_value, MV_value, CL_value,
 	                Pat_Ht_value, Pat_Wt_value,
 	                TotalR_value,
-	                CO_value = Flow_value
+	                CO_value = Flow_value,
+	                DiseaseParam = 0xFFFF
 	};
 
 	enum Transducer { Top, Middle, Bottom };
@@ -166,9 +170,15 @@ public:
 	void setAbort();
 	bool isAbort() const { return abort_calculation; }
 
-	void addDisease(const Disease &);
+	int addDisease(const Disease &); // returns disease index
 	void clearDiseases();
 	const DiseaseList& diseases() const { return dis; }
+
+	const Disease& disease(DataType hybrid_type) const;
+	static int diseaseNo(DataType hybrid_type);
+	static int diseaseParamNo(DataType hybrid_type);
+	DataType diseaseHybridType(const Disease &disease, int param_no) const;
+	static DataType diseaseHybridType(int disease_no, int param_no);
 
 	// threadsafe
 	virtual int progress() const { return prog; }

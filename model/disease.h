@@ -35,7 +35,7 @@ class Disease;
 class Model;
 struct Vessel;
 struct Parameter;
-typedef std::list<Disease> DiseaseList;
+typedef QList<Disease> DiseaseList;
 
 struct Parameter {
 	QString name, desc;

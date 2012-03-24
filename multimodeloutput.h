@@ -42,7 +42,7 @@ public slots:
 
 protected:
 	void updateView();
-	void insertValue(QString header, Model::DataType type, QList<double> values);
+	void insertValue(QString header, QList<double> values);
 
 protected slots:
 	void itemDoubleClicked(int row);

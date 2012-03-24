@@ -18,13 +18,19 @@
  */
 
 #include <QDoubleSpinBox>
+#include <QItemEditorCreatorBase>
+#include "clickablelineedit.h"
 #include "diseasemodel.h"
 #include "diseaseparamdelegate.h"
 
 DiseaseParamDelegate::DiseaseParamDelegate(QObject *parent)
         : QStyledItemDelegate(parent)
 {
-
+	QItemEditorFactory *f = new QItemEditorFactory();
+	QItemEditorCreatorBase *base_edit = new QStandardItemEditorCreator<ClickableLineEdit>();
+	f->registerEditor(QVariant::Double, base_edit);
+	f->registerEditor(QVariant::String, base_edit);
+	setItemEditorFactory(f);
 }
 
 QWidget* DiseaseParamDelegate::createEditor(QWidget *parent,
@@ -32,6 +38,12 @@ QWidget* DiseaseParamDelegate::createEditor(QWidget *parent,
                                             const QModelIndex &index) const
 {
 	QWidget *editor = QStyledItemDelegate::createEditor(parent, option, index);
+
+	// set range property for Range control
+	Range range("0");
+	range.setMin(index.data(DiseaseModel::RangeMin).toDouble());
+	range.setMax(index.data(DiseaseModel::RangeMax).toDouble());
+	editor->setProperty(range_property, range.toString());
 
 	QDoubleSpinBox *spin_box = qobject_cast<QDoubleSpinBox*>(editor);
 	if (spin_box) {

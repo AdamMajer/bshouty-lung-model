@@ -347,7 +347,7 @@ void Model::setCapillary( int index, const Capillary & c )
 	modified_flag = true;
 }
 
-double Model::getResult( DataType type ) const
+double Model::getResult(DataType type) const
 {
 	switch( type ){
 	case Lung_Ht_value:
@@ -408,12 +408,23 @@ double Model::getResult( DataType type ) const
 		return PatWt;
 	case TotalR_value:
 		return arteries[0].total_R;
+	case DiseaseParam:
+		break;
+	}
+
+	// Handle special case of DiseaseParam
+	if ((type & DiseaseParam) == DiseaseParam) {
+		const int dis_no = diseaseNo(type);
+		const int param_no = diseaseParamNo(type);
+
+		if (dis_no < dis.size())
+			return dis.at(dis_no).parameterValue(param_no);
 	}
 
 	throw "Should never get here";
 }
 
-bool Model::setData( DataType type, double val )
+bool Model::setData(DataType type, double val)
 {
 	switch( type ){
 	case Lung_Ht_value:
@@ -504,6 +515,20 @@ bool Model::setData( DataType type, double val )
 			return true;
 		}
 		break;
+	case DiseaseParam:
+		break;
+	}
+
+	// Handle special case of DiseaseParam
+	if ((type & DiseaseParam) == DiseaseParam) {
+		const int dis_no = diseaseNo(type);
+		const int param_no = diseaseParamNo(type);
+
+		if (dis_no < dis.size()) {
+			dis[dis_no].setParameter(param_no, val);
+			return true;
+		}
+		return false;
 	}
 
 	return false;
@@ -577,14 +602,51 @@ void Model::setAbort()
 	abort_calculation = 1;
 }
 
-void Model::addDisease(const Disease &d)
+int Model::addDisease(const Disease &d)
 {
 	dis.push_back(d);
+	return dis.size()-1;
 }
 
 void Model::clearDiseases()
 {
 	dis.clear();
+}
+
+const Disease& Model::disease(DataType hybrid_type) const
+{
+	int n = diseaseNo(hybrid_type);
+	return dis.at(n);
+}
+
+int Model::diseaseNo(DataType hybrid_type)
+{
+	const unsigned int i = hybrid_type;
+	return (i >> 16) & 0xFF;
+}
+
+int Model::diseaseParamNo(DataType hybrid_type)
+{
+	const unsigned int i = hybrid_type;
+	return i >> 24;
+}
+
+Model::DataType Model::diseaseHybridType(const Disease &disease, int param_no) const
+{
+	int index = 0;
+	foreach (const Disease &d, dis) {
+		if (d.id() == disease.id())
+			return diseaseHybridType(index, param_no);
+
+		index++;
+	}
+
+	return DiseaseParam;
+}
+
+Model::DataType Model::diseaseHybridType(int disease_no, int param_no)
+{
+	return (Model::DataType)((param_no<<24) | (disease_no<<16) | DiseaseParam);
 }
 
 double Model::getKra() const
