@@ -921,6 +921,9 @@ void MainWindow::calculationCompleted()
 		                         "and recalculating.");
 	}
 
+	QApplication::beep();
+	activateWindow();
+
 	if (res.size() == 1) {
 		delete model;
 		model = res.first()->clone();
