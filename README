@@ -1,9 +1,36 @@
-
-
 Build Prerequisites
--------------------
+===================
+
   + Qt 4.8.0 or later
   + OpenCL headers
   + SQLite (including Qt plugin)
 
 OpenCL is not required for runtime operation.
+
+
+
+KNOWN ISSUES
+============
+
+Linux and OpenCL and nVidia and AMD
+-----------------------------------
+
+A segfault occurs on start of the program if the following conditions
+are met,
+
+  * OpenCL for AMD devices (CPU/GPU) is available
+  * nVidia OpenGL driver is on path
+
+The segfault looks like,
+
+../../../thread/semaphore.cpp:87: sem_wait() failed
+Aborted (core dumped)
+
+with bt indicating it happens in clCreateCommandQueue()
+
+
+To workaround this problem, set Mesa GL driver as preferred over
+nVidia just for lung model's execution. For example, on Debian AMD64
+install,
+
+LD_LIBRARY_PATH=/usr/lib/mesa-diverted/x86_64-linux-gnu:"$LD_LIBRARY_PATH" ./bshouty_model
