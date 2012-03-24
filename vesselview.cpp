@@ -120,7 +120,18 @@ void VesselView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 		double offset = draw_area.width()/3;
 		draw_area.adjust(0, 0, -offset*2, 0);
 		QFont font = painter->font();
+
+		// scale the font to allow a minimum of 18 lines of text to be displayed
 		double line_height = painter->fontMetrics().lineSpacing();
+		double scale_factor = draw_area.height() / (18.0 * line_height);
+
+		if (font.pointSizeF() < 0)
+			font.setPixelSize(font.pixelSize() * scale_factor);
+		else
+			font.setPointSizeF(font.pointSizeF() * scale_factor);
+		painter->setFont(font);
+		line_height = painter->fontMetrics().lineSpacing();
+
 		painter->drawText(draw_area.adjusted(offset, line_height, offset, 0),
 		                  baselineValuesText(lod));
 		painter->drawText(draw_area.adjusted(offset*2, line_height, offset*2, 0),
