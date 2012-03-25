@@ -114,7 +114,8 @@ QVariant DiseaseModel::data(const QModelIndex &index, int role) const
 	case Qt::BackgroundRole:
 		if (diseaseParamNo(index.internalId()) == HEADER_ID)
 			return QBrush(QColor(0xa0, 0xa0, 0xff));
-		if (disease_index.internalId() == index.internalId())
+		if (disease_index.isValid() &&
+		    disease_index.internalId() == index.internalId())
 			return QBrush(QColor(0xff, 0xff, 0xa0));
 		break;
 	case Qt::DisplayRole:
