@@ -42,7 +42,7 @@ public:
 	virtual int progress() const { return com_prog; }
 
 private:
-	DiseaseList::iterator slew_disease;
+	int slew_disease_idx;
 	double target_pap;
 	unsigned param_no;
 	QAtomicInt com_prog;

@@ -24,7 +24,7 @@ CompromiseModel::CompromiseModel(Model::Transducer trans, int n_generations)
         : Model(trans, n_generations)
 {
 	target_pap = 25;
-	slew_disease = dis.end();
+	slew_disease_idx = -1;
 	param_no = 0;
 }
 
@@ -33,15 +33,7 @@ CompromiseModel::CompromiseModel(const CompromiseModel &other)
 {
 	target_pap = other.target_pap;
 	param_no = other.param_no;
-
-	if (other.slew_disease == other.dis.end()) {
-		slew_disease = dis.end();
-	}
-	else {
-		for (slew_disease=dis.begin();
-		     slew_disease!=dis.end() && slew_disease->id() != other.slew_disease->id();
-		     slew_disease++);
-	}
+	slew_disease_idx = other.slew_disease_idx;
 }
 
 CompromiseModel& CompromiseModel::operator =(const Model &other)
@@ -51,14 +43,7 @@ CompromiseModel& CompromiseModel::operator =(const Model &other)
 		const CompromiseModel &o = dynamic_cast<const CompromiseModel&>(other);
 
 		target_pap = o.target_pap;
-		if (o.slew_disease == o.dis.end()) {
-			slew_disease = dis.end();
-		}
-		else {
-			for (slew_disease=dis.begin();
-			     slew_disease!=dis.end() && slew_disease->id() != o.slew_disease->id();
-			     slew_disease++);
-		}
+		slew_disease_idx = o.slew_disease_idx;
 		param_no = o.param_no;
 	}
 	catch(...) {
@@ -87,14 +72,14 @@ CompromiseModel* CompromiseModel::clone() const
 
 int CompromiseModel::calc(int max_iter)
 {
-	if (slew_disease == dis.end())
+	if (slew_disease_idx == -1 || slew_disease_idx>=dis.size())
 		return -1; // disease not specified
 
 	double param_value;
-	Range r = slew_disease->paramRange(param_no);
+	Range r = dis.at(slew_disease_idx).paramRange(param_no);
 	const double orig_range = r.max() - r.min();
 	CompromiseModel baseline(*this);
-	slew_disease->setParameter(param_no, r.min());
+	dis[slew_disease_idx].setParameter(param_no, r.min());
 	Model::calc();
 
 	com_prog = 0;
@@ -113,7 +98,7 @@ int CompromiseModel::calc(int max_iter)
 	param_value = r.min() + (r.max()-r.min())*(target_pap-new_pap)/target_pap;
 	while(i++ < max_iter && !isAbort()) {
 		static_cast<Model&>(*this) = baseline;
-		slew_disease->setParameter(param_no, param_value);
+		dis[slew_disease_idx].setParameter(param_no, param_value);
 		Model::calc();
 
 		new_pap = Model::getResult(Model::PAP_value);
@@ -140,8 +125,9 @@ int CompromiseModel::calc(int max_iter)
 
 void CompromiseModel::setCalculatedParameter(const Disease &d, int p)
 {
-	for (slew_disease=dis.begin(); slew_disease!=dis.end(); ++slew_disease) {
-		if (slew_disease->id() == d.id()) {
+	for (DiseaseList::const_iterator i=dis.begin(); i!=dis.end(); ++i) {
+		if (i->id() == d.id()) {
+			slew_disease_idx = i - dis.begin();
 			param_no = p;
 			return;
 		}
