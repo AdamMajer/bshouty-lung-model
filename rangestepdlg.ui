@@ -54,26 +54,6 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
-    <widget class="QLineEdit" name="min">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>5</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="3">
-    <widget class="QLineEdit" name="max">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>5</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
    <item row="7" column="1" colspan="3">
     <widget class="QSlider" name="maxSlider">
      <property name="orientation">
@@ -97,7 +77,7 @@
      </property>
     </spacer>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item row="2" column="0" colspan="4">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Sequence</string>
@@ -110,9 +90,6 @@
       <string>Step Size</string>
      </property>
     </widget>
-   </item>
-   <item row="2" column="4">
-    <widget class="QLineEdit" name="step"/>
    </item>
    <item row="6" column="1" colspan="3">
     <widget class="QSlider" name="minSlider">
@@ -142,8 +119,38 @@
      </property>
     </widget>
    </item>
+   <item row="5" column="1">
+    <widget class="QDoubleSpinBox" name="min">
+     <property name="singleStep">
+      <double>0.100000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="3">
+    <widget class="QDoubleSpinBox" name="max">
+     <property name="singleStep">
+      <double>0.100000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QDoubleSpinBox" name="step">
+     <property name="singleStep">
+      <double>0.100000000000000</double>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>step</tabstop>
+  <tabstop>stepSlider</tabstop>
+  <tabstop>min</tabstop>
+  <tabstop>max</tabstop>
+  <tabstop>minSlider</tabstop>
+  <tabstop>maxSlider</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -153,8 +160,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>214</x>
-     <y>215</y>
+     <x>223</x>
+     <y>272</y>
     </hint>
     <hint type="destinationlabel">
      <x>163</x>
@@ -169,8 +176,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>327</x>
-     <y>214</y>
+     <x>336</x>
+     <y>272</y>
     </hint>
     <hint type="destinationlabel">
      <x>349</x>

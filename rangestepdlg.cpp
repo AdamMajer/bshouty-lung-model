@@ -53,7 +53,16 @@ RangeStepDlg::~RangeStepDlg()
 
 void RangeStepDlg::setMaxRange(const Range &m)
 {
-	// set controls
+	// set control ranges
+	ui->min->setMinimum(m.min());
+	ui->min->setMaximum(m.max());
+
+	ui->max->setMinimum(m.min());
+	ui->max->setMaximum(m.max());
+
+	ui->step->setMinimum(m.step());
+	ui->step->setMaximum(20);
+
 	ui->minSlider->setMaximum(lrint(m.max()*100));
 	ui->minSlider->setMinimum(lrint(m.min()*100));
 	ui->maxSlider->setMaximum(lrint(m.max()*100));
@@ -117,9 +126,12 @@ void RangeStepDlg::updateCalculatedValues()
 	r.setMax(ui->maxSlider->value()/100.0);
 	r.setStep(ui->stepSlider->value()/100.0);
 
-	ui->min->setText(doubleToString(r.min()));
-	ui->max->setText(doubleToString(r.max()));
-	ui->step->setText(doubleToString(r.step()));
+	if (fabs(ui->min->value()-r.min()) > 1e-6)
+		ui->min->setValue(r.min());
+	if (fabs(ui->max->value()-r.max()) > 1e-6)
+		ui->max->setValue(r.max());
+	if (fabs(ui->step->value()-r.step()) > 1e-6)
+		ui->step->setValue(r.step());
 
 	// display calculated sequence
 	QList<double> seq = r.sequence();
@@ -135,4 +147,19 @@ void RangeStepDlg::updateCalculatedValues()
 	}
 
 	ui->sequence->setText(seq_values.join(", "));
+}
+
+void RangeStepDlg::on_min_valueChanged(double val)
+{
+	ui->minSlider->setValue(val*100);
+}
+
+void RangeStepDlg::on_max_valueChanged(double val)
+{
+	ui->maxSlider->setValue(val*100);
+}
+
+void RangeStepDlg::on_step_valueChanged(double val)
+{
+	ui->stepSlider->setValue(val*100);
 }

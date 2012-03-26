@@ -42,6 +42,10 @@ public slots:
 	void fixMaxSlider(int min_slider_value);
 	void updateCalculatedValues();
 
+	void on_min_valueChanged(double val);
+	void on_max_valueChanged(double val);
+	void on_step_valueChanged(double val);
+
 private:
 	Ui::RangeStepDlg *ui;
 	Range r;
