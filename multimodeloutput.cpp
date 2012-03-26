@@ -34,17 +34,6 @@ MultiModelOutput::MultiModelOutput(QWidget *parent)
 	connect(ui->tableWidget, SIGNAL(cellDoubleClicked(int,int)),
 	        SLOT(itemDoubleClicked(int)));
 
-	headers << Model::CO_value
-	        << Model::LAP_value
-	        << Model::Pal_value
-	        << Model::Ppl_value
-	        << Model::PAP_value
-	        << Model::TotalR_value
-	        << Model::Rus_value
-	        << Model::Rm_value
-	        << Model::Rds_value
-	        << Model::Rus_value;
-
 	ui->modelData->horizontalHeader()->hide();
 	ui->modelData->verticalHeader()->hide();
 
@@ -55,12 +44,6 @@ MultiModelOutput::MultiModelOutput(QWidget *parent)
 MultiModelOutput::~MultiModelOutput()
 {
 	delete ui;
-}
-
-void MultiModelOutput::setHeaders(QList<Model::DataType> hdrs)
-{
-	headers = hdrs;
-	updateView();
 }
 
 void MultiModelOutput::setModels(QList<Model *> data_models)
@@ -126,91 +109,10 @@ void MultiModelOutput::saveToFile()
 
 void MultiModelOutput::updateView()
 {
-	int n_cols = headers.size();
-
 	ui->tableWidget->clear();
-	ui->tableWidget->setColumnCount(n_cols);
 	ui->tableWidget->setRowCount(models.size());
-
-	QStringList labels;
-
 	if (models.size() < 1)
 		return;
-
-	foreach (Model::DataType data, headers) {
-		switch (data) {
-		case Model::Lung_Ht_value:
-			labels << QLatin1String("Lung Height");
-			break;
-		case Model::LAP_value:
-			labels << QLatin1String("LAP");
-			break;
-		case Model::Pal_value:
-			labels << QLatin1String("Pal");
-			break;
-		case Model::Ppl_value:
-			labels << QLatin1String("Ppl");
-			break;
-		case Model::Ptp_value:
-			labels << QLatin1String("Ptp");
-			break;
-		case Model::PAP_value:
-			labels << QLatin1String("PAP");
-			break;
-		case Model::Rus_value:
-			labels << QLatin1String("Rus");
-			break;
-		case Model::Rds_value:
-			labels << QLatin1String("Rds");
-			break;
-		case Model::Rm_value:
-			labels << QLatin1String("Rm");
-			break;
-		case Model::Rt_value:
-			labels << QLatin1String("Rt");
-			break;
-		case Model::PciA_value:
-			labels << QLatin1String("PciA");
-			break;
-		case Model::PcoA_value:
-			labels << QLatin1String("PcoA");
-			break;
-		case Model::Tlrns_value:
-			labels << QLatin1String("Tolarance");
-			break;
-		case Model::MV_value:
-			labels << QLatin1String("MV");
-			break;
-		case Model::CL_value:
-			labels << QLatin1String("CL");
-			break;
-		case Model::Pat_Ht_value:
-			labels << QLatin1String("Patient Height");
-			break;
-		case Model::Pat_Wt_value:
-			labels << QLatin1String("Patient Weight");
-			break;
-		case Model::TotalR_value:
-			labels << QLatin1String("Total R");
-			break;
-		case Model::CO_value:
-			labels << QLatin1String("CO");
-			break;
-		case Model::DiseaseParam:
-			break;
-		}
-	}
-	ui->tableWidget->setHorizontalHeaderLabels(labels);
-
-	int row = 0;
-	foreach (Model *model, models) {
-		for (int col=0; col<n_cols; ++col) {
-			QString value = doubleToString(model->getResult(headers[col]));
-			ui->tableWidget->setItem(row, col, new QTableWidgetItem(value));
-		}
-
-		++row;
-	}
 
 	// fill in static data - assume first model is has same information
 	// as the rest
@@ -241,6 +143,16 @@ void MultiModelOutput::updateView()
 	ui->modelData->setItem(2, 1, new QTableWidgetItem(doubleToString(m->getResult(Model::Tlrns_value))));
 
 	QList<QPair<Model::DataType,QString> > types = QList<QPair<Model::DataType,QString> >()
+	                << QPair<Model::DataType, QString>(Model::Rus_value, "Rus")
+	                << QPair<Model::DataType, QString>(Model::Rds_value, "Rds")
+	                << QPair<Model::DataType, QString>(Model::Rm_value, "Rm")
+	                << QPair<Model::DataType, QString>(Model::Rus_value, "Rus")
+	                << QPair<Model::DataType, QString>(Model::TotalR_value, "PVR")
+	                << QPair<Model::DataType, QString>(Model::PAP_value, "PAPm")
+	                << QPair<Model::DataType, QString>(Model::Ppl_value, "Ppl")
+	                << QPair<Model::DataType, QString>(Model::Pal_value, "Pal")
+	                << QPair<Model::DataType, QString>(Model::LAP_value, "LAP")
+	                << QPair<Model::DataType, QString>(Model::CO_value, "CO")
 	                << QPair<Model::DataType, QString>(Model::CL_value, "CL")
 	                << QPair<Model::DataType, QString>(Model::MV_value, "Vm")
 	                << QPair<Model::DataType, QString>(Model::Lung_Ht_value, "Lung Height")

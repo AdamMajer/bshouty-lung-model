@@ -32,7 +32,6 @@ public:
 	MultiModelOutput(QWidget *parent);
 	~MultiModelOutput();
 
-	void setHeaders(QList<Model::DataType> headers);
 	void setModels(QList<Model*> data_models);
 	QString toCSV(QChar sep = '\t') const;
 
@@ -48,7 +47,6 @@ protected slots:
 	void itemDoubleClicked(int row);
 
 private:
-	QList<Model::DataType> headers;
 	QList<Model*> models;
 
 	Ui::MultiModelOutput *ui;
