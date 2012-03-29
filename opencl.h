@@ -136,6 +136,9 @@ typedef struct _opencl_device
 	QByteArray        hash; // MD5 sum of name + device_type + pos in list (int)
 	bool              device_enabled;
 
+	struct CL_Vessel *cl_vessel; // 1024 vessels workspace
+	float *integration_workspace; // 1024 results workspace
+
 	_opencl_device() : hash(), device_enabled(true) {}
 } OpenCL_device;
 
@@ -161,7 +164,6 @@ struct CL_Vessel {
 	cl_float Kz;
 	cl_float pad[3]; // pad to 64 bytes
 };
-
 
 class opencl_exception : public std::runtime_error
 {

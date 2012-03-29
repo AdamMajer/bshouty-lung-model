@@ -36,27 +36,15 @@ struct WorkGroup {
 	        :n_elements(ne), kernel(k), vessels(v), uses_vein_pressures(b), vessel_idx(i) {}
 };
 
-static void* allocPageAligned(int bytes)
-{
-	char *ptr = (char*)malloc(bytes + 4096 + sizeof(void*));
-	void **p = (void**)((long)(ptr + 4096 + sizeof(void*)) & ~(4096L-1L));
-	*(p-1) = ptr;
-
-	return p;
-}
-
-static void freePageAligned(void *ptr)
-{
-	void **p = (void**)ptr;
-	free(*(p-1));
-}
-
-
 OpenCLIntegrationHelper::OpenCLIntegrationHelper(Model *model)
         : AbstractIntegrationHelper(model), n_devices(cl->nDevices())
 {
 	has_errors = false;
 	is_available = cl->isAvailable();
+	inside_vein_pressure = new float[nElements()];
+	if (inside_vein_pressure == 0)
+		throw std::bad_alloc();
+
 	if (!is_available)
 		return;
 
@@ -75,6 +63,12 @@ OpenCLIntegrationHelper::OpenCLIntegrationHelper(Model *model)
 	}
 }
 
+OpenCLIntegrationHelper::~OpenCLIntegrationHelper()
+{
+	if (inside_vein_pressure)
+		delete[] inside_vein_pressure;
+}
+
 double OpenCLIntegrationHelper::integrate()
 {
 
@@ -83,7 +77,6 @@ double OpenCLIntegrationHelper::integrate()
 	QFutureSynchronizer<float> futures;
 
 	n_elements = nElements();
-	inside_vein_pressure = new float[n_elements];
 	inside_vein_pressure[0] = LAP();
 	for (int i=1; i<n_elements; ++i)
 		inside_vein_pressure[i] = veins()[(i-1)/2].pressure;
@@ -103,7 +96,6 @@ double OpenCLIntegrationHelper::integrate()
 	foreach (const QFuture<float> &r, results)
 		ret = qMax(ret, r.result());
 
-	delete[] inside_vein_pressure;
 	return ret;
 }
 
@@ -111,8 +103,8 @@ float OpenCLIntegrationHelper::integrateByDevice(OpenCL_device &dev)
 {
 	const int n_outside_elements = nOutsideElements();
 
-	struct CL_Vessel *cl_vessel = (struct CL_Vessel*)allocPageAligned(sizeof(struct CL_Vessel) * 1024);
-	float *ret_values = (float*)allocPageAligned(sizeof(float)*1024);
+	struct CL_Vessel *cl_vessel = dev.cl_vessel;
+	float *ret_values = dev.integration_workspace;
 	float ret = 0.0;
 
 	/* Integrate all arteries, then integrate veins. Scheduling same code in the work
@@ -138,9 +130,6 @@ float OpenCLIntegrationHelper::integrateByDevice(OpenCL_device &dev)
 		qDebug() << "OpenCL ERROR: " << e.what();
 		has_errors = true;
 	}
-
-	freePageAligned(cl_vessel);
-	freePageAligned(ret_values);
 
 	return ret;
 }

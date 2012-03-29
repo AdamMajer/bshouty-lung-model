@@ -99,6 +99,9 @@ Model::Model(Transducer transducer_pos, int n_gen)
 	veins = new Vessel[ numVeins()];
 	caps = new Capillary[ numCapillaries()];
 
+	if (arteries == 0 || veins == 0 || caps == 0)
+		throw std::bad_alloc();
+
 	/* set to zero, mostly to prevent valgrind complaining */
 	memset(arteries, 0, numArteries()*sizeof(Vessel));
 	memset(veins, 0, numVeins()*sizeof(Vessel));
@@ -132,6 +135,9 @@ Model::Model(Transducer transducer_pos, int n_gen)
 		integration_helper = new OpenCLIntegrationHelper(this);
 	else
 		integration_helper = new CpuIntegrationHelper(this);
+
+	if (integration_helper == 0)
+		throw std::bad_alloc();
 
 
 	// Initial conditions
@@ -193,6 +199,9 @@ Model& Model::operator =(const Model &other)
 		arteries = new Vessel[numArteries()];
 		veins = new Vessel[numVeins()];
 		caps = new Capillary[numCapillaries()];
+
+		if (arteries == 0 || veins == 0 || caps == 0)
+			throw std::bad_alloc();
 	}
 
 	memcpy(arteries, other.arteries, numArteries()*sizeof(Vessel));
@@ -208,6 +217,9 @@ Model& Model::operator =(const Model &other)
 		integration_helper = new OpenCLIntegrationHelper(this);
 	else
 		integration_helper = new CpuIntegrationHelper(this);
+
+	if (integration_helper == 0)
+		throw std::bad_alloc();
 
 	return *this;
 }

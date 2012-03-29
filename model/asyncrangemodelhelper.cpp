@@ -21,6 +21,7 @@
 #include <QThread>
 #include <QTimerEvent>
 #include "asyncrangemodelhelper.h"
+#include <stdexcept>
 
 class AsyncRangeModelHelper_p : public QThread
 {
@@ -66,13 +67,40 @@ protected:
 	virtual void run() {
 		abort_flag = 0;
 
+		// Allocate memory
 		Model *run_clone = base_model.clone();
-		total_models = 1;
-		for (QList<QPair<Model::DataType, Range> >::const_iterator i=data_ranges.begin(); i!=data_ranges.end(); ++i)
-			total_models = total_models * i->second.sequenceCount();
-		completed_models = 0;
-		recursiveDataSet(data_ranges, *run_clone);
+
+		try {
+			total_models = 1;
+			for (QList<QPair<Model::DataType, Range> >::const_iterator i=data_ranges.begin(); i!=data_ranges.end(); ++i)
+				total_models = total_models * i->second.sequenceCount();
+			completed_models = 0;
+			recursiveDataSet(data_ranges, *run_clone);
+		}
+		catch(std::bad_alloc *error) {
+			// cleanup memory
+			while (!results.isEmpty()) {
+				delete results.front();
+				results.pop_front();
+			}
+		}
 		delete run_clone;
+
+		// Calculate
+		foreach (Model *m, results) {
+			op_model_locker.lock();
+			op_model = m;
+			op = QtConcurrent::run(op_model, &Model::calc, 50);
+			op_model_locker.unlock();
+
+			if (abort_flag)
+				op_model->setAbort();
+			op.waitForFinished();
+			completed_models.ref(); // inc completed models
+
+			if (abort_flag)
+				break;
+		}
 	}
 
 	void recursiveDataSet(QList<QPair<Model::DataType, Range> > data,
@@ -96,16 +124,7 @@ protected:
 			op_model_locker.lock();
 			op_model = model.clone();
 			op_model_locker.unlock();
-
-			op = QtConcurrent::run(op_model, &Model::calc, 50);
-			if (abort_flag)
-				op_model->setAbort();
-			op.waitForFinished();
 			results.append(op_model);
-
-			// qDebug() << "Finished: " << op.result() << " iters";
-
-			completed_models.ref(); // inc completed models
 		}
 	}
 
