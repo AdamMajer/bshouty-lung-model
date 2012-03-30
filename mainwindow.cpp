@@ -342,14 +342,20 @@ void MainWindow::updateResults()
 	}
 
 	QList<QPair<Model::DataType, Range> > data_ranges = fetchModelInputs();
+	unsigned long long n_models = 1;
+	unsigned long long total_memory = 0xFFFFFFFFFFFFFFFFULL;
+	unsigned long long total_ram = total_memory;
+	const unsigned long long memory_per_model = baseline->nElements()*20*sizeof(double); // 19 elemnts+capilaries
 
 	for(QList<QPair<Model::DataType, Range> >::const_iterator i=data_ranges.begin();
 	    i!=data_ranges.end();
 	    ++i) {
-		if ((*i).second.sequence().count() < 1) {
+		if (i->second.sequenceCount() < 1) {
 			qDebug("Invalid data input");
 			return;
 		}
+
+		n_models *= i->second.sequenceCount();
 	}
 
 	DiseaseList diseases = disease_model->diseases();
@@ -360,11 +366,52 @@ void MainWindow::updateResults()
 		for (int param_no=0; param_no<param_ranges.size(); ++param_no) {
 			Range range = param_ranges.at(param_no);
 
-			if (range.sequenceCount() > 0) {
+			if (range.sequenceCount() > 1) {
 				Model::DataType type = Model::diseaseHybridType(disease_no, param_no);
 				data_ranges.push_back(QPair<Model::DataType, Range>(type, range));
 			}
+
+			n_models *= range.sequenceCount();
 		}
+	}
+
+#ifdef Q_OS_WIN32
+	MEMORYSTATUSEX mem;
+
+	mem.dwLength = sizeof(mem);
+	if (GlobalMemoryStatusEx(&mem)) {
+		total_ram = mem.ullTotalPhys;
+		total_memory = total_ram + mem.ullAvailPageFile;
+	}
+#else
+#warning "FIXME: Memory size not available on this platform."
+#endif
+
+	if (n_models > 1000000ULL) {
+		QMessageBox::critical(this, "Too many models",
+		                      "You have asked for more than 1 MILLION models to be calculated.\n"
+		                      "This is probably not what you wanted.\n\n"
+		                      "Calculation aborted.");
+		return;
+	}
+
+	if (memory_per_model*n_models > total_memory) {
+		QString oom_msg(QLatin1String("Current settings will require %1 MB of RAM while only %2 MB available"));
+		QMessageBox::critical(this, "Out of Memory", oom_msg.arg((memory_per_model*n_models)>>20).arg(total_memory>>20));
+		return;
+	}
+
+	if (memory_per_model*n_models > total_ram*3/4) {
+		QString oom_msg(QLatin1String("Current settings will require %1 MB of RAM while you have %2 MB installed.\n"
+		                              "Continuing may cause excessive slowdown of your system.\n\n"
+		                              "Do you wish to continue?"));
+		int ret = QMessageBox::question(this, "Out of Memory",
+		                                oom_msg.arg((memory_per_model*n_models)>>20).arg(total_ram>>20),
+		                                QMessageBox::Yes | QMessageBox::No,
+		                                QMessageBox::No);
+
+		if (ret != QMessageBox::Yes)
+			return;
 	}
 
 	baseline->clearDiseases();
