@@ -42,7 +42,7 @@ public:
 	/* Not thread safe, must not be called if calculation is running */
 	void setRangeData(Model::DataType type, const Range &range);
 	void setRangeData(QList<QPair<Model::DataType, Range> > ranges);
-	QList<Model*> output();
+	ModelCalcList output();
 
 	/* Thread safe */
 	bool beginCalculation();
@@ -62,7 +62,7 @@ private:
 	void cleanupHelper();
 
 	QList<QPair<Model::DataType, Range> > data_ranges;
-	QList<Model*> results;
+	ModelCalcList results;
 	const Model &base_model;
 
 	AsyncRangeModelHelper_p *p;

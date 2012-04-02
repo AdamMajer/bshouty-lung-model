@@ -46,7 +46,7 @@ MultiModelOutput::~MultiModelOutput()
 	delete ui;
 }
 
-void MultiModelOutput::setModels(QList<Model *> data_models)
+void MultiModelOutput::setModels(QList<QPair<int, Model *> > data_models)
 {
 	models = data_models;
 	updateView();
@@ -116,7 +116,7 @@ void MultiModelOutput::updateView()
 
 	// fill in static data - assume first model is has same information
 	// as the rest
-	Model *m = models.first();
+	Model *m = models.first().second;
 
 	ui->modelData->setColumnCount(2);
 	ui->modelData->setRowCount(2);
@@ -142,6 +142,18 @@ void MultiModelOutput::updateView()
 	ui->modelData->setItem(2, 0, new QTableWidgetItem(QLatin1String("Tolerance")));
 	ui->modelData->setItem(2, 1, new QTableWidgetItem(doubleToString(m->getResult(Model::Tlrns_value))));
 
+
+	// add iterator count
+	{
+		QList<double> values;
+		values.reserve(models.count());
+		for (ModelCalcList::const_iterator i=models.begin(); i!=models.end(); ++i)
+			values.append(i->first);
+
+		insertValue("# Iterations", values);
+	}
+
+	// add calculated values
 	QList<QPair<Model::DataType,QString> > types = QList<QPair<Model::DataType,QString> >()
 	                << QPair<Model::DataType, QString>(Model::Rus_value, "Rus")
 	                << QPair<Model::DataType, QString>(Model::Rds_value, "Rds")
@@ -163,15 +175,15 @@ void MultiModelOutput::updateView()
 		QList<double> values;
 		values.reserve(models.count());
 
-		foreach (Model *model, models)
-			values.append(model->getResult(i->first));
+		for (ModelCalcList::const_iterator m=models.begin(); m!=models.end(); ++m)
+			values.append(m->second->getResult(i->first));
 
 		insertValue(i->second, values);
 	}
 
 
 	// Add disease parameters
-	const DiseaseList diseases = models.first()->diseases();
+	const DiseaseList diseases = models.first().second->diseases();
 	const int n_disesases = diseases.size();
 	for (int disease_no=0; disease_no<n_disesases; ++disease_no) {
 		const Disease &d = diseases.at(disease_no);
@@ -184,8 +196,8 @@ void MultiModelOutput::updateView()
 			QList<double> values;
 
 			values.reserve(models.size());
-			foreach (Model *m, models)
-				values.push_back(m->diseases().at(disease_no).parameterValue(param_no));
+			for (ModelCalcList::const_iterator m=models.begin(); m!=models.end(); ++m)
+				values.push_back(m->second->diseases().at(disease_no).parameterValue(param_no));
 
 			insertValue(label, values);
 		}
@@ -229,5 +241,5 @@ void MultiModelOutput::itemDoubleClicked(int row)
 	if (row<0 || row>=models.size())
 		return;
 
-	emit doubleClicked(models[row]);
+	emit doubleClicked(models[row].second, models[row].first);
 }

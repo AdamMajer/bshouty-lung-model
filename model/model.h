@@ -21,6 +21,7 @@
 #define MODEL_H
 
 #include "disease.h"
+#include <QPair>
 
 /* Defined in model.cpp, used by integration helper. OpenCL code assuses
  * these values too
@@ -229,6 +230,8 @@ private:
 	QAtomicInt prog; // progress is set 0-10000
 	AbstractIntegrationHelper *integration_helper;
 };
+
+typedef QList<QPair<int, Model*> > ModelCalcList;
 
 #endif
 

@@ -103,7 +103,7 @@ protected:
 
 protected slots:
 	void calculationCompleted();
-	void modelSelected(Model *model);
+	void modelSelected(Model *model, int n_iters);
 	void multiModelWindowClosed();
 
 	void diseaseActionTriggered(bool);

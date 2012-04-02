@@ -954,13 +954,13 @@ void MainWindow::animateLabelVisibility(QWidget *label, bool fVisible)
 
 void MainWindow::calculationCompleted()
 {
-	QList<Model*> res = calc_thread->output();
+	ModelCalcList res = calc_thread->output();
 	if (res.size() < 1)
 		return;
 
 	bool calculation_errors = false;
-	foreach (const Model *m, res)
-		calculation_errors = calculation_errors || m->calculationErrors();
+	for (ModelCalcList::const_iterator i=res.begin(); i!=res.end(); ++i)
+		calculation_errors = calculation_errors || i->second->calculationErrors();
 	if (calculation_errors) {
 		QMessageBox::information(this, "Calculation Errors",
 		                         "Internal calculation errors were encountered.\n"
@@ -972,10 +972,7 @@ void MainWindow::calculationCompleted()
 	activateWindow();
 
 	if (res.size() == 1) {
-		delete model;
-		model = res.first()->clone();
-		setupNewModelScene();
-		updateInputsOutputs();
+		modelSelected(res.first().second, res.first().first);
 
 		calc_thread->deleteLater();
 		calc_thread = 0;
@@ -1008,11 +1005,14 @@ void MainWindow::calculationCompleted()
 	mres->show();
 
 	connect(mres, SIGNAL(finished(int)), SLOT(multiModelWindowClosed()));
-	connect(mres, SIGNAL(doubleClicked(Model*)), SLOT(modelSelected(Model*)));
+	connect(mres, SIGNAL(doubleClicked(Model*,int)), SLOT(modelSelected(Model*,int)));
 }
 
-void MainWindow::modelSelected(Model *new_model)
+void MainWindow::modelSelected(Model *new_model, int n_iters)
 {
+	const QString iter_msg("Iterations: %1");
+	ui->statusbar->showMessage(iter_msg.arg(n_iters));
+
 	delete model;
 	model = new_model->clone();
 	setupNewModelScene();

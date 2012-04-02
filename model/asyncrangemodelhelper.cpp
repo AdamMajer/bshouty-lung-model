@@ -59,7 +59,7 @@ public:
 		return 10000*comp/n_models + model_progress/n_models;
 	}
 
-	QList<Model*> getResults() {
+	ModelCalcList getResults() const {
 		return results;
 	}
 
@@ -80,22 +80,24 @@ protected:
 		catch(std::bad_alloc *error) {
 			// cleanup memory
 			while (!results.isEmpty()) {
-				delete results.front();
+				delete results.front().second;
 				results.pop_front();
 			}
 		}
 		delete run_clone;
 
 		// Calculate
-		foreach (Model *m, results) {
+		for (ModelCalcList::iterator i=results.begin(); i!=results.end(); ++i) {
 			op_model_locker.lock();
-			op_model = m;
+			op_model = i->second;
 			op = QtConcurrent::run(op_model, &Model::calc, 50);
 			op_model_locker.unlock();
 
 			if (abort_flag)
 				op_model->setAbort();
 			op.waitForFinished();
+
+			i->first = op.result();
 			completed_models.ref(); // inc completed models
 
 			if (abort_flag)
@@ -124,14 +126,14 @@ protected:
 			op_model_locker.lock();
 			op_model = model.clone();
 			op_model_locker.unlock();
-			results.append(op_model);
+			results.append(QPair<int,Model*>(0, op_model));
 		}
 	}
 
 
 	QList<QPair<Model::DataType, Range> > data_ranges;
 	const Model &base_model;
-	QList<Model*> results;
+	ModelCalcList results;
 
 	QFuture<int> op;
 	QMutex op_model_locker;
@@ -154,7 +156,7 @@ AsyncRangeModelHelper::AsyncRangeModelHelper(const Model &bm, QObject *parent)
 AsyncRangeModelHelper::~AsyncRangeModelHelper()
 {
 	while (!results.isEmpty())
-		delete results.takeFirst();
+		delete results.takeFirst().second;
 
 	cleanupHelper();
 }
@@ -184,7 +186,7 @@ void AsyncRangeModelHelper::setRangeData(QList<QPair<Model::DataType, Range> > r
 		setRangeData((*i).first, (*i).second);
 }
 
-QList<Model*> AsyncRangeModelHelper::output()
+ModelCalcList AsyncRangeModelHelper::output()
 {
 	if (p && p->isFinished()) {
 		results = p->getResults();
@@ -203,7 +205,7 @@ bool AsyncRangeModelHelper::beginCalculation()
 {
 	// clear results, if any
 	while (!results.isEmpty())
-		delete results.takeFirst();
+		delete results.takeFirst().second;
 
 	cleanupHelper();
 	p = new AsyncRangeModelHelper_p(data_ranges, base_model, parent());
@@ -261,9 +263,9 @@ void AsyncRangeModelHelper::cleanupHelper()
 			killTimer(timer_id);
 		timer_id = -1;
 
-		QList<Model*> r = p->getResults();
+		ModelCalcList r = p->getResults();
 		while (r.isEmpty())
-			delete r.takeFirst();
+			delete r.takeFirst().second;
 		delete p;
 		p = 0;
 	}
