@@ -72,9 +72,6 @@ double CpuIntegrationHelper::integrateArtery(int vessel_index)
 	double Ptm = Ptm_i;
 	double Rs;
 
-	if (art.R > 100000.0)  // With 15 generations has to be a larger value 100000.0 vs. 10000.0
-		return 0.0;
-
 	/* First segment is slightly different from others, so we pull it out */
 	/* First 1/5th of generations is outside the lung - use different equation */
 
@@ -111,8 +108,6 @@ double CpuIntegrationHelper::integrateArtery(int vessel_index)
 	}
 	art.R = Rtot;
 	art.R = K1 * art.R + K2 * Rin;
-	if( art.R > 100000 )
-		art.R = 1000000;
 
 	return fabs(Rin-art.R)/Rin;
 }
@@ -128,9 +123,6 @@ double CpuIntegrationHelper::integrateVein(int vessel_index)
 
 	double Ptm = 1.36 * ( Pout - vein.tone ) - vein.GP;
 	double Rs;
-
-	if (vein.R > 100000.0)
-		return 0.0;
 
 	/* First segment is slightly different from others, so we pull it out */
 	/* First 1/5th of generations is outside the lung - use different equation */
@@ -170,8 +162,6 @@ double CpuIntegrationHelper::integrateVein(int vessel_index)
 
 	vein.R = Rtot;
 	vein.R = K1 * vein.R + K2 * Rin;
-	if( vein.R > 100000 )
-		vein.R = 1000000;
 
 	return fabs(Rin-vein.R)/Rin;
 }

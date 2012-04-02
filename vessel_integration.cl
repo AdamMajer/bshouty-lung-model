@@ -57,8 +57,6 @@ __kernel void integrateInsideArtery(
                 Rtot += Rs;
         }
         Rtot = 0.5*Rtot + 0.5*art.R;
-        if( Rtot > 100000.0 )
-                Rtot = 1000000.0;
         result[vessel_index] = Rtot;
 }
 
@@ -93,8 +91,6 @@ __kernel void integrateOutsideArtery(
                 Rtot += Rs;
         }
         Rtot = 0.5*Rtot + 0.5*art.R;
-        if( Rtot > 100000.0 )
-                Rtot = 1000000.0;
         result[vessel_index] = Rtot;
 }
 
@@ -134,8 +130,6 @@ __kernel void integrateInsideVein(
 	}
 
 	Rtot = 0.5*Rtot + 0.5*vein.R;
-	if (Rtot > 100000.0)
-		Rtot = 1000000.0;
 	result[vessel_index] = Rtot;
 }
 
@@ -174,8 +168,6 @@ __kernel void integrateOutsideVein(
 	}
 
 	Rtot = 0.5*Rtot + 0.5*vein.R;
-	if (Rtot > 100000.0)
-		Rtot = 1000000.0;
 	result[vessel_index] = Rtot;
 }
 

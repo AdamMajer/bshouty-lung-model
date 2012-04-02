@@ -829,9 +829,6 @@ double Model::deltaCapillaryResistance( int i )
 	const double Pin = 1.36 * con_artery.pressure - con_artery.GP; // convert pressures from mmHg => cmH20
 	const double Pout = 1.36 * con_vein.pressure - con_vein.GP;
 
-	if( Ri > 100000 ) // vessel is closed
-		return 0.0;
-
 	const double x = Pout - Pal;
 	const double y = Pin - Pal;
 	const double FACC = y-x;
@@ -863,9 +860,6 @@ double Model::deltaCapillaryResistance( int i )
 	}
 
 	cap.R = K1 * cap.R + K2 * Ri;
-	if( cap.R > 100000.0 ) // 10000 for 5 generations 100000 for 15 generations
-		cap.R = 1000000.0;
-
 	return fabs(cap.R-Ri)/Ri; // return different from target tolerance
 }
 
