@@ -12,6 +12,10 @@ OBJECTS_DIR = build/obj
 
 win32:LIBS += -lshell32
 
+# Visual Studio compiler flags so we get debugging symbols files in release mode
+win32:QMAKE_CXXFLAGS_RELEASE += /Zi
+win32:QMAKE_LFLAGS_RELEASE += /DEBUG
+
 # QMAKE_CXXFLAGS += -std=c++0x
 
 # Input
