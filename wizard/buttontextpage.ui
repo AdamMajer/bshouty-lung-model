@@ -28,7 +28,7 @@
         <x>0</x>
         <y>0</y>
         <width>581</width>
-        <height>388</height>
+        <height>361</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -104,8 +104,21 @@
      </property>
     </spacer>
    </item>
+   <item row="2" column="0" colspan="3">
+    <widget class="QCheckBox" name="show_on_start_checkbox">
+     <property name="text">
+      <string>Show on application Start</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>button1</tabstop>
+  <tabstop>button2</tabstop>
+  <tabstop>show_on_start_checkbox</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

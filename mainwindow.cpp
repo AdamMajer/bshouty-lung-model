@@ -42,6 +42,7 @@
 #include <QPropertyAnimation>
 #include <QSqlDatabase>
 #include <QTime>
+#include <QTimer>
 
 #include <QDebug>
 
@@ -187,6 +188,10 @@ MainWindow::MainWindow(QWidget *parent)
 	QRect new_rect = DbSettings::value("/settings/main_window_size", QRect()).toRect();
 	if (new_rect.isValid())
 		setGeometry(new_rect);
+
+	// wizard, show on start
+	if (DbSettings::value(show_wizard_on_start, "true").toBool())
+		QTimer::singleShot(0, ui->actionModelWizard, SLOT(trigger()));
 
 #if (QT_POINTER_SIZE != 8)
 	ui->actionOpenCL->setEnabled(false);

@@ -35,8 +35,6 @@ ButtonTextPage::ButtonTextPage(const QString &f,
 
 	setRadioButtonText(1, button1_text);
 	setRadioButtonText(2, button2_text);
-
-	ui->button1->setChecked(true);
 }
 
 ButtonTextPage::ButtonTextPage(QWidget *parent)
@@ -107,6 +105,21 @@ int ButtonTextPage::nextId() const
 	return next_id[1];
 }
 
+void ButtonTextPage::setShowOnStartButtonVisible(bool isVisible)
+{
+	ui->show_on_start_checkbox->setVisible(isVisible);
+}
+
+void ButtonTextPage::setShowOnStartChecked(bool isChecked)
+{
+	ui->show_on_start_checkbox->setChecked(isChecked);
+}
+
+bool ButtonTextPage::isShowOnStartChecked() const
+{
+	return ui->show_on_start_checkbox->isChecked();
+}
+
 void ButtonTextPage::selectionChanged()
 {
 	emit completeChanged();
@@ -119,4 +132,7 @@ void ButtonTextPage::init()
 
 	connect(ui->button1, SIGNAL(clicked()), SLOT(selectionChanged()));
 	connect(ui->button2, SIGNAL(clicked()), SLOT(selectionChanged()));
+
+	ui->button1->setChecked(true);
+	ui->show_on_start_checkbox->setHidden(true);
 }

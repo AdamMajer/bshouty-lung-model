@@ -19,6 +19,7 @@
 
 #include <QWizard>
 
+class ButtonTextPage;
 class Wizard : public QWizard
 {
 public:
@@ -44,4 +45,7 @@ public:
 	int nGenerations() const;
 
 	WizardPages exitPage() const { return (WizardPages)currentId(); }
+
+private:
+	ButtonTextPage *first_page;
 };

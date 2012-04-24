@@ -19,6 +19,7 @@
 
 #include <QApplication>
 #include <QMap>
+#include "common.h"
 #include "dbsettings.h"
 #include "wizard.h"
 #include "wizard/simpletextpage.h"
@@ -30,10 +31,13 @@ Wizard::Wizard(QWidget *parent)
 	QMap<WizardPages, QWizardPage*> page_map;
 	const QString root_path = QCoreApplication::applicationDirPath();
 
-	page_map.insert(Wizard_IntroPage,
-	                new SimpleTextPage(root_path + "/data/wizard_intro.html",
-	                                   this,
-	                                   Wizard_GenerationPage));
+	first_page = new SimpleTextPage(root_path + "/data/wizard_intro.html",
+	                                                this,
+		                                        Wizard_GenerationPage);
+	first_page->setShowOnStartButtonVisible(true);
+	first_page->setShowOnStartChecked(DbSettings::value(show_wizard_on_start, true).toBool());
+
+	page_map.insert(Wizard_IntroPage, first_page);
 	page_map.insert(Wizard_GenerationPage,
 	                new ButtonTextPage(root_path + "/data/generations.html",
 	                                   "5-Generation Model", Wizard_ModelPage,
@@ -87,6 +91,7 @@ Wizard::Wizard(QWidget *parent)
 Wizard::~Wizard()
 {
 	DbSettings::setValue("/settings/wizard_size", geometry());
+	DbSettings::setValue(show_wizard_on_start, first_page->isShowOnStartChecked());
 }
 
 int Wizard::nGenerations() const

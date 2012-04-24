@@ -38,6 +38,7 @@ const QLatin1String settings_db("settings_db");
 const QLatin1String app_name("BshoutyLungModel");
 
 const QLatin1String settings_opencl_enabled("/settings/opencl_enabled"); // bool
+const QLatin1String show_wizard_on_start("/settings/show_on_start"); // bool
 
 
 /* Globals */

@@ -46,6 +46,10 @@ public:
 	virtual bool isComplete() const;
 	virtual int nextId() const;
 
+	void setShowOnStartButtonVisible(bool isVisible);
+	void setShowOnStartChecked(bool isChecked);
+	bool isShowOnStartChecked() const;
+
 public slots:
 	void selectionChanged();
 
