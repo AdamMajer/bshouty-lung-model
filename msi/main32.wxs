@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-  <Product Id="{5117D2FE-38EC-4f26-9498-AB9A21921409}"
+  <Product Id="{E363EF1D-E111-4ae6-9A11-E86B52F69E90}"
            Name="Bshouty Lung Model"
            UpgradeCode="{501CDBBD-507B-45ce-B50D-9346D219E07A}"
-           Language="1033" Version="1.2.2013" Manufacturer="Dr. Zoheir Bshouty">
+           Language="1033" Version="1.4.2015" Manufacturer="Dr. Zoheir Bshouty">
     <Package Description="Bshouty Lung Model"
              Comments="Lung Disease Computational Model"
              InstallerVersion="300" Compressed="yes"
@@ -17,11 +17,11 @@
     <Upgrade Id="{501CDBBD-507B-45ce-B50D-9346D219E07A}">
         <UpgradeVersion Minimum="1.0.0"
                         IncludeMinimum="yes"
-                        Maximum="1.2.2013"
+                        Maximum="1.4.2015"
                         IncludeMaximum="no"
                         ExcludeLanguages="yes"
                         Property="OLDVERSIONBEINGUPGRADED" />
-        <UpgradeVersion Minimum="1.2.2013"
+        <UpgradeVersion Minimum="1.4.2015"
                         OnlyDetect="yes"
                         ExcludeLanguages="yes"
                         Property="NEWERVERSIONDETECTED" />
@@ -43,7 +43,7 @@
         <Directory Id="INSTALLLOCATION" Name="Bshouty Lung Model">
 
             <!-- Application Install -->
-            <Component Id="LungModel" Guid="{15ACEB72-EED4-4969-8D37-D5C3A5DBC239}" DiskId="1" Win64="no">
+            <Component Id="LungModel" Guid="{50BD445C-E854-46e0-A2C5-EB50E3936BDC}" DiskId="1" Win64="no">
               <File Id="model1.exe" Name="lung_model.exe" Source="C:\src\bshouty_lung_model\release\bshouty_model.exe" DiskId="1" KeyPath="yes" />
               <ProgId Id="modelext">
                 <Extension Id="lungmodel">
@@ -83,7 +83,7 @@
             </Component>
           </Directory>
           <Directory Id="data" Name="data">
-            <Component Id="data" Guid="{A487EC60-3050-4ddd-B3EF-BEFB83A876D1}" DiskId="1" Win64="no">
+            <Component Id="data" Guid="{416D39AF-CC5D-4cf0-BC0C-002FD10DE5AC}" DiskId="1" Win64="no">
               <File Id='data1' Name='area_calculation.html' Source='C:\src\bshouty_lung_model\data\area_calculation.html' />
               <File Id='data2' Name='fullmodel.html' Source='C:\src\bshouty_lung_model\data\fullmodel.html' />
               <File Id='data3' Name='full_ph.html' Source='C:\src\bshouty_lung_model\data\full_ph.html' />
