@@ -67,10 +67,13 @@ public slots:
 	void on_actionConfigureDisease_triggered();
 	void on_actionOpenCL_triggered();
 
+	void on_actionCalibrateModel_triggered();
+
 	void on_actionOverview_triggered();
 	void on_actionAbout_triggered();
 	void on_actionAboutQt_triggered();
 
+	void setNumLungs(QAction*);
 	// switch between 5/15 generation model
 	void setNumGenerations(QAction*);
 	void setCalculationType(QAction*);
@@ -109,6 +112,7 @@ protected slots:
 	void diseaseActionTriggered(bool);
 	void diseaseGroupBoxTriggered(int id);
 
+	void numLungsGroupClick(int id);
 	void numGenerationButtonGroupClick(int id);
 	void calculationTypeButtonGroupClick(int id);
 	void allocateNewModel(bool propagate_diseases_to_new_model=true);
@@ -130,7 +134,6 @@ private:
 
 	Model *baseline, *model;
 	ModelScene *scene;
-	QActionGroup *ngen_actiongroup;
 
 	AsyncRangeModelHelper *calc_thread;
 	QString save_filename;

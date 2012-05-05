@@ -40,6 +40,24 @@ const QLatin1String app_name("BshoutyLungModel");
 const QLatin1String settings_opencl_enabled("/settings/opencl_enabled"); // bool
 const QLatin1String show_wizard_on_start("/settings/show_on_start"); // bool
 
+// calibratino parameters
+const QLatin1String rus_ratio("/settings/calibration/rus_ratio"); // double
+const QLatin1String rm_ratio("/settings/calibration/rm_ratio"); // double
+const QLatin1String rds_ratio("/settings/calibration/rds_ratio"); // double
+
+const QLatin1String art_branching_ratio("/settings/calibration/art_branching"); // double
+const QLatin1String art_length_ratio("/settings/calibration/art_length"); // double
+const QLatin1String art_diam_ratio("/settings/calibration/art_diam"); // double
+const QLatin1String vein_branching_ratio("/settings/calibration/veins_branching"); // double
+const QLatin1String vein_length_ratio("/settings/calibration/veins_length"); // double
+const QLatin1String vein_diam_ratio("/settings/calibration/veins_diam"); // double
+
+const QLatin1String calibration_target_papm("/settings/calibration/target_papm"); // double
+
+// allocate and free cacheline aligned (64-byte) and page aligned memory
+void* allocateCachelineAligned(int size);
+void* allocatePageAligned(int size);
+void freeAligned(void *);
 
 /* Globals */
 class OpenCL;

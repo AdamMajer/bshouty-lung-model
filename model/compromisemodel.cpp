@@ -20,8 +20,10 @@
 #include "compromisemodel.h"
 #include "math.h"
 
-CompromiseModel::CompromiseModel(Model::Transducer trans, int n_generations)
-        : Model(trans, n_generations)
+CompromiseModel::CompromiseModel(Model::Transducer trans,
+                                 ModelType type,
+                                 int n_generations)
+        : Model(trans, type, n_generations)
 {
 	target_pap = 25;
 	slew_disease_idx = -1;

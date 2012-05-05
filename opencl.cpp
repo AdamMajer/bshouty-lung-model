@@ -36,7 +36,7 @@ static void* allocPageAligned(int bytes)
 	if (ptr == 0)
 		throw opencl_exception(QLatin1String("Out of memory!"));
 
-	void **p = (void**)((long)(ptr + 4096 + sizeof(void*)) & ~(4096L-1L));
+	void **p = (void**)((quint64)(ptr + 4096 + sizeof(void*)) & ~(4096L-1ULL));
 	*(p-1) = ptr;
 
 	return p;

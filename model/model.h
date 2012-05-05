@@ -30,6 +30,17 @@ extern const double K1;
 extern const double K2;
 extern const int nSums; // number of divisions in the integral
 
+struct CalibrationFactors {
+	double len_ratio;
+	double diam_ratio;
+	double branch_ratio;
+
+	double gen_r[16];
+
+	CalibrationFactors(double l, double d, double b)
+	        : len_ratio(l), diam_ratio(d), branch_ratio(b) {}
+};
+
 struct Vessel
 {
 	double R;
@@ -52,6 +63,8 @@ struct Vessel
 	double flow;
 
 	double MV, CL;
+
+	char cacheline_padding[40]; // padding to 64-byte caching boundary
 };
 
 struct Capillary
@@ -59,6 +72,8 @@ struct Capillary
 	double R;
 	double Ho;
 	double Alpha;
+
+	char cacheline_padding[40];
 };
 
 extern bool operator==(const struct Vessel &a, const struct Vessel &b);
@@ -81,13 +96,16 @@ public:
 	                Rt_value, PciA_value, PcoA_value, Tlrns_value, MV_value, CL_value,
 	                Pat_Ht_value, Pat_Wt_value,
 	                TotalR_value,
+		        Kra, Krv, Krc,
 	                CO_value = Flow_value,
 	                DiseaseParam = 0xFFFF
 	};
 
 	enum Transducer { Top, Middle, Bottom };
 
-	Model( Transducer, int n_generations );
+	enum ModelType { SingleLung=0, DoubleLung };
+
+	Model( Transducer, ModelType, int n_generations );
 	Model(const Model &other);
 	virtual ~Model();
 
@@ -121,13 +139,15 @@ public:
 		return n;
 	}
 
-	// First 1/5th of generations is deemed to be outside the lung
+	// First 1/5th of generations is deemed to be outside the lung, rounded up
+	// so 15-gen model => 3 vessels outside
+	//    16-gen model => 4 vessels outside
 	bool isOutsideLung(int i) const {
-		return gen_no(i) <= nGenerations()/5;
+		return gen_no(i) <= (nGenerations()+4)/5;
 	}
 
 	int nOutsideElements() const {
-		return (1 << (nGenerations()/5))-1;
+		return (1 << ((nGenerations()+4)/5))-1;
 	}
 
 	// Resistance factor from Generation (gen) to (gen+1)
@@ -154,6 +174,7 @@ public:
 	virtual double getResult( DataType ) const;
 	virtual bool setData( DataType, double );
 
+	ModelType modelType() const { return model_type; }
 	Transducer transducerPos() const;
 	void setTransducerPos(Transducer trans);
 
@@ -184,11 +205,19 @@ public:
 	// threadsafe
 	virtual int progress() const { return prog; }
 
-protected:
-	double getKra() const;
-	double getKrv() const;
-	double getKrc() const;
+	/* Only used by the calibration function */
+	static void setKrFactors(double Kra, double Krv, double Krc);
+	static double getKra();
+	static double getKrv();
+	static double getKrc();
 
+	static void setCalibrationRatios(double art_branch, double art_len, double art_diam,
+	                                 double vein_branch, double vein_len, double vein_diam);
+
+	static QString calibrationPath(DataType type);
+	static double calibrationValue(DataType);
+
+protected:
 	void getParameters();
 	void getKz();
 	void vascPress();
@@ -218,6 +247,7 @@ private:
 	double Tlrns, LungHt, MV, CL, Pal, Ppl, CO, CI, LAP;
 	double PatWt, PatHt;
 	Transducer trans_pos;
+	ModelType model_type;
 
 	int n_generations;
 	Vessel *arteries, *veins;
@@ -229,6 +259,14 @@ private:
 
 	QAtomicInt prog; // progress is set 0-10000
 	AbstractIntegrationHelper *integration_helper;
+
+
+	/* Calibration constants */
+	static double Kra_factor;
+	static double Krv_factor;
+	static double Krc_factor;
+
+	static CalibrationFactors art_calib, vein_calib;
 };
 
 typedef QList<QPair<int, Model*> > ModelCalcList;

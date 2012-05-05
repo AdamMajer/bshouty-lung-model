@@ -20,6 +20,7 @@
 #include "about.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "calibratedlg.h"
 #include "capillary.h"
 #include "common.h"
 #include "dbsettings.h"
@@ -49,7 +50,12 @@
 #include <algorithm>
 
 #ifdef Q_OS_WIN
+# ifdef WINVER
+#  undef WINVER
+# endif
+#define WINVER 0x0700
 #include <windows.h>
+#include <winbase.h>
 #include <Shellapi.h>
 #endif
 #include <errno.h>
@@ -63,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent)
 	calc_thread = 0;
 	mres = 0;
 
-	baseline = new Model(Model::Middle, 5);
+	baseline = new Model(Model::Middle, Model::SingleLung, 5);
 	model = baseline->clone();
 	ui = new Ui::MainWindow;
 	ui->setupUi(this);
@@ -72,7 +78,14 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->diseaseView->setModel(disease_model);
 	ui->diseaseView->setItemDelegate(new DiseaseParamDelegate(ui->diseaseView));
 
-	ngen_actiongroup = new QActionGroup(this);
+	QActionGroup *num_lung_actiongroup = new QActionGroup(this);
+	num_lung_actiongroup->addAction(ui->actionOneLungModel);
+	num_lung_actiongroup->addAction(ui->actionTwoLungModel);
+	num_lung_actiongroup->setExclusive(true);
+	connect(num_lung_actiongroup, SIGNAL(triggered(QAction*)),
+	        SLOT(setNumLungs(QAction*)));
+
+	QActionGroup *ngen_actiongroup = new QActionGroup(this);
 	ngen_actiongroup->addAction(ui->action15GenModel);
 	ngen_actiongroup->addAction(ui->action5GenModel);
 	ngen_actiongroup->setExclusive(true);
@@ -87,6 +100,12 @@ MainWindow::MainWindow(QWidget *parent)
 	        SLOT(setCalculationType(QAction*)));
 
 	QButtonGroup *bg = new QButtonGroup(this);
+	bg->addButton(ui->oneLungModel, 1);
+	bg->addButton(ui->twoLungModel, 2);
+	bg->setExclusive(true);
+	connect(bg, SIGNAL(buttonClicked(int)), SLOT(numLungsGroupClick(int)));
+
+	bg = new QButtonGroup(this);
 	bg->addButton(ui->numGenerations5, 5);
 	bg->addButton(ui->numGenerations15, 15);
 	bg->setExclusive(true);
@@ -103,7 +122,9 @@ MainWindow::MainWindow(QWidget *parent)
 	// link the group boxes with actions, avoiding recursive loops
 	typedef QPair<QAction*,QRadioButton*> linked_control;
 	QList<linked_control> linked_controls;
-	linked_controls << linked_control(ui->action5GenModel, ui->numGenerations5)
+	linked_controls << linked_control(ui->actionOneLungModel, ui->oneLungModel)
+	                << linked_control(ui->actionTwoLungModel, ui->twoLungModel)
+	                << linked_control(ui->action5GenModel, ui->numGenerations5)
 	                << linked_control(ui->action15GenModel, ui->numGenerations15)
 	                << linked_control(ui->actionDiseaseProgression, ui->calculationTypeDiseaseParams)
 	                << linked_control(ui->actionPAP, ui->calculationTypePAPm);
@@ -485,6 +506,9 @@ void MainWindow::on_actionModelWizard_triggered()
 	ui->action5GenModel->setChecked(wiz.nGenerations() == 5);
 	ui->action15GenModel->setChecked(wiz.nGenerations() == 15);
 
+	ui->actionOneLungModel->setChecked(wiz.singleLungModel());
+	ui->actionTwoLungModel->setChecked(!wiz.singleLungModel());
+
 	DiseaseList diseases = Disease::allDiseases();
 	DiseaseList pvod_pah_disease;
 
@@ -513,6 +537,7 @@ void MainWindow::on_actionModelWizard_triggered()
 	case Wizard::Wizard_PHPahPage:
 	case Wizard::Wizard_PHPvodPage:
 	case Wizard::Wizard_FullModelPage:
+	case Wizard::Wizard_ModelTypePage:
 		// Not possible outcomes! or not used
 		break;
 	case Wizard::Wizard_PahAreaPage:
@@ -540,6 +565,7 @@ void MainWindow::on_actionModelWizard_triggered()
 	case Wizard::Wizard_PHPage:
 	case Wizard::Wizard_PHPahPage:
 	case Wizard::Wizard_PHPvodPage:
+	case Wizard::Wizard_ModelTypePage:
 		// Not possible outcomes!
 		break;
 	case Wizard::Wizard_FullModelPage:
@@ -624,6 +650,14 @@ void MainWindow::on_actionOpenCL_triggered()
 	dlg.exec();
 }
 
+void MainWindow::on_actionCalibrateModel_triggered()
+{
+	CalibrateDlg dlg(this);
+	dlg.exec();
+
+	allocateNewModel();
+}
+
 void MainWindow::on_actionOverview_triggered()
 {
 	QString path("file://" + QCoreApplication::applicationDirPath() + "/data/Overview.html");
@@ -658,6 +692,11 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::on_actionAboutQt_triggered()
 {
 	QApplication::aboutQt();
+}
+
+void MainWindow::setNumLungs(QAction *)
+{
+	allocateNewModel();
 }
 
 void MainWindow::setNumGenerations(QAction*)
@@ -1071,6 +1110,18 @@ void MainWindow::diseaseGroupBoxTriggered(int id)
 	}
 }
 
+void MainWindow::numLungsGroupClick(int id)
+{
+	switch (id) {
+	case 1:
+		ui->actionOneLungModel->trigger();
+		break;
+	case 2:
+		ui->actionTwoLungModel->trigger();
+		break;
+	}
+}
+
 void MainWindow::numGenerationButtonGroupClick(int id)
 {
 	switch (id) {
@@ -1100,6 +1151,7 @@ void MainWindow::allocateNewModel(bool propagate_diseases_to_new_model)
 	ModelScene *old_scene = scene;
 	Model *old_model = model;
 
+	Model::ModelType model_type = Model::SingleLung;
 	ModelCalculationType calculation_type = PAPmCalculation;
 	int n_generations = 5;
 	Model::Transducer trans_pos = model->transducerPos();
@@ -1110,12 +1162,15 @@ void MainWindow::allocateNewModel(bool propagate_diseases_to_new_model)
 	if (ui->action15GenModel->isChecked())
 		n_generations = 15;
 
+	if (ui->actionTwoLungModel->isChecked())
+		model_type = Model::DoubleLung;
+
 	switch (calculation_type) {
 	case DiseaseProgressCalculation:
-		model = new CompromiseModel(trans_pos, n_generations);
+		model = new CompromiseModel(trans_pos, model_type, n_generations);
 		break;
 	case PAPmCalculation:
-		model = new Model(trans_pos, n_generations);
+		model = new Model(trans_pos, model_type, n_generations);
 		break;
 	}
 

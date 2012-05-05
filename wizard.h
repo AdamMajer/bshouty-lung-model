@@ -25,6 +25,7 @@ class Wizard : public QWizard
 public:
 	enum WizardPages {
 		Wizard_IntroPage,
+		Wizard_ModelTypePage,  // single/double lung models
 		Wizard_GenerationPage, // select number of generation in model
 		Wizard_ModelPage,
 		Wizard_FullModelPage,
@@ -43,6 +44,7 @@ public:
 	virtual ~Wizard();
 
 	int nGenerations() const;
+	bool singleLungModel() const; // true => single lung, false => double lung
 
 	WizardPages exitPage() const { return (WizardPages)currentId(); }
 

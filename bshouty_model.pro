@@ -21,6 +21,7 @@ win32:QMAKE_LFLAGS_RELEASE += /DEBUG
 # Input
 SOURCES += \
 	about.cpp \
+	calibratedlg.cpp \
 	capillary.cpp \
 	capillaryview.cpp \
 	clickablelineedit.cpp \
@@ -47,6 +48,7 @@ SOURCES += \
 
 HEADERS += \
 	about.h \
+	calibratedlg.h \
 	capillary.h \
 	capillaryview.h \
 	clickablelineedit.h \
@@ -72,6 +74,7 @@ HEADERS += \
 
 FORMS += \
 	about.ui \
+	calibratedlg.ui \
 	capillary.ui \
 	diseaselistdlg.ui \
 	mainwindow.ui \

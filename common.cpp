@@ -67,3 +67,34 @@ QString doubleToString(double value, int n_decimals)
 {
 	return QString::number(value, 'f', n_decimals);
 }
+
+void* allocateCachelineAligned(int size)
+{
+#if defined(Q_OS_WIN)
+	return _aligned_malloc(size, 64);
+#elif defined(Q_OS_UNIX)
+	void *memptr;
+
+	return posix_memalign(&memptr, 64, size) == 0 ? memptr : NULL;
+#endif
+}
+
+void* allocatePageAligned(int size)
+{
+#if defined(Q_OS_WIN)
+	return _aligned_malloc(size, 4096);
+#elif defined(Q_OS_UNIX)
+	void *memptr;
+
+	return posix_memalign(&memptr, getpagesize(), size) == 0 ? memptr : NULL;
+#endif
+}
+
+void freeAligned(void *mem)
+{
+#if defined(Q_OS_WIN)
+	_aligned_free(mem);
+#elif defined(Q_OS_UNIX)
+	free(mem);
+#endif
+}

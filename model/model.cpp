@@ -41,6 +41,20 @@ const double K1 = 0.5;
 const double K2 = 0.5;
 const int nSums = 10000; // number of divisions in the integral
 
+//static double Kra_factor = 0.060478179;
+//static double Krv_factor = 0.057241085;
+//static double Krc_factor = 3107.712334184;
+
+// double Model::Kra_factor = 0.060326117;
+// double Model::Krv_factor = 0.057098533;
+// double Model::Krc_factor = 3130.880351976;
+
+double Model::Kra_factor;
+double Model::Krv_factor;
+double Model::Krc_factor;
+
+CalibrationFactors Model::art_calib(1.49, 1.56, 3.36);
+CalibrationFactors Model::vein_calib(1.50, 1.58, 3.33);
 
 /* Helper functions */
 static inline double sqr( double n )
@@ -91,16 +105,28 @@ bool operator==(const struct Capillary &a, const struct Capillary &b)
 }
 
 // CONSTRUCTOR - always called - initializes everything
-Model::Model(Transducer transducer_pos, int n_gen)
+Model::Model(Transducer transducer_pos, ModelType type, int n_gen)
 {
+	model_type = type;
 	n_generations = n_gen;
 
-	arteries = new Vessel[ numArteries()];
-	veins = new Vessel[ numVeins()];
-	caps = new Capillary[ numCapillaries()];
+	if (model_type == DoubleLung)
+		n_generations++;
+
+	arteries = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numArteries());
+	veins = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numVeins());
+	caps = (Capillary*)allocateCachelineAligned(sizeof(Capillary)*numCapillaries());
 
 	if (arteries == 0 || veins == 0 || caps == 0)
 		throw std::bad_alloc();
+
+	/* Read stored calibration values */
+	if (Krc_factor == 0.0 && Kra_factor == 0.0 && Krv_factor == 0.0) {
+		// NOTE: only overwrite at initial application start
+		Kra_factor = calibrationValue(Kra);
+		Krv_factor = calibrationValue(Krv);
+		Krc_factor = calibrationValue(Krc);
+	}
 
 	/* set to zero, mostly to prevent valgrind complaining */
 	memset(arteries, 0, numArteries()*sizeof(Vessel));
@@ -109,20 +135,25 @@ Model::Model(Transducer transducer_pos, int n_gen)
 
 	// Initial conditions
 	trans_pos = transducer_pos;
-	Tlrns = 0.0001;
+	Tlrns = calibrationValue(Tlrns_value);
 
-	PatHt = 175;
-	PatWt = 75;
-	LungHt = 20;
-	MV = 0.1;
-	CL = 0.002617*175 - 0.1410;
+	PatHt = calibrationValue(Pat_Ht_value);
+	PatWt = calibrationValue(Pat_Wt_value);
+	LungHt = calibrationValue(Lung_Ht_value);
+	MV = calibrationValue(MV_value);
+	CL = calibrationValue(CL_value);
 
-	Pal = 0;
-	Ppl = -5;
+	Pal = calibrationValue(Pal_value);
+	Ppl = calibrationValue(Ppl_value);
 
-	CO = 6.45;
+	CO = calibrationValue(CO_value);
+	LAP = calibrationValue(LAP_value);
+
 	CI = CO/BSAz();
-	LAP = 5;
+
+	// to have a default PAP value of 15
+	arteries[0].flow = CO;
+	arteries[0].total_R = (15.0-LAP)/arteries[0].flow;
 
 	modified_flag = true;
 	model_reset = true;
@@ -130,7 +161,6 @@ Model::Model(Transducer transducer_pos, int n_gen)
 
 	bool opencl_helper = cl->isAvailable() &&
 	                DbSettings::value(settings_opencl_enabled, true).toBool();
-	qDebug("using opencl helper: %d", (int)opencl_helper);
 	if (opencl_helper)
 		integration_helper = new OpenCLIntegrationHelper(this);
 	else
@@ -152,9 +182,9 @@ Model::Model(const Model &other)
 
 Model::~Model()
 {
-	delete []arteries;
-	delete []veins;
-	delete []caps;
+	freeAligned(arteries);
+	freeAligned(veins);
+	freeAligned(caps);
 
 	delete integration_helper;
 }
@@ -181,6 +211,7 @@ Model& Model::operator =(const Model &other)
 	abort_calculation = other.abort_calculation;
 
 	dis = other.dis;
+	model_type = other.model_type;
 
 	if (n_generations != other.n_generations) {
 		/* If n_generations do not match, then we need to reallocate memory
@@ -190,15 +221,15 @@ Model& Model::operator =(const Model &other)
 		if (n_generations != 0) {
 			// delete current memory allocations.
 			// assume that n_generation == 0 is only from copy constructor
-			delete []arteries;
-			delete []veins;
-			delete []caps;
+			freeAligned(arteries);
+			freeAligned(veins);
+			freeAligned(caps);
 		}
 
 		n_generations = other.n_generations;
-		arteries = new Vessel[numArteries()];
-		veins = new Vessel[numVeins()];
-		caps = new Capillary[numCapillaries()];
+		arteries = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numArteries());
+		veins = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numVeins());
+		caps = (Capillary*)allocateCachelineAligned(sizeof(Capillary)*numCapillaries());
 
 		if (arteries == 0 || veins == 0 || caps == 0)
 			throw std::bad_alloc();
@@ -212,7 +243,6 @@ Model& Model::operator =(const Model &other)
 
 	bool opencl_helper = cl->isAvailable() &&
 	                DbSettings::value(settings_opencl_enabled, true).toBool();
-	qDebug("using opencl helper: %d", (int)opencl_helper);
 	if (opencl_helper)
 		integration_helper = new OpenCLIntegrationHelper(this);
 	else
@@ -234,73 +264,99 @@ double Model::arteryResistanceFactor(int gen) const
 //	double r[] = {1, 3.31, 10.96, 36.29, 120.17};
 //	return r[gen-1];
 
-	static double gen_r[15];
-
-	if (gen_r[0] == 0) {
-		// calculate generation resistances for 15 generations
-		const double len_ratio = 1.49;
-		const double diam_ratio = 1.56;
-		const double branch_ratio = 3.36;
+	if (art_calib.gen_r[0] == 0) {
+		// calculate generation resistances for 16 generations
+		const double len_ratio = art_calib.len_ratio;
+		const double diam_ratio = art_calib.diam_ratio;
+		const double branch_ratio = art_calib.branch_ratio;
 
 		double a_factor = diam_ratio*diam_ratio*diam_ratio*diam_ratio / len_ratio;
 
 		double n_vessel = 1;
 		double ind_r = getKra();
-		for (int i=0; i<15; ++i) {
-			gen_r[i] = ind_r / n_vessel;
+		for (int i=0; i<16; ++i) {
+			art_calib.gen_r[i] = ind_r * n_vessel;
 
-			n_vessel *= branch_ratio;
+			n_vessel *= 2.0 / branch_ratio;
 			ind_r *= a_factor;
 		}
 	}
 
-    return vesselResistanceFactor(gen, gen_r);
+	return vesselResistanceFactor(gen, art_calib.gen_r);
 }
 
 double Model::veinResistanceFactor(int gen) const
 {
-	static double gen_r[15];
-
-	if (gen_r[0] == 0) {
-		// calculate generation resistances for 15 generations
-		const double len_ratio = 1.50;
-		const double diam_ratio = 1.58;
-		const double branch_ratio = 3.33;
+	if (vein_calib.gen_r[0] == 0) {
+		// calculate generation resistances for 16 generations
+		const double len_ratio = vein_calib.len_ratio;
+		const double diam_ratio = vein_calib.diam_ratio;
+		const double branch_ratio = vein_calib.branch_ratio;
 
 		double v_factor = diam_ratio*diam_ratio*diam_ratio*diam_ratio / len_ratio;
 
 		double n_vessel = 1;
 		double ind_r = getKrv();
-		for (int i=0; i<15; ++i) {
-			gen_r[i] = ind_r / n_vessel;
+		for (int i=0; i<16; ++i) {
+			vein_calib.gen_r[i] = ind_r * n_vessel;
 
-			n_vessel *= branch_ratio;
+			n_vessel *= 2.0 / branch_ratio;
 			ind_r *= v_factor;
 		}
 	}
 
-	return vesselResistanceFactor(gen, gen_r);
+	return vesselResistanceFactor(gen, vein_calib.gen_r);
 }
 
 double Model::vesselResistanceFactor(int gen, const double *gen_r) const
 {
-	double n_gen_per_model_gen = 15.05 / n_generations; // 15.05 instead of 15 to prevent underflow
-	int first_gen = n_gen_per_model_gen;
-	int start_gen = n_gen_per_model_gen * (gen-1);
-	int end_gen = n_gen_per_model_gen * gen;
+	/* Normally the remainder vesseks gets attached to the start of the
+	 * first generation unless the remainder is larger than number of vessels
+	 * in a generation, then number of vessels per generation is increased by 1
+	 * and remaing vessels get grouped at beginning.. The goal is,
+	 *
+	 *  15 gen => div=1, rem=1
+	 *  6 gen => div=3, rem=1
+	 *  5 gen => div=3, rem=1
+	 */
+	int div = 16 / n_generations;
+	int rem = 16 % n_generations;
 
-	double ind_r_mod_first = 0.0;
-	double ind_r_mod_target = 0.0;
+	int start_gen_idx, end_gen_idx;
+	if (rem*n_generations >= 16) {
+		/* Remainder gets is separated at first generation */
+		div = 16/(n_generations-1);
+		rem = 16%(n_generations-1);
 
-	// Calculating individual model resistances for first generation
-	for (int i=0; i<first_gen; ++i)
-		ind_r_mod_first += gen_r[i];
+		if (gen == 1) {
+			start_gen_idx = 0;
+			end_gen_idx = rem;
+		}
+		else {
+			start_gen_idx = div*(gen-2)+rem;
+			end_gen_idx = div*(gen-1)+rem;
+		}
+	}
+	else {
+		/* Remainder gets attached to first generation */
+		if (gen == 1) {
+			start_gen_idx = 0;
+			end_gen_idx = div+rem;
+		}
+		else {
+			start_gen_idx = div*(gen-1)+rem;
+			end_gen_idx = div*gen+rem;
+		}
+	}
+
+
+	double gen_sum=0;
 
 	// Calculating individual model resistances for the target generation
-	for (int i=start_gen; i<end_gen; ++i)
-		ind_r_mod_target += gen_r[i] * nElements(gen);
+	for (int i=start_gen_idx; i<end_gen_idx; ++i)
+		gen_sum += gen_r[i] / nElements(i+1);
 
-	return ind_r_mod_target / ind_r_mod_first;
+	return gen_sum * nElements(gen);
 }
 
 double Model::BSA(double pat_ht, double pat_wt)
@@ -422,6 +478,13 @@ double Model::getResult(DataType type) const
 		return arteries[0].total_R;
 	case DiseaseParam:
 		break;
+
+	case Kra:
+		return Kra_factor;
+	case Krv:
+		return Krv_factor;
+	case Krc:
+		return Krc_factor;
 	}
 
 	// Handle special case of DiseaseParam
@@ -528,6 +591,16 @@ bool Model::setData(DataType type, double val)
 		}
 		break;
 	case DiseaseParam:
+		break;
+
+	case Kra:
+		setKrFactors(val, Krv_factor, Krc_factor);
+		break;
+	case Krv:
+		setKrFactors(Kra_factor, val, Krc_factor);
+		break;
+	case Krc:
+		setKrFactors(Kra_factor, Krc_factor, val);
 		break;
 	}
 
@@ -661,31 +734,102 @@ Model::DataType Model::diseaseHybridType(int disease_no, int param_no)
 	return (Model::DataType)((param_no<<24) | (disease_no<<16) | DiseaseParam);
 }
 
-double Model::getKra() const
+void Model::setKrFactors(double Kra, double Krv, double Krc)
 {
-	if (nGenerations() == 15)
-		return 0.004229312;
+	Kra_factor = Kra;
+	Krv_factor = Krv;
+	Krc_factor = Krc;
 
-	// else, assume 5 gen model applies
-	return 0.015641794;
+	// flag recalculation of gen_r
+	memset(art_calib.gen_r, 0, sizeof(double)*16);
+	memset(vein_calib.gen_r, 0, sizeof(double)*16);
 }
 
-double Model::getKrv() const
+double Model::getKra()
 {
-	if (nGenerations() == 15)
-		return 0.004229312;
+	if (Kra_factor == 0.0)
+		Kra_factor = calibrationValue(Kra);
 
-	// else, assume 5 gen model applies
-	return 0.015641794;
+	return Kra_factor;
 }
 
-double Model::getKrc() const
+double Model::getKrv()
 {
-	if (nGenerations() == 15)
-		return 376710.0 * getKra();
+	if (Krv_factor == 0.0)
+		Krv_factor = calibrationValue(Krv);
 
-	// else, assume 5 gen model applies
-	return 97.10 * getKra();
+	return Krv_factor;
+}
+
+double Model::getKrc()
+{
+	if (Krc_factor == 0.0)
+		Krc_factor = calibrationValue(Krc);
+
+	return Krc_factor;
+}
+
+void Model::setCalibrationRatios(double art_branch,
+                                 double art_len,
+                                 double art_diam,
+                                 double vein_branch,
+                                 double vein_len,
+                                 double vein_diam)
+{
+	art_calib.branch_ratio = art_branch;
+	art_calib.diam_ratio = art_diam;
+	art_calib.len_ratio = art_len;
+
+	vein_calib.branch_ratio = vein_branch;
+	vein_calib.diam_ratio = vein_diam;
+	vein_calib.len_ratio = vein_len;
+
+	// flag recalculation of gen_r
+	memset(art_calib.gen_r, 0, sizeof(double)*16);
+	memset(vein_calib.gen_r, 0, sizeof(double)*16);
+}
+
+QString Model::calibrationPath(DataType type)
+{
+	return "/settings/calibration/" + QString::number(type);
+}
+
+double Model::calibrationValue(DataType type)
+{
+	QVariant ret = DbSettings::value(calibrationPath(type));
+
+	if (!ret.isNull())
+		return ret.toDouble();
+
+	switch (type) {
+	case Model::Tlrns_value:
+		return 0.0001;
+	case Model::Pat_Ht_value:
+		return 175.0;
+	case Model::Pat_Wt_value:
+		return 75.0;
+	case Model::Lung_Ht_value:
+		return 20;
+	case Model::MV_value:
+		return 0.1;
+	case Model::CL_value:
+		return 0.002617*175 - 0.1410;
+	case Model::CO_value:
+		return 6.45;
+	case Model::LAP_value:
+		return 5.0;
+	case Model::Pal_value:
+		return 0.0;
+	case Model::Ppl_value:
+		return -5.0;
+
+	case Model::Kra:
+		return 0.0601624004060655;
+	case Model::Krv:
+		return 0.0569240525006599;
+	case Model::Krc:
+		return 3135.049210184;
+	}
 }
 
 void Model::getParameters()
@@ -834,7 +978,7 @@ double Model::deltaCapillaryResistance( int i )
 	const double FACC = y-x;
 	const double FACC1 = 25.0-x;
 	Capillary & cap = caps[i];
-	const double Rz = getKrc();
+	const double Rz = getKrc() * nElements(n_generations) / nElements(16);
 
 	if( x < 0 ){
 		if( y < 0 )
@@ -869,7 +1013,6 @@ bool Model::deltaR()
 	QFutureSynchronizer<double> results;
 
 	double max_deviation = integration_helper->integrate();
-	// qDebug( "MAX deviation from integration: %f", max_deviation);
 
 	// calculate resistances of capillaries
 	int n = nElements( nGenerations());
@@ -882,7 +1025,6 @@ bool Model::deltaR()
 	const QList<QFuture<double> > &result_futures = results.futures();
 	foreach (const QFuture<double> &i, result_futures)
 		max_deviation = qMax(i.result(), max_deviation);
-	// qDebug( "MAX deviation from capilaries: %f", max_deviation);
 
 	int estimated_progression = 10000;
 	for (double md=max_deviation; md>Tlrns && estimated_progression>0;) {
@@ -935,7 +1077,7 @@ void Model::initVesselBaselineCharacteristics()
 	for (int i=0; i<nCapillaries; i++) {
 		caps[i].Alpha = 0.219;
 		caps[i].Ho = 4.28;
-		caps[i].R = getKrc();
+		caps[i].R = getKrc() * nElements(n_generations) / nElements(16);
 	}
 }
 
@@ -973,10 +1115,24 @@ void Model::initVesselBaselineResistances(double cKra, double cKrv, int gen)
 		// GP was calculated with GP=0 being top of lung
 		// then corrected based on transducer position
 		// GPz is a fraction of lung height
+		int gp_gen = gen;
+		int effective_ngen = n_generations;
+
+		switch (model_type) {
+		case SingleLung:
+			break;
+		case DoubleLung:
+			effective_ngen--;
+			if (gen > 1) {
+				gp_gen--;
+				vessel_no %= nElements(gp_gen);
+			}
+		}
+
 		veins[i].GPz = arteries[i].GPz =
-		                (vessel_no*exp((n_generations-gen+1)*M_LN2)+
-		                 exp((n_generations-gen)*M_LN2)-1) /
-		                (exp((n_generations)*M_LN2) - 2);
+		                (vessel_no*exp((effective_ngen-gp_gen+1)*M_LN2)+
+		                 exp((effective_ngen-gp_gen)*M_LN2)-1) /
+		                (exp((effective_ngen)*M_LN2) - 2);
 	}
 
 	// Initialize more generations, if they exist
@@ -1125,6 +1281,11 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	q.addBindValue("transducer");
 	q.addBindValue(offset);
 	q.addBindValue((int)trans_pos);
+	q.exec();
+
+	q.addBindValue("model_type");
+	q.addBindValue(offset);
+	q.addBindValue((int)model_type);
 	q.exec();
 
 	q.addBindValue("ngen");
@@ -1276,7 +1437,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 
 	q.prepare("SELECT value FROM model_values WHERE key = ? AND offset = ?");
 
-	/* Load transducer first and make certain the model has correct
+	/* Load transducer and model_type first and make certain the model has correct
 	 * number of generations of vessels allocated.
 	 */
 	q.addBindValue("transducer");
@@ -1287,6 +1448,13 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	}
 	trans_pos = (Transducer)q.value(0).toInt();
 
+	q.addBindValue("model_type");
+	q.addBindValue(offset);
+	if (!q.exec() || !q.next())
+		model_type = SingleLung;
+	else
+		model_type = (ModelType)q.value(0).toInt();
+
 	q.addBindValue("ngen");
 	q.addBindValue(offset);
 	if (!q.exec() || !q.next())
@@ -1295,7 +1463,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	if (new_gen == 0)
 		return false;
 	if (new_gen != nGenerations())
-		*this = Model(trans_pos, new_gen);
+		*this = Model(trans_pos, model_type, new_gen);
 
 	// Load all values
 	for (QMap<QString,double>::iterator i=values.begin(); i!=values.end(); ++i) {

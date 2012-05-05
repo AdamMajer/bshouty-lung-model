@@ -26,7 +26,7 @@ class CompromiseModel : public Model
 public:
 	// use either PVOD or PAH model
 	// will take ownership of baseline_model instance
-	CompromiseModel(Model::Transducer trans, int n_generations);
+	CompromiseModel(Model::Transducer trans, ModelType type, int n_generations);
 	CompromiseModel(const CompromiseModel &);
 
 	virtual CompromiseModel& operator=(const Model &other);

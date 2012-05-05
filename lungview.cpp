@@ -204,6 +204,6 @@ void LungView::setMarginToSceneTransform()
 	double translated_height = mapToScene(r).boundingRect().height();
 	qDebug("translated height: %f %d", translated_height, dpy);
 
-	setSceneRect(-30, -translated_height, 255, 100+translated_height);
+	setSceneRect(-30, -25-translated_height, 255, 150+translated_height);
 }
 

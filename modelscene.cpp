@@ -25,16 +25,18 @@
 #include "transducerview.h"
 
 #ifdef _MSC_VER
-#define _USE_MATH_DEFINES
-#define exp2(x) exp(x*M_LN2)
+# define _USE_MATH_DEFINES
+# include <math.h>
+# define exp2(x) exp(x*M_LN2)
+#else
+# include <math.h>
 #endif
-#include <math.h>
 
 ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
         : QGraphicsScene(parent),
           m(mod), baseline(base)
 {
-	setSceneRect(-25, 0, 250, 100);
+	setSceneRect(-25, -25, 250, 150);
 
 	arteries = new VesselItem[m.numArteries()];
 	veins = new VesselItem[m.numVeins()];
@@ -42,17 +44,26 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 
 	double x_offset = 0;
 	double y_offset = 96;
+
 	for (int gen=1; gen<=m.nGenerations(); ++gen) {
+		QTransform shear_transform = QTransform();
+		double split_lung_offset = 0;
 		int nElements = m.nElements(gen);
 		int n = m.startIndex(gen);
 
-		double cell_scalling_factor = 1.0/exp2(gen);
+		double cell_scaling_factor = 1.0/exp2(gen);
 		bool final_generation = (gen == m.nGenerations());
+
+		if (base.modelType() == Model::DoubleLung) {
+			// "stretch" space between two models after 1st generation
+			if (gen > 1)
+				split_lung_offset = 10;
+		}
 
 		for (int i=0; i<nElements; ++i, ++n) {
 			QTransform vein_mirror = QTransform(-1, 0, 0, 1, 0, 0);
-			QTransform scale = QTransform().scale(cell_scalling_factor,
-			                                      cell_scalling_factor);
+			QTransform scale = QTransform().scale(cell_scaling_factor,
+			                                      cell_scaling_factor);
 			QTransform art_offset = QTransform().translate(x_offset,
 			                                               y_offset*i);
 			QTransform vein_offset = QTransform().translate(x_offset-200,
@@ -64,6 +75,17 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 			VesselView *vein = new VesselView(&baseline.vein(gen, i),
 			                                  &m.vein(gen, i),
 			                                  VesselView::Vein, gen, i);
+
+			qDebug("adding : %d gen %d", i, gen);
+
+			if (i<nElements/2) {
+				art_offset.translate(0, -split_lung_offset);
+				vein_offset.translate(0, -split_lung_offset);
+			}
+			else {
+				art_offset.translate(0, +split_lung_offset);
+				vein_offset.translate(0, +split_lung_offset);
+			}
 
 			art->setTransform(scale * art_offset);
 			vein->setTransform(scale * vein_offset * vein_mirror);
@@ -90,11 +112,18 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 			}
 			else {
 				// Add connecting items to next generation
-				VesselConnectionView *art_con = new VesselConnectionView(VesselView::Artery, gen, i);
-				VesselConnectionView *vein_con = new VesselConnectionView(VesselView::Vein, gen, i);
+				double y_offset = 0.0;
+				if (base.modelType() == Model::DoubleLung) {
+					// "stretch" space between two models after 1st generation
+					if (gen == 1)
+						y_offset = 20;
+				}
 
-				art_con->setTransform(scale * art_offset);
-				vein_con->setTransform(scale * vein_offset * vein_mirror);
+				VesselConnectionView *art_con = new VesselConnectionView(VesselView::Artery, gen, i, y_offset);
+				VesselConnectionView *vein_con = new VesselConnectionView(VesselView::Vein, gen, i, y_offset);
+
+				art_con->setTransform(shear_transform * scale * art_offset);
+				vein_con->setTransform(shear_transform * scale * vein_offset * vein_mirror);
 
 				addItem(art_con);
 				addItem(vein_con);
@@ -107,7 +136,7 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 
 
 		// Adjust offsets for next generation
-		x_offset += 100.0 * cell_scalling_factor;
+		x_offset += 100.0 * cell_scaling_factor;
 		y_offset /= 2.0;
 	}
 
@@ -140,6 +169,24 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 	item->setScale(0.4);
 	item->setPos(190, 50-h);
 	addItem(item);
+
+	if (base.modelType() == Model::DoubleLung) {
+		item = new QGraphicsTextItem("Left Lung");
+		item->setFont(font);
+		item->setScale(0.3);
+		item->setPos(91, 37);
+		addItem(item);
+
+		item = new QGraphicsTextItem("Right Lung");
+		item->setFont(font);
+		item->setScale(0.3);
+		item->setPos(90, 52);
+		addItem(item);
+
+		QGraphicsLineItem *line = new QGraphicsLineItem(QLineF(75, 49, 125, 49));
+		line->setPen(QPen(QColor(128, 200, 128, 128), 0.25, Qt::DotLine));
+		addItem(line);
+	}
 
 	updateModelValues();
 }

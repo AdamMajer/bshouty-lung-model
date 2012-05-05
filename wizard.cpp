@@ -33,11 +33,15 @@ Wizard::Wizard(QWidget *parent)
 
 	first_page = new SimpleTextPage(root_path + "/data/wizard_intro.html",
 	                                                this,
-		                                        Wizard_GenerationPage);
+		                                        Wizard_ModelTypePage);
 	first_page->setShowOnStartButtonVisible(true);
 	first_page->setShowOnStartChecked(DbSettings::value(show_wizard_on_start, true).toBool());
 
 	page_map.insert(Wizard_IntroPage, first_page);
+	page_map.insert(Wizard_ModelTypePage,
+	                new ButtonTextPage(root_path + "/data/modeltype.html",
+	                                   "Single Lung Model", Wizard_GenerationPage,
+	                                   "Double Lung Model", Wizard_GenerationPage));
 	page_map.insert(Wizard_GenerationPage,
 	                new ButtonTextPage(root_path + "/data/generations.html",
 	                                   "5-Generation Model", Wizard_ModelPage,
@@ -102,4 +106,14 @@ int Wizard::nGenerations() const
 
 	// default
 	return 5;
+}
+
+bool Wizard::singleLungModel() const
+{
+	ButtonTextPage *p = qobject_cast<ButtonTextPage*>(page(Wizard_ModelTypePage));
+	if (p && p->buttonChecked() == 2)
+		return false;
+
+	// single lung is default
+	return true;
 }

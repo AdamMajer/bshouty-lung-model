@@ -24,7 +24,7 @@
 class VesselConnectionView : public VesselView
 {
 public:
-	VesselConnectionView(VesselView::Type type, int gen, int idx);
+	VesselConnectionView(VesselView::Type type, int gen, int idx, double ysplit=0.0);
 	~VesselConnectionView();
 
 	QRectF boundingRect() const;
@@ -35,5 +35,6 @@ protected:
 	void setupPath();
 
 private:
+	double y_split;
 	QPainterPath path, fill;
 };

@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>972</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuData">
@@ -48,6 +48,9 @@
     <property name="title">
      <string>&amp;Options</string>
     </property>
+    <addaction name="actionOneLungModel"/>
+    <addaction name="actionTwoLungModel"/>
+    <addaction name="separator"/>
     <addaction name="action5GenModel"/>
     <addaction name="action15GenModel"/>
     <addaction name="separator"/>
@@ -61,6 +64,8 @@
      <string>&amp;Window</string>
     </property>
     <addaction name="actionInputOutputPane"/>
+    <addaction name="separator"/>
+    <addaction name="actionCalibrateModel"/>
    </widget>
    <widget class="QMenu" name="menuDisease">
     <property name="title">
@@ -129,8 +134,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>258</width>
-              <height>1241</height>
+              <width>257</width>
+              <height>1321</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout">
@@ -1042,6 +1047,32 @@ p, li { white-space: pre-wrap; }
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Lung Number</string>
+           </property>
+           <layout class="QFormLayout" name="formLayout">
+            <item row="0" column="0">
+             <widget class="QRadioButton" name="oneLungModel">
+              <property name="text">
+               <string>One Lung Model</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QRadioButton" name="twoLungModel">
+              <property name="text">
+               <string>Two Lung Model</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="numGenerationOptionBox">
            <property name="title">
             <string>Num Generations</string>
@@ -1276,6 +1307,30 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="statusTip">
     <string>Accelerated computation OpenCL options and diagnostic</string>
+   </property>
+  </action>
+  <action name="actionOneLungModel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>One Lung Model</string>
+   </property>
+  </action>
+  <action name="actionTwoLungModel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Two Lung Model</string>
+   </property>
+  </action>
+  <action name="actionCalibrateModel">
+   <property name="text">
+    <string>Calibrate Kr Factors</string>
    </property>
   </action>
  </widget>
