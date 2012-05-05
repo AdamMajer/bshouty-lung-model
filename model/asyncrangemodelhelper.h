@@ -17,6 +17,9 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef ASYNCRANGEHELPER_H
+#define ASYNCRANGEHELPER_H
+
 #include <QList>
 #include <QPair>
 #include <QObject>
@@ -72,3 +75,5 @@ signals:
 	void calculationComplete();
 	void completionAmount(int value); // value is [0,10000]
 };
+
+#endif // ASYNCRANGEHELPER_H

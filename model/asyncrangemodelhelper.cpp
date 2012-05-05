@@ -222,7 +222,7 @@ bool AsyncRangeModelHelper::isCalculationCompleted() const
 
 bool AsyncRangeModelHelper::waitForCompletion() const
 {
-	return p->wait();
+	return p ? p->wait() : true;
 }
 
 void AsyncRangeModelHelper::terminateCalculation()
