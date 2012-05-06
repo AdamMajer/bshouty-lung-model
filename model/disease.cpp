@@ -230,6 +230,7 @@ void Disease::processModel(Model &model)
 		int n_gens = model.nGenerations();
 		for (int i=1; i<=n_gens; ++i) {
 			int n_art = model.nElements(i);
+			global.setProperty("n_vessels", n_art);
 			for (int j=0; j<n_art; ++j)
 				processArtery(model, global, artery_function, i, j);
 		}
@@ -239,6 +240,7 @@ void Disease::processModel(Model &model)
 		int n_gens = model.nGenerations();
 		for (int i=1; i<=n_gens; ++i) {
 			int n_veins = model.nElements(i);
+			global.setProperty("n_vessels", n_veins);
 			for (int j=0; j<n_veins; ++j)
 				processVein(model, global, vein_function, i, j);
 		}
@@ -246,6 +248,7 @@ void Disease::processModel(Model &model)
 
 	if (cap_function.isFunction()) {
 		int n_caps = model.numCapillaries();
+		global.setProperty("n_vessels", n_caps);
 		for (int i=0; i<n_caps; ++i)
 			processCapillary(model, global, cap_function, i);
 	}
@@ -270,7 +273,7 @@ int Disease::id() const
 
 bool Disease::isReadOnly() const
 {
-	return is_readonly;
+	return is_readonly || script_id<0;
 }
 
 DiseaseList Disease::allDiseases()

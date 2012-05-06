@@ -59,6 +59,7 @@ artery: function(param1, param2) {
 	   and may be modifed by this function,
 		this.gen - generation no of the vessel, READ ONLY
 		this.vessel_idx - vessel number in a generation, READ ONLY
+		this.n_vessels - number of vessels in this generation, READ ONLY
 		this.R
 		this.a
 		this.b
@@ -82,6 +83,7 @@ vein: function(param1, param2) {
 	   and may be modifed by this function,
 		this.gen - generation no of the vessel, READ ONLY
 		this.vessel_idx - vessel number in a generation, READ ONLY
+		this.n_vessels - number of vessels in this generation, READ ONLY
 		this.R
 		this.a
 		this.b
@@ -105,6 +107,7 @@ cap: function(param1, param2) {
 	   with each artery. The following values are available
 	   and may be modifed by this function,
 		this.vessel_idx - vessel number, READ ONLY
+		this.n_vessels - number of vessels in this generation, READ ONLY
 		this.R
 		this.Alpha
 		this.Ho
