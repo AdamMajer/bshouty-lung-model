@@ -76,8 +76,6 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 			                                  &m.vein(gen, i),
 			                                  VesselView::Vein, gen, i);
 
-			qDebug("adding : %d gen %d", i, gen);
-
 			if (i<nElements/2) {
 				art_offset.translate(0, -split_lung_offset);
 				vein_offset.translate(0, -split_lung_offset);
@@ -273,7 +271,6 @@ void ModelScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	bool popupTransducerMenu = false;
 	const QPointF scenePos = event->scenePos();
 
-	qDebug("Trans pod: %d", (int)m.transducerPos());
 	switch (m.transducerPos()) {
 	case Model::Top:
 		popupTransducerMenu = transducer[0]->contains(scenePos);
