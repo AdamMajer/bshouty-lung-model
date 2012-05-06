@@ -1270,6 +1270,7 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(PatWt);
 	SET_VALUE(PatHt);
 
+	q.exec("DELETE FROM model_values WHERE offset=" + QString::number(offset));
 	q.prepare("INSERT INTO model_values (key, offset, value) VALUES (?, ?, ?)");
 	for (QMap<QString,double>::const_iterator i=values.begin(); i!=values.end(); ++i) {
 		q.addBindValue(i.key());
@@ -1302,6 +1303,7 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	// save each vessel value
 	values.clear();
 
+	q.exec("DELETE FROM vessel_values WHERE offset=" + QString::number(offset));
 	q.prepare("INSERT INTO vessel_values (type, vessel_idx, key, offset, value) "
 	          "VALUES (?, ?, ?, ?, ?)");
 	int n_elements = nElements();
@@ -1387,10 +1389,12 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 
 	// save diseases that were added to the model, but only for baseline data
 	if (offset == 0) {
+		q.exec("DELETE FROM diseases");
 		q.prepare("INSERT INTO diseases (disease_id, script) VALUES (?,?)");
 		int n=0;
 
 		QSqlQuery disease_param(db);
+		disease_param.exec("DELETE FROM disease_param");
 		disease_param.prepare("INSERT INTO disease_param (disease_id, param_no, param_value) "
 		                      "VALUES (?,?,?)");
 		for (DiseaseList::const_iterator i=dis.begin(); i!=dis.end(); ++i, ++n) {
@@ -1462,8 +1466,11 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	int new_gen = q.value(0).toInt();
 	if (new_gen == 0)
 		return false;
-	if (new_gen != nGenerations())
+	if (new_gen != nGenerations()) {
+		if (model_type == DoubleLung)
+			new_gen--;
 		*this = Model(trans_pos, model_type, new_gen);
+	}
 
 	// Load all values
 	for (QMap<QString,double>::iterator i=values.begin(); i!=values.end(); ++i) {
