@@ -174,8 +174,8 @@ float OpenCLIntegrationHelper::processWorkGroup(
 		cl->errorCheck(err);
 
 		size_t dims[2];
-		dims[0] = 4;
-		dims[1] = (n+3)/4; // only need 1 "extra" dimention if n is not power of 4
+		dims[0] = 32;
+		dims[1] = (n+31)/32; // only need 1 "extra" dimention if n is not a multiple of 32
 		err = f.clEnqueueNDRangeKernel(dev.queue, w.kernel, 2, NULL, dims, NULL, 0, NULL, NULL);
 		cl->errorCheck(err);
 

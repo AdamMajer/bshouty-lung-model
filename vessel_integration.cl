@@ -1,5 +1,5 @@
 #define nSums 10000
-#define WIDTH 4
+#define WIDTH 32
 
 struct Vessel {
 	float R;
