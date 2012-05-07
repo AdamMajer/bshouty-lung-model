@@ -305,6 +305,7 @@ void CalibrateDlg::calculationComplete()
 				ui->calculateButton->setDisabled(false);
 				ui->saveButton->setDisabled(false);
 				ui->status->setText(QLatin1String("Calibration complete."));
+				QApplication::beep();
 				gen_pos=0;
 
 				setCursor(Qt::ArrowCursor);
