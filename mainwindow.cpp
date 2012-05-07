@@ -513,13 +513,13 @@ void MainWindow::on_actionModelWizard_triggered()
 	DiseaseList pvod_pah_disease;
 
 	for (DiseaseList::const_iterator i=diseases.begin(); i!=diseases.end(); ++i)
-		if (i->id() == -2) {
+		if (i->id() == PVOD_ID) {
 			pvod_pah_disease.push_back(*i);
 			break;
 		}
 
 	for (DiseaseList::const_iterator i=diseases.begin(); i!=diseases.end(); ++i)
-		if (i->id() == -3) {
+		if (i->id() == PAH_ID) {
 			pvod_pah_disease.push_back(*i);
 			break;
 		}

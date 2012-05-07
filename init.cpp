@@ -31,6 +31,9 @@
 
 static void updateSettingsDb(QSqlDatabase db)
 {
+	/* NOTE: Do not change ids of PAH/PVOD diseases without changing them in common.h
+	 *       These IDs are used by the wizard dialog.
+	 */
 	QList<QStringList> sql = QList<QStringList>() <<
 	    (QStringList()
 	     << "CREATE TABLE diseases(id INTEGER PRIMARY KEY ASC, name NOT NULL, script NOT NULL)"

@@ -29,6 +29,9 @@ long int lrint(double x);
 #define fmax(a,b) (a<b?b:a)
 #endif
 
+#define PAH_ID  -20
+#define PVOD_ID -10
+
 extern QString doubleToString(double value);
 extern QString doubleToString(double value, int n_decimals);
 
