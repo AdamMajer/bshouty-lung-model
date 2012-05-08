@@ -780,6 +780,19 @@ double Model::getKrc()
 	return Krc_factor;
 }
 
+CalibrationFactors Model::calibrationFactor(CalibrationFactors::CalibrationType type) const
+{
+	switch (type) {
+	case CalibrationFactors::Artery:
+		return art_calib;
+	case CalibrationFactors::Vein:
+		return vein_calib;
+	}
+
+	// never reached
+	return art_calib;
+}
+
 void Model::setCalibrationRatios(const CalibrationFactors &a, const CalibrationFactors &v)
 {
 	art_calib = a;

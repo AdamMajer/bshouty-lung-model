@@ -849,6 +849,21 @@ void MainWindow::updateInputsOutputs()
 	ui->diseaseView->setHidden(disease_list.empty());
 	ui->diseaseViewLabel->setHidden(disease_list.empty());
 
+	// update calibration ratios
+	const CalibrationFactors ac = model->calibrationFactor(CalibrationFactors::Artery);
+	ui->art_branch_ratio->setText(doubleToString(ac.branch_ratio));
+	ui->art_diam_ratio->setText(doubleToString(ac.diam_ratio));
+	ui->art_len_ratio->setText(doubleToString(ac.len_ratio));
+
+	const CalibrationFactors vc = model->calibrationFactor(CalibrationFactors::Vein);
+	ui->vein_branch_ratio->setText(doubleToString(vc.branch_ratio));
+	ui->vein_diam_ratio->setText(doubleToString(vc.diam_ratio));
+	ui->vein_len_ratio->setText(doubleToString(vc.len_ratio));
+
+	ui->kra_factor->setText(doubleToString(model->getKra()));
+	ui->krc_factor->setText(doubleToString(model->getKrc()));
+	ui->krv_factor->setText(doubleToString(model->getKrv()));
+
 #undef GET_MODEL
 }
 

@@ -219,6 +219,7 @@ public:
 	double getKra();
 	double getKrv();
 	double getKrc();
+	CalibrationFactors calibrationFactor(CalibrationFactors::CalibrationType) const;
 	void setCalibrationRatios(const CalibrationFactors &art, const CalibrationFactors &vein);
 
 	static QString calibrationPath(DataType type);
