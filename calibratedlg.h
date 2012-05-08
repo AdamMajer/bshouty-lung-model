@@ -25,7 +25,7 @@ namespace Ui {
 	class CalibrateDlg;
 }
 
-struct StepValue;
+struct CalibrationValue;
 typedef QMap<QLineEdit*, QPair<QLatin1String, double> > ConfigValuesMap;
 
 class CalibrateDlg : public QDialog
@@ -45,7 +45,7 @@ public slots:
 	void on_resetButton_clicked();
 
 protected:
-	struct StepValue correctVariable(const struct StepValue & value) const;
+	struct CalibrationValue correctVariable(const struct CalibrationValue & value) const;
 	void resetBaseModel();
 
 protected slots:
@@ -54,7 +54,7 @@ protected slots:
 private:
 	Ui::CalibrateDlg *ui;
 
-	std::list<StepValue> calibration_values;
+	std::list<CalibrationValue> calibration_values;
 	AsyncRangeModelHelper *model_runner;
 	double tlrns;
 
@@ -67,7 +67,7 @@ private:
 	ConfigValuesMap config_values;
 };
 
-struct StepValue {
+struct CalibrationValue {
 	CalibrateDlg::ValueType type;
 	double input; // value modified
 	bool is_modified;

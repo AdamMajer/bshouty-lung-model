@@ -37,8 +37,17 @@ struct CalibrationFactors {
 
 	double gen_r[16];
 
+	enum CalibrationType { Artery, Vein };
+
+	// loads from saved calibration factors
+	CalibrationFactors(CalibrationType type);
+
+	// sets calibration factors
 	CalibrationFactors(double l, double d, double b)
-	        : len_ratio(l), diam_ratio(d), branch_ratio(b) {}
+	        : len_ratio(l), diam_ratio(d), branch_ratio(b) {
+
+		memset(gen_r, 0, sizeof(double)*16);
+	}
 };
 
 struct Vessel
@@ -151,8 +160,8 @@ public:
 	}
 
 	// Resistance factor from Generation (gen) to (gen+1)
-	double arteryResistanceFactor(int gen) const;
-	double veinResistanceFactor(int gen) const;
+	double arteryResistanceFactor(int gen);
+	double veinResistanceFactor(int gen);
 	double vesselResistanceFactor(int gen, const double *gen_r) const;
 
 	static double BSAz() { return BSA(175, 75); }
@@ -205,14 +214,12 @@ public:
 	// threadsafe
 	virtual int progress() const { return prog; }
 
-	/* Only used by the calibration function */
-	static void setKrFactors(double Kra, double Krv, double Krc);
-	static double getKra();
-	static double getKrv();
-	static double getKrc();
-
-	static void setCalibrationRatios(double art_branch, double art_len, double art_diam,
-	                                 double vein_branch, double vein_len, double vein_diam);
+	/* Only used by the calibration functionality */
+	void setKrFactors(double Kra, double Krv, double Krc);
+	double getKra();
+	double getKrv();
+	double getKrc();
+	void setCalibrationRatios(const CalibrationFactors &art, const CalibrationFactors &vein);
 
 	static QString calibrationPath(DataType type);
 	static double calibrationValue(DataType);
@@ -262,11 +269,11 @@ private:
 
 
 	/* Calibration constants */
-	static double Kra_factor;
-	static double Krv_factor;
-	static double Krc_factor;
+	double Kra_factor;
+	double Krv_factor;
+	double Krc_factor;
 
-	static CalibrationFactors art_calib, vein_calib;
+	CalibrationFactors art_calib, vein_calib;
 };
 
 typedef QList<QPair<int, Model*> > ModelCalcList;

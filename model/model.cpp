@@ -34,27 +34,13 @@
 #include "integrationhelper/cpuhelper.h"
 #include "integrationhelper/openclhelper.h"
 #include "model.h"
+#include <limits>
 
 /* NOTE: Changing these will require changing these values in OpenCL sources!!
 */
 const double K1 = 0.5;
 const double K2 = 0.5;
 const int nSums = 10000; // number of divisions in the integral
-
-//static double Kra_factor = 0.060478179;
-//static double Krv_factor = 0.057241085;
-//static double Krc_factor = 3107.712334184;
-
-// double Model::Kra_factor = 0.060326117;
-// double Model::Krv_factor = 0.057098533;
-// double Model::Krc_factor = 3130.880351976;
-
-double Model::Kra_factor;
-double Model::Krv_factor;
-double Model::Krc_factor;
-
-CalibrationFactors Model::art_calib(1.49, 1.56, 3.36);
-CalibrationFactors Model::vein_calib(1.50, 1.58, 3.33);
 
 /* Helper functions */
 static inline double sqr( double n )
@@ -104,8 +90,29 @@ bool operator==(const struct Capillary &a, const struct Capillary &b)
 	      significantChange(a.R, b.R));
 }
 
+CalibrationFactors::CalibrationFactors(CalibrationType type)
+{
+	switch (type) {
+	case Artery:
+		branch_ratio = DbSettings::value(art_branching_ratio, 3.36).toDouble();
+		len_ratio = DbSettings::value(art_length_ratio, 1.49).toDouble();
+		diam_ratio = DbSettings::value(art_diam_ratio, 1.56).toDouble();
+		break;
+	case Vein:
+		branch_ratio = DbSettings::value(vein_branching_ratio, 3.33).toDouble();
+		len_ratio = DbSettings::value(vein_length_ratio, 1.50).toDouble();
+		diam_ratio = DbSettings::value(vein_diam_ratio, 1.58).toDouble();
+		break;
+	}
+
+	memset(gen_r, 0, sizeof(double)*16);
+}
+
+
 // CONSTRUCTOR - always called - initializes everything
 Model::Model(Transducer transducer_pos, ModelType type, int n_gen)
+        : art_calib(CalibrationFactors::Artery),
+          vein_calib(CalibrationFactors::Vein)
 {
 	model_type = type;
 	n_generations = n_gen;
@@ -120,13 +127,9 @@ Model::Model(Transducer transducer_pos, ModelType type, int n_gen)
 	if (arteries == 0 || veins == 0 || caps == 0)
 		throw std::bad_alloc();
 
-	/* Read stored calibration values */
-	if (Krc_factor == 0.0 && Kra_factor == 0.0 && Krv_factor == 0.0) {
-		// NOTE: only overwrite at initial application start
-		Kra_factor = calibrationValue(Kra);
-		Krv_factor = calibrationValue(Krv);
-		Krc_factor = calibrationValue(Krc);
-	}
+	Kra_factor = calibrationValue(Kra);
+	Krv_factor = calibrationValue(Krv);
+	Krc_factor = calibrationValue(Krc);
 
 	/* set to zero, mostly to prevent valgrind complaining */
 	memset(arteries, 0, numArteries()*sizeof(Vessel));
@@ -175,6 +178,8 @@ Model::Model(Transducer transducer_pos, ModelType type, int n_gen)
 }
 
 Model::Model(const Model &other)
+        : art_calib(other.art_calib),
+          vein_calib(other.vein_calib)
 {
 	n_generations = 0;
 	*this = other;
@@ -212,6 +217,12 @@ Model& Model::operator =(const Model &other)
 
 	dis = other.dis;
 	model_type = other.model_type;
+
+	Kra_factor = other.Kra_factor;
+	Krv_factor = other.Krv_factor;
+	Krc_factor = other.Krc_factor;
+	art_calib = other.art_calib;
+	vein_calib = other.vein_calib;
 
 	if (n_generations != other.n_generations) {
 		/* If n_generations do not match, then we need to reallocate memory
@@ -259,7 +270,7 @@ Model* Model::clone() const
 	return new Model(*this);
 }
 
-double Model::arteryResistanceFactor(int gen) const
+double Model::arteryResistanceFactor(int gen)
 {
 //	double r[] = {1, 3.31, 10.96, 36.29, 120.17};
 //	return r[gen-1];
@@ -285,7 +296,7 @@ double Model::arteryResistanceFactor(int gen) const
 	return vesselResistanceFactor(gen, art_calib.gen_r);
 }
 
-double Model::veinResistanceFactor(int gen) const
+double Model::veinResistanceFactor(int gen)
 {
 	if (vein_calib.gen_r[0] == 0) {
 		// calculate generation resistances for 16 generations
@@ -769,20 +780,10 @@ double Model::getKrc()
 	return Krc_factor;
 }
 
-void Model::setCalibrationRatios(double art_branch,
-                                 double art_len,
-                                 double art_diam,
-                                 double vein_branch,
-                                 double vein_len,
-                                 double vein_diam)
+void Model::setCalibrationRatios(const CalibrationFactors &a, const CalibrationFactors &v)
 {
-	art_calib.branch_ratio = art_branch;
-	art_calib.diam_ratio = art_diam;
-	art_calib.len_ratio = art_len;
-
-	vein_calib.branch_ratio = vein_branch;
-	vein_calib.diam_ratio = vein_diam;
-	vein_calib.len_ratio = vein_len;
+	art_calib = a;
+	vein_calib = v;
 
 	// flag recalculation of gen_r
 	memset(art_calib.gen_r, 0, sizeof(double)*16);
@@ -829,7 +830,21 @@ double Model::calibrationValue(DataType type)
 		return 0.0569240525006599;
 	case Model::Krc:
 		return 3135.049210184;
+
+	case Model::Ptp_value:
+	case Model::PAP_value:
+	case Model::Rus_value:
+	case Model::Rds_value:
+	case Model::Rm_value:
+	case Model::Rt_value:
+	case Model::PciA_value:
+	case Model::PcoA_value:
+	case Model::TotalR_value:
+	case Model::DiseaseParam:
+		return std::numeric_limits<double>::quiet_NaN();
 	}
+
+	return 0.0;
 }
 
 void Model::getParameters()
@@ -1270,6 +1285,17 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(PatWt);
 	SET_VALUE(PatHt);
 
+	SET_VALUE(Kra_factor);
+	SET_VALUE(Krv_factor);
+	SET_VALUE(Krc_factor);
+
+	SET_VALUE(art_calib.branch_ratio);
+	SET_VALUE(art_calib.diam_ratio);
+	SET_VALUE(art_calib.len_ratio);
+	SET_VALUE(vein_calib.branch_ratio);
+	SET_VALUE(vein_calib.diam_ratio);
+	SET_VALUE(vein_calib.len_ratio);
+
 	q.exec("DELETE FROM model_values WHERE offset=" + QString::number(offset));
 	q.prepare("INSERT INTO model_values (key, offset, value) VALUES (?, ?, ?)");
 	for (QMap<QString,double>::const_iterator i=values.begin(); i!=values.end(); ++i) {
@@ -1439,6 +1465,17 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(PatWt);
 	SET_VALUE(PatHt);
 
+	SET_VALUE(Kra_factor);
+	SET_VALUE(Krv_factor);
+	SET_VALUE(Krc_factor);
+
+	SET_VALUE(art_calib.branch_ratio);
+	SET_VALUE(art_calib.diam_ratio);
+	SET_VALUE(art_calib.len_ratio);
+	SET_VALUE(vein_calib.branch_ratio);
+	SET_VALUE(vein_calib.diam_ratio);
+	SET_VALUE(vein_calib.len_ratio);
+
 	q.prepare("SELECT value FROM model_values WHERE key = ? AND offset = ?");
 
 	/* Load transducer and model_type first and make certain the model has correct
@@ -1493,6 +1530,21 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	GET_VALUE(LAP);
 	GET_VALUE(PatWt);
 	GET_VALUE(PatHt);
+
+	GET_VALUE(Kra_factor);
+	GET_VALUE(Krv_factor);
+	GET_VALUE(Krc_factor);
+
+	GET_VALUE(art_calib.branch_ratio);
+	GET_VALUE(art_calib.diam_ratio);
+	GET_VALUE(art_calib.len_ratio);
+	GET_VALUE(vein_calib.branch_ratio);
+	GET_VALUE(vein_calib.diam_ratio);
+	GET_VALUE(vein_calib.len_ratio);
+
+
+	// force recalculation of Kr factors
+	setKrFactors(Kra_factor, Krv_factor, Krc_factor);
 
 	// load values of each vessel
 	values.clear();

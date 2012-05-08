@@ -36,18 +36,18 @@ CalibrateDlg::CalibrateDlg(QWidget *parent)
 	ui = new Ui::CalibrateDlg;
 	ui->setupUi(this);
 
-	struct StepValue value;
+	struct CalibrationValue value;
 
 	value.type = Kra;
-	value.input = Model::getKra();
+	value.input = base_model.getKra();
 	calibration_values.push_back(value);
 
 	value.type = Krv;
-	value.input = Model::getKrv();
+	value.input = base_model.getKrv();
 	calibration_values.push_back(value);
 
 	value.type = Krc;
-	value.input = Model::getKrc();
+	value.input = base_model.getKrc();
 	calibration_values.push_back(value);
 
 	// loads values from base model
@@ -138,17 +138,9 @@ void CalibrateDlg::accept()
 
 void CalibrateDlg::on_calculateButton_clicked()
 {
-	Model::setCalibrationRatios(ui->arteries_branching->text().toDouble(),
-	                            ui->arteries_length->text().toDouble(),
-	                            ui->arteries_diameter->text().toDouble(),
-
-	                            ui->veins_branching->text().toDouble(),
-	                            ui->veins_length->text().toDouble(),
-	                            ui->veins_diameter->text().toDouble());
-
 	tlrns = 0.1;
 	double target_total = 0.0;
-	for (std::list<StepValue>::iterator i=calibration_values.begin(); i!=calibration_values.end(); i++) {
+	for (std::list<CalibrationValue>::iterator i=calibration_values.begin(); i!=calibration_values.end(); i++) {
 		switch (i->type) {
 		case Kra:
 			i->target = ui->target_rus->text().toDouble() / 100.0;
@@ -213,9 +205,9 @@ void CalibrateDlg::calculationComplete()
 	const double rm = m->getResult(Model::Rm_value);
 	const double rds = m->getResult(Model::Rds_value);
 
-	double kra = Model::getKra();
-	double krv = Model::getKrv();
-	double krc = Model::getKrc();
+	double kra = base_model.getKra();
+	double krv = base_model.getKrv();
+	double krc = base_model.getKrc();
 
 	// display numbers
 	ui->kra->setText(doubleToString(kra, 9));
@@ -247,11 +239,11 @@ void CalibrateDlg::calculationComplete()
 
 	// first adjust for the ratio between variables
 	if (calibration_complete)
-	for (std::list<StepValue>::iterator i=calibration_values.begin();
+	for (std::list<CalibrationValue>::iterator i=calibration_values.begin();
 	     i!=calibration_values.end();
 	     ++i) {
 
-		StepValue &value = *i;
+		CalibrationValue &value = *i;
 
 		switch (value.type) {
 		case Kra:
@@ -269,7 +261,7 @@ void CalibrateDlg::calculationComplete()
 		}
 
 		value.is_modified = false;
-		StepValue new_value = correctVariable(value);
+		CalibrationValue new_value = correctVariable(value);
 
 		switch (value.type) {
 		case Kra:
@@ -316,9 +308,8 @@ void CalibrateDlg::calculationComplete()
 		}
 	}
 
-	Model::setKrFactors(kra, krv, krc);
-
 	resetBaseModel();
+	base_model.setKrFactors(kra, krv, krc);
 	model_runner->deleteLater();
 	model_runner = new AsyncRangeModelHelper(base_model, this);
 	connect(model_runner, SIGNAL(calculationComplete()),
@@ -327,9 +318,9 @@ void CalibrateDlg::calculationComplete()
 
 }
 
-struct StepValue CalibrateDlg::correctVariable(const StepValue &value) const
+struct CalibrationValue CalibrateDlg::correctVariable(const CalibrationValue &value) const
 {
-	StepValue v = value;
+	CalibrationValue v = value;
 
 	if (fabs(value.target - value.current_value)/value.target > tlrns) {
 		v.input *= 1.0 + (value.target - value.current_value)/value.target/2.0;
@@ -373,4 +364,12 @@ void CalibrateDlg::resetBaseModel()
 	for (QMap<Model::DataType,QLineEdit*>::const_iterator i=v.begin(); i!=v.end(); ++i) {
 		base_model.setData(i.key(), i.value()->text().toDouble());
 	}
+
+	CalibrationFactors art_f(ui->arteries_length->text().toDouble(),
+	                         ui->arteries_diameter->text().toDouble(),
+	                         ui->arteries_branching->text().toDouble());
+	CalibrationFactors vein_f(ui->veins_length->text().toDouble(),
+	                          ui->veins_diameter->text().toDouble(),
+	                          ui->veins_branching->text().toDouble());
+	base_model.setCalibrationRatios(art_f, vein_f);
 }
