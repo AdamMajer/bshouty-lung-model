@@ -245,7 +245,6 @@ void MainWindow::load(const QString &filename)
 				setupNewModelScene();
 				updateInputsOutputs();
 				disease_model->load(db);
-				updateTitleFilename();
 			}
 			else
 				throw std::runtime_error("Cannot load file");
@@ -610,6 +609,7 @@ void MainWindow::on_actionLoad_triggered()
 		return;
 
 	load(fn);
+	updateTitleFilename();
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -618,6 +618,8 @@ void MainWindow::on_actionSave_triggered()
 		save(save_filename);
 	else
 		on_actionSaveAs_triggered();
+
+	updateTitleFilename();
 }
 
 void MainWindow::on_actionSaveAs_triggered()
@@ -634,6 +636,8 @@ void MainWindow::on_actionSaveAs_triggered()
 	                                  tr("Lung Model (*.lungmodel)"));
 	if (!fn.isEmpty())
 		save(fn);
+
+	updateTitleFilename();
 }
 
 void MainWindow::on_actionConfigureDisease_triggered()
@@ -971,7 +975,7 @@ void MainWindow::updateTitleFilename()
 		title_proper = title_proper.simplified()
 		                .append(QString(" ") + sep + " " + fi.fileName());
 
-		if (baseline->isModified())
+		if (baseline->isModified() || model->isModified())
 			title_proper.append(QLatin1Char('*'));
 	}
 
@@ -1076,6 +1080,8 @@ void MainWindow::modelSelected(Model *new_model, int n_iters)
 	model = new_model->clone();
 	setupNewModelScene();
 	updateInputsOutputs();
+
+	updateTitleFilename();
 }
 
 void MainWindow::multiModelWindowClosed()

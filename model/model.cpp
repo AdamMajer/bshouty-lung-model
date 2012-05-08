@@ -797,6 +797,7 @@ void Model::setCalibrationRatios(const CalibrationFactors &a, const CalibrationF
 {
 	art_calib = a;
 	vein_calib = v;
+	modified_flag = true;
 
 	// flag recalculation of gen_r
 	memset(art_calib.gen_r, 0, sizeof(double)*16);
