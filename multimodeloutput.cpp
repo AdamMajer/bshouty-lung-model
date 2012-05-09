@@ -155,7 +155,6 @@ void MultiModelOutput::updateView()
 
 	// add calculated values
 	QList<QPair<Model::DataType,QString> > types = QList<QPair<Model::DataType,QString> >()
-	                << QPair<Model::DataType, QString>(Model::Rus_value, "Rus")
 	                << QPair<Model::DataType, QString>(Model::Rds_value, "Rds")
 	                << QPair<Model::DataType, QString>(Model::Rm_value, "Rm")
 	                << QPair<Model::DataType, QString>(Model::Rus_value, "Rus")
