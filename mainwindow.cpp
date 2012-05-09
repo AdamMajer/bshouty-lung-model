@@ -952,6 +952,7 @@ void MainWindow::updateDiseaseMenu()
 		connect(a, SIGNAL(triggered(bool)), SLOT(diseaseActionTriggered(bool)));
 
 		QCheckBox *checkbox = new QCheckBox(disease.name(), ui->diseaseBox);
+		checkbox->setChecked(disease_in_model);
 		ui->diseaseBoxLayout->addWidget(checkbox);
 		disease_box_group->addButton(checkbox, disease.id());
 
