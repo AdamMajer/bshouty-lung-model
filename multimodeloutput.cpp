@@ -145,11 +145,25 @@ void MultiModelOutput::updateView()
 
 	// add iterator count
 	{
-		QList<double> values;
+		QList<QString> values;
+		bool all_the_same = true;
 		values.reserve(models.count());
-		for (ModelCalcList::const_iterator i=models.begin(); i!=models.end(); ++i)
-			values.append(i->first);
 
+		for (ModelCalcList::const_iterator i=models.begin(); i!=models.end(); ++i) {
+			switch (i->first) {
+			case -2:
+				values.append(QLatin1String("Target PAPm impossible"));
+				break;
+			default:
+				values.append(QString::number(i->first));
+				break;
+			}
+
+			all_the_same = all_the_same && values.back() == values.front();
+		}
+
+		if (all_the_same)
+			values = QList<QString>() << values.first();
 		insertValue("# Iterations", values);
 	}
 
@@ -171,12 +185,17 @@ void MultiModelOutput::updateView()
 	                << QPair<Model::DataType, QString>(Model::Pat_Ht_value, "Patient Height");
 
 	for (QList<QPair<Model::DataType,QString> >::const_iterator i=types.begin(); i!=types.end(); ++i) {
-		QList<double> values;
+		QList<QString> values;
+		bool all_the_same = true;
 		values.reserve(models.count());
 
-		for (ModelCalcList::const_iterator m=models.begin(); m!=models.end(); ++m)
-			values.append(m->second->getResult(i->first));
+		for (ModelCalcList::const_iterator m=models.begin(); m!=models.end(); ++m) {
+			values.append(doubleToString(m->second->getResult(i->first)));
+			all_the_same = all_the_same && values.front() == values.back();
+		}
 
+		if (all_the_same)
+			values = QList<QString>() << values.front();
 		insertValue(i->second, values);
 	}
 
@@ -192,46 +211,44 @@ void MultiModelOutput::updateView()
 		for (int param_no=0; param_no<n_params; ++param_no) {
 			const QString param_name = d.parameterName(param_no);
 			const QString label = disease_name + "." + param_name;
-			QList<double> values;
+			QList<QString> values;
+			bool all_the_same = true;
 
 			values.reserve(models.size());
-			for (ModelCalcList::const_iterator m=models.begin(); m!=models.end(); ++m)
-				values.push_back(m->second->diseases().at(disease_no).parameterValue(param_no));
+			for (ModelCalcList::const_iterator m=models.begin(); m!=models.end(); ++m) {
+				double val = m->second->diseases().at(disease_no).parameterValue(param_no);
+				values.push_back(doubleToString(val));
 
+				all_the_same = all_the_same && values.back() == values.front();
+			}
+
+			if (all_the_same)
+				values = QList<QString>() << values.front();
 			insertValue(label, values);
 		}
 	}
 }
 
-void MultiModelOutput::insertValue(QString header, QList<double> values)
+void MultiModelOutput::insertValue(QString header, const QList<QString> & values)
 {
 	/* insert value either at row 3 of modelData or column 1 of tableWidget,
 	 * depending on spread of values
 	 */
 
-	double val = values.first();
+	if (values.size() == 1) { // append to left
+		ui->modelData->insertRow(2);
+		ui->modelData->setItem(2, 0, new QTableWidgetItem(header));
+		ui->modelData->setItem(2, 1, new QTableWidgetItem(values.first()));
+	}
+	else {
+		// list in table
+		ui->tableWidget->insertColumn(0);
+		ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(header));
 
-	foreach (double v, values)
-		if (fabs(val - v) > 1e-6) {
-			// list in table
-			ui->tableWidget->insertColumn(0);
-			ui->tableWidget->setHorizontalHeaderItem(0,
-			              new QTableWidgetItem(header));
-
-			int row = 0;
-			foreach (double v, values) {
-				ui->tableWidget->setItem(row++, 0,
-				      new QTableWidgetItem(doubleToString(v)));
-			}
-
-			return;
-		}
-
-	// append to left
-	//ui->modelData->setRowCount(ui->modelData->rowCount() + 1);
-	ui->modelData->insertRow(2);
-	ui->modelData->setItem(2, 0, new QTableWidgetItem(header));
-	ui->modelData->setItem(2, 1, new QTableWidgetItem(doubleToString(val)));
+		int row = 0;
+		foreach (const QString &value, values)
+			ui->tableWidget->setItem(row++, 0, new QTableWidgetItem(value));
+	}
 }
 
 void MultiModelOutput::itemDoubleClicked(int row)
