@@ -754,6 +754,8 @@ void Model::setKrFactors(double Kra, double Krv, double Krc)
 	// flag recalculation of gen_r
 	memset(art_calib.gen_r, 0, sizeof(double)*16);
 	memset(vein_calib.gen_r, 0, sizeof(double)*16);
+
+	initVesselBaselineResistances();
 }
 
 double Model::getKra()
@@ -802,6 +804,8 @@ void Model::setCalibrationRatios(const CalibrationFactors &a, const CalibrationF
 	// flag recalculation of gen_r
 	memset(art_calib.gen_r, 0, sizeof(double)*16);
 	memset(vein_calib.gen_r, 0, sizeof(double)*16);
+
+	initVesselBaselineResistances();
 }
 
 QString Model::calibrationPath(DataType type)
