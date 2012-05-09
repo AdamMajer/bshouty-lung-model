@@ -1,36 +1,34 @@
 <html>
 <body>
 
-<p>You have the option of working with a <b>single lung model</b> or a
-<b>double lung model</b>.  In either case, both models represent the
-whole pulmonary circulation.  This is based on model calibration with
-the following targets:</p>
+<p>You have the option of working with a <b>"Single"</b> or a
+ <b>"Double"</b> lung model.  In either case, both models <u>can</u> represent the <u>
+whole</u> pulmonary circulation.  What a given model represents is based on model calibration.  All default models were calibrated with the following targets:</p>
 
 <ul>
   <li>Subject is 175 cm high and weighs 75 kg</li>
   <li>Lung height is 20 cm with normal lung compliance</li>
-  <li>Measurements are performed at end-expiration (Ppl=-5 and Pal=0 cmH2O)</li>
-  <li>Target PAPm is 15 mmHg at a CO of 6.45 and LAP of 5 mmHg</li>
+  <li>Measurements are performed at end-expiration (Ppl=-5 and Pal=0 cmH<sub>2</sub>O)</li>
+  <li>Target PAP<sub>m</sub> is 15 mmHg at a CO of 6.45 l/min and LAP of 5 mmHg</li>
 </ul>
 
 <p>If you want to calibrate the model to represent a single lung, for
-the same size subject, you will have to enter a new target PAPm for a
-given CO and LAP.</p>
+the same size subject, you will have to enter a new target PAP<sub>m</sub> for a
+given CO (the appropriate flow for a single lung) and LAP.  If you want to calibrate the model to represent a certain pediatric population, you have to enter an average height and weight, and an average lung height that represents that population.  Notice that normal lung compliance is adjusted automatically.  You also have to enter a target PAP<sub>m</sub> for a given CO and LAP.  </p>
 
 <p>You can re-calibrate the model at any time to represent different
-physiological and/or pathological situations.</p>
+physiological and/or pathophysiological scenarios.</p>
 
-<p>To simulate any situation whether normal or pathological in an
-adult patient, you can just accept the default calibration (which is
-stored in a database file) or recalibrate the model.  The last
-calibration used is the one that is stored and used with subsequent
-runs of the model.</p>
+<p>To simulate any scenario in an adult subject, you can just accept the default calibration (which is
+ stored in a database file).  The last performed
+calibration is the one that is stored and used with subsequent
+ runs of the model.  You do <u>not</u> need to recalibrate the model prior to each use unless you are simulating a specific conditions and/or a different species other than humans.  </p>
 
 <p>The calibration factors can be reset to the default ones at any
-time from the Calibration window.</p>
+time from the "Calibration" window.</p>
 
-<p>Calibration feature is accessible under the <b>"Window"</b> menu
-option.</p>
+<p>The "Calibration" window is accessible under the <b>"Window"</b> menu
+ option.</p>
 
 </body>
 </html>

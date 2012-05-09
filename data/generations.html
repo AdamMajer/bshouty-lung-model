@@ -2,13 +2,12 @@
 <head/>
 <body>
 
-<p>You have the option of working with a <b>5-generation</b> or a <b>15-generation</b> model. 
-Both models represent the <u>whole</u> pulmonary circulation. Results from simulations with 
-the 5-generation model differ from the 15-generation model only at the first decimal level 
-and are considered clinically insignificant. Iterations with the 15-generation model, 
-obviously, take longer to complete. You can switch between 5 and 15-generations 
+<p>You have the option of working with a <b>5-generation</b> or a <b>15-generation</b> model.
+Both models represent the <u>whole</u> pulmonary circulation. <b>PAP<sub>m</sub></b> results from simulations with
+the 5-generation and 15-generation models were compared over a wide range of CO (1-7 l/min), LAP (0-25 mmHg) and vascular compromise (0-95%). The results differ mostly at the second decimal level and rarely at the first decimal level
+and are considered clinically insignificant. Because of the enormous amount of calculations and to accelerate iterations the 15-generation model uses parallel processing (when multiple CPUs are available).  The 64-bit version also uses the graphics card CPU (using OpenCL) to further accelerate the calculations. Prior to running the calculations, the program advises you whether you have enough memory to accommodate the amount of data that will be generated from the iterations (especially when setting ranges).  Selecting to proceed when not having enough memory may cause the computer to freeze for hours until all iterations and calculations are completed.  If you do not have a powerful computer with multiple CPUs and a lot of RAM (12-16 gigabytes) you are advised to use the 5-generation model.  You can switch between 5 and 15-generations
 under <b>"Options"</b>
-</p>
+.</p>
 
 <p>The 5-generation model is the default.
 </p>
