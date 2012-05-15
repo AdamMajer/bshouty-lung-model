@@ -21,6 +21,10 @@
 #include <math.h>
 #include "common.h"
 
+#ifdef Q_OS_UNIX
+#include <unistd.h>
+#endif
+
 #ifdef _MSC_VER
 long int lrint(double x)
 {

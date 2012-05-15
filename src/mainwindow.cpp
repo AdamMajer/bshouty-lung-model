@@ -53,12 +53,19 @@
 # ifdef WINVER
 #  undef WINVER
 # endif
+
 #define WINVER 0x0700
 #include <windows.h>
 #include <winbase.h>
 #include <Shellapi.h>
 #endif
+
 #include <errno.h>
+
+#ifdef Q_OS_UNIX
+# include <unistd.h>
+#endif
+
 
 static const QLatin1String db_name("modeldb");
 

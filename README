@@ -1,4 +1,4 @@
-Build Prerequisites
+Build Prerequisite
 ===================
 
   + Qt 4.8.0 or later
@@ -14,6 +14,9 @@ KNOWN ISSUES
 
 Linux and OpenCL and nVidia and AMD
 -----------------------------------
+
+NOTE: This does not appear to occur anymore with the current release
+      of AMD drivers. In Debian, this means version 1:12-4-1
 
 A segfault occurs on start of the program if the following conditions
 are met,
