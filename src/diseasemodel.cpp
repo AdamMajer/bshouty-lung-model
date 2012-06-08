@@ -164,7 +164,23 @@ bool DiseaseModel::setData(const QModelIndex &index, const QVariant &value, int 
 	case Qt::EditRole: {
 		const int disease_no = diseaseNo(index.internalId());
 		const int param_no = diseaseParamNo(index.internalId());
+		const Disease &disease = disease_list[disease_no];
 		Range range(value.toString());
+
+		if (!disease.paramRange(param_no).contains(range)) {
+			if (range.sequenceCount() > 1)
+				return false;
+
+			// massage the set value to be within range
+			double value = range.min();
+			const Range &disease_range = disease.paramRange(param_no);
+			value = std::max(disease_range.min(), value);
+			value = std::min(disease_range.max(), value);
+
+			range.setMin(value);
+			range.setMax(value);
+		}
+
 		disease_list[disease_no].setParameter(index.row(), range.firstValue());
 		disease_param_ranges[disease_no][param_no] = range;
 		emit dataChanged(index, index);

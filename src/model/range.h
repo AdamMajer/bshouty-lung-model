@@ -51,6 +51,7 @@ public:
 	int sequenceCount() const;
 
 	bool isValid() const { return valid; }
+	bool contains(const Range &other) const;
 
 private:
 	double v_min, v_max, v_step;

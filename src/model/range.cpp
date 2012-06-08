@@ -22,6 +22,7 @@
 #include "common.h"
 #include "range.h"
 #include <cmath>
+#include <limits>
 
 static const QLatin1Char step_sep(';');
 static const QLatin1String range_sep(" to ");
@@ -123,4 +124,10 @@ QList<double> Range::sequence() const
 int Range::sequenceCount() const
 {
 	return lrint(floor((v_max - v_min) / v_step)) + 1;
+}
+
+bool Range::contains(const Range &other) const
+{
+	return other.v_min-v_min > -std::numeric_limits<double>::epsilon()*v_min &&
+	       other.v_max-v_max <  std::numeric_limits<double>::epsilon()*v_max;
 }
