@@ -1011,7 +1011,7 @@ double Model::deltaCapillaryResistance( int i )
 	const double FACC = y-x;
 	const double FACC1 = 25.0-x;
 	Capillary & cap = caps[i];
-	const double Rz = getKrc() * nElements(n_generations) / nElements(16);
+	const double Rz = getKrc() * BSAz() / BSA(PatWt, PatHt) * nElements(n_generations) / nElements(16);
 
 	if( x < 0 ){
 		if( y < 0 )
@@ -1110,7 +1110,6 @@ void Model::initVesselBaselineCharacteristics()
 	for (int i=0; i<nCapillaries; i++) {
 		caps[i].Alpha = 0.219;
 		caps[i].Ho = 4.28;
-		caps[i].R = getKrc() * nElements(n_generations) / nElements(16);
 	}
 }
 
@@ -1127,6 +1126,13 @@ void Model::initVesselBaselineResistances()
 	double cKrv = getKrv()*(BSAz() / BSA(PatHt, PatWt));
 
 	initVesselBaselineResistances(cKra, cKrv, 1);
+
+	// Initialize capillaries
+	const int nCapillaries = numCapillaries();
+	const double cKrc = getKrc() * BSAz() / BSA(PatHt, PatWt);
+	for (int i=0; i<nCapillaries; i++) {
+		caps[i].R = cKrc * nElements(n_generations) / nElements(16);
+	}
 }
 
 void Model::initVesselBaselineResistances(double cKra, double cKrv, int gen)
