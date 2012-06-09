@@ -827,6 +827,9 @@ void MainWindow::updateInputsOutputs()
 	GET_MODEL(Model::CL_value, ui->CL);
 	GET_MODEL(Model::Pat_Ht_value, ui->patHt);
 	GET_MODEL(Model::Pat_Wt_value, ui->patWt);
+	GET_MODEL(Model::Hct_value, ui->Hct);
+	GET_MODEL(Model::PA_EVL_value, ui->PA_EVL);
+	GET_MODEL(Model::PV_EVL_value, ui->PV_EVL);
 
 	/* Update results in the results pane */
 	double pvr = model->getResult(Model::TotalR_value);
@@ -904,6 +907,9 @@ QList<QPair<Model::DataType, Range> > MainWindow::fetchModelInputs() const
 	ADD_MODEL_RANGE(ret, Model::CL_value, ui->CL);
 	ADD_MODEL_RANGE(ret, Model::Pat_Ht_value, ui->patHt);
 	ADD_MODEL_RANGE(ret, Model::Pat_Wt_value, ui->patWt);
+	ADD_MODEL_RANGE(ret, Model::Hct_value, ui->Hct);
+	ADD_MODEL_RANGE(ret, Model::PA_EVL_value, ui->PA_EVL);
+	ADD_MODEL_RANGE(ret, Model::PV_EVL_value, ui->PV_EVL);
 
 	if (ui->PAPm->isVisible()) {
 		// PAPm range for calculation of compromise

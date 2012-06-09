@@ -105,7 +105,8 @@ public:
 	                Rt_value, PciA_value, PcoA_value, Tlrns_value, MV_value, CL_value,
 	                Pat_Ht_value, Pat_Wt_value,
 	                TotalR_value,
-		        Kra, Krv, Krc,
+	                Kra, Krv, Krc,
+	                Hct_value, PA_EVL_value, PV_EVL_value,
 	                CO_value = Flow_value,
 	                DiseaseParam = 0xFFFF
 	};
@@ -254,6 +255,7 @@ protected:
 private:
 	double Tlrns, LungHt, MV, CL, Pal, Ppl, CO, CI, LAP;
 	double PatWt, PatHt;
+	double Hct, PA_EVL, PV_EVL;
 	Transducer trans_pos;
 	ModelType model_type;
 

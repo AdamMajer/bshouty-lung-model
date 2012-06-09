@@ -152,6 +152,10 @@ Model::Model(Transducer transducer_pos, ModelType type, int n_gen)
 	CO = calibrationValue(CO_value);
 	LAP = calibrationValue(LAP_value);
 
+	Hct = calibrationValue(Hct_value);
+	PA_EVL = calibrationValue(PA_EVL_value);
+	PV_EVL = calibrationValue(PV_EVL_value);
+
 	CI = CO/BSAz();
 
 	// to have a default PAP value of 15
@@ -210,6 +214,10 @@ Model& Model::operator =(const Model &other)
 	PatWt = other.PatWt;
 	PatHt = other.PatHt;
 	trans_pos = other.trans_pos;
+
+	Hct = other.Hct;
+	PA_EVL = other.PA_EVL;
+	PV_EVL = other.PV_EVL;
 
 	modified_flag = other.modified_flag;
 	model_reset = other.model_reset;
@@ -490,6 +498,13 @@ double Model::getResult(DataType type) const
 	case DiseaseParam:
 		break;
 
+	case Hct_value:
+		return Hct;
+	case PA_EVL_value:
+		return PA_EVL;
+	case PV_EVL_value:
+		return PV_EVL;
+
 	case Kra:
 		return Kra_factor;
 	case Krv:
@@ -570,6 +585,27 @@ bool Model::setData(DataType type, double val)
 		if (significantChange(CL, val)) {
 			setNewVesselCL(CL, val);
 			CL = val;
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case Hct_value:
+		if (significantChange(Hct, val)) {
+			Hct = val;
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case PA_EVL_value:
+		if (significantChange(PA_EVL, val)) {
+			PA_EVL = val;
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case PV_EVL_value:
+		if (significantChange(PV_EVL, val)) {
+			PV_EVL = val;
 			modified_flag = true;
 			return true;
 		}
@@ -841,6 +877,12 @@ double Model::calibrationValue(DataType type)
 		return 0.0;
 	case Model::Ppl_value:
 		return -5.0;
+
+	case Model::Hct_value:
+		return 0.45;
+	case Model::PA_EVL_value:
+	case Model::PV_EVL_value:
+		return 10.0;
 
 	case Model::Kra:
 		return 0.0601624004060655;
@@ -1308,6 +1350,9 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(LAP);
 	SET_VALUE(PatWt);
 	SET_VALUE(PatHt);
+	SET_VALUE(Hct);
+	SET_VALUE(PA_EVL);
+	SET_VALUE(PV_EVL);
 
 	SET_VALUE(Kra_factor);
 	SET_VALUE(Krv_factor);
@@ -1488,6 +1533,9 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(LAP);
 	SET_VALUE(PatWt);
 	SET_VALUE(PatHt);
+	SET_VALUE(Hct);
+	SET_VALUE(PA_EVL);
+	SET_VALUE(PV_EVL);
 
 	SET_VALUE(Kra_factor);
 	SET_VALUE(Krv_factor);
@@ -1554,6 +1602,9 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	GET_VALUE(LAP);
 	GET_VALUE(PatWt);
 	GET_VALUE(PatHt);
+	GET_VALUE(Hct);
+	GET_VALUE(PA_EVL);
+	GET_VALUE(PV_EVL);
 
 	GET_VALUE(Kra_factor);
 	GET_VALUE(Krv_factor);
