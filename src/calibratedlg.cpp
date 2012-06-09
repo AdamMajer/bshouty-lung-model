@@ -59,6 +59,10 @@ CalibrateDlg::CalibrateDlg(QWidget *parent)
 	ui->MV->setText(doubleToString(base_model.getResult(Model::MV_value)));
 	ui->CL->setText(doubleToString(base_model.getResult(Model::CL_value)));
 
+	ui->Hct->setText(doubleToString(base_model.getResult(Model::Hct_value)));
+	ui->PA_EVL->setText(doubleToString(base_model.getResult(Model::PA_EVL_value)));
+	ui->PV_EVL->setText(doubleToString(base_model.getResult(Model::PV_EVL_value)));
+
 	ui->CO->setText(doubleToString(base_model.getResult(Model::CO_value)));
 	ui->LAP->setText(doubleToString(base_model.getResult(Model::LAP_value)));
 	ui->Pal->setText(doubleToString(base_model.getResult(Model::Pal_value)));
@@ -118,7 +122,10 @@ void CalibrateDlg::accept()
 	                << Model::PAP_value
 	                << Model::Kra
 	                << Model::Krv
-	                << Model::Krc;
+	                << Model::Krc
+	                << Model::Hct_value
+	                << Model::PA_EVL_value
+	                << Model::PV_EVL_value;
 
 	foreach (Model::DataType data_type, save_values) {
 		DbSettings::setValue(Model::calibrationPath(data_type),
@@ -360,6 +367,10 @@ void CalibrateDlg::resetBaseModel()
 	v.insert(Model::LAP_value, ui->LAP);
 	v.insert(Model::Pal_value, ui->Pal);
 	v.insert(Model::Ppl_value, ui->Ppl);
+
+	v.insert(Model::Hct_value, ui->Hct);
+	v.insert(Model::PA_EVL_value, ui->PA_EVL);
+	v.insert(Model::PV_EVL_value, ui->PV_EVL);
 
 	for (QMap<Model::DataType,QLineEdit*>::const_iterator i=v.begin(); i!=v.end(); ++i) {
 		base_model.setData(i.key(), i.value()->text().toDouble());
