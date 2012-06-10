@@ -81,6 +81,21 @@ CalibrateDlg::CalibrateDlg(QWidget *parent)
 	config_values.insert(ui->veins_length, QPair<QLatin1String,double>(vein_length_ratio, 1.50));
 	config_values.insert(ui->veins_diameter, QPair<QLatin1String,double>(vein_diam_ratio, 1.58));
 
+	connect(ui->tolerance, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->patHt, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->patWt, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->lungHt, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->MV, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->CL, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+
+	connect(ui->CO, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->LAP, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->Pal, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->Ppl, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+
+	connect(ui->Hct, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->PA_EVL, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->PV_EVL, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
 
 	for (ConfigValuesMap::const_iterator i=config_values.begin();
 	     i!=config_values.end();
@@ -323,6 +338,57 @@ void CalibrateDlg::calculationComplete()
 	        SLOT(calculationComplete()));
 	model_runner->beginCalculation();
 
+}
+
+void CalibrateDlg::valueEditorFinished(const QString &val_str)
+{
+	QMap<Model::DataType, QLineEdit*> v;
+	QMap<Model::DataType, double> current_values;
+	QLineEdit *editor = qobject_cast<QLineEdit*>(sender());
+
+	v.insert(Model::Tlrns_value, ui->tolerance);
+	v.insert(Model::Pat_Ht_value, ui->patHt);
+	v.insert(Model::Pat_Wt_value, ui->patWt);
+	v.insert(Model::Lung_Ht_value, ui->lungHt);
+	v.insert(Model::MV_value, ui->MV);
+	v.insert(Model::CL_value, ui->CL);
+
+	v.insert(Model::CO_value, ui->CO);
+	v.insert(Model::LAP_value, ui->LAP);
+	v.insert(Model::Pal_value, ui->Pal);
+	v.insert(Model::Ppl_value, ui->Ppl);
+
+	v.insert(Model::Hct_value, ui->Hct);
+	v.insert(Model::PA_EVL_value, ui->PA_EVL);
+	v.insert(Model::PV_EVL_value, ui->PV_EVL);
+
+	// save current values
+	bool fOk;
+	const double new_val = val_str.toDouble(&fOk);
+	if (!fOk)
+		return;
+
+	Model::DataType edited_type = (Model::DataType)-1;
+	for (QMap<Model::DataType,QLineEdit*>::const_iterator i=v.begin(); i!=v.end(); ++i) {
+		current_values[i.key()] = base_model.getResult(i.key());
+		if (i.value() == editor)
+			edited_type = i.key();
+	}
+	// update changed value
+	if (edited_type == -1)
+		return; // should not happen!
+	if (!visibleChange(base_model.getResult(edited_type), new_val))
+		return;
+	base_model.setData(edited_type, new_val);
+	current_values[edited_type] = new_val;
+
+	// update values that were modified
+	for (QMap<Model::DataType,QLineEdit*>::const_iterator i=v.begin(); i!=v.end(); ++i) {
+		const double cur_val = current_values[i.key()];
+		const double new_val = base_model.getResult(i.key());
+		if (visibleChange(cur_val, new_val))
+			i.value()->setText(doubleToString(new_val));
+	}
 }
 
 struct CalibrationValue CalibrateDlg::correctVariable(const CalibrationValue &value) const

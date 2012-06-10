@@ -44,12 +44,13 @@ public slots:
 	void on_calculateButton_clicked();
 	void on_resetButton_clicked();
 
+protected slots:
+	void calculationComplete();
+	void valueEditorFinished(const QString &val);
+
 protected:
 	struct CalibrationValue correctVariable(const struct CalibrationValue & value) const;
 	void resetBaseModel();
-
-protected slots:
-	void calculationComplete();
 
 private:
 	Ui::CalibrateDlg *ui;
