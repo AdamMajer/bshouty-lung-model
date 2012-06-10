@@ -34,6 +34,8 @@ long int lrint(double x);
 
 extern QString doubleToString(double value);
 extern QString doubleToString(double value, int n_decimals);
+extern bool significantChange(double val1, double val2);
+extern bool visibleChange(double val1, double val2);
 
 const QLatin1String numeric_validator_rx("^[-]?\\d+(\\.\\d+)?$");
 

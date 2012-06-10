@@ -48,18 +48,6 @@ static inline double sqr( double n )
 	return n*n;
 }
 
-static inline bool significantChange(double old_val, double new_val)
-{
-	/* Returns true if old_val differs from new_val by more than 1 part in 10e6 */
-	double abs_sum = fabs(old_val + new_val);
-
-	if (abs_sum < 10e-6)
-		return true;
-
-	return fabs(old_val - new_val) / abs_sum > 10e-6;
-}
-
-
 bool operator==(const struct Vessel &a, const struct Vessel &b)
 {
 	return memcmp(&a, &b, sizeof(struct Vessel)) == 0 ||

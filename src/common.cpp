@@ -18,6 +18,7 @@
  */
 
 #include <QString>
+#include <limits>
 #include <math.h>
 #include "common.h"
 
@@ -70,6 +71,19 @@ QString doubleToString(double val)
 QString doubleToString(double value, int n_decimals)
 {
 	return QString::number(value, 'f', n_decimals);
+}
+
+bool significantChange(double old_val, double new_val)
+{
+	/* Returns true if old_val differs */
+	double abs_max = std::max(fabs(old_val), fabs(new_val));
+
+	return fabs(old_val - new_val) > std::numeric_limits<double>::epsilon() * abs_max;
+}
+
+bool visibleChange(double val1, double val2)
+{
+	return doubleToString(val1) != doubleToString(val2);
 }
 
 void* allocateCachelineAligned(int size)
