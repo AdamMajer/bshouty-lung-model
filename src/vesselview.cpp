@@ -123,7 +123,7 @@ void VesselView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 		// scale the font to allow a minimum of 18 lines of text to be displayed
 		double line_height = painter->fontMetrics().lineSpacing();
-		double scale_factor = draw_area.height() / (18.0 * line_height);
+		double scale_factor = draw_area.height() / (25.0 * line_height);
 
 		if (font.pointSizeF() < 0)
 			font.setPixelSize(font.pixelSize() * scale_factor);
@@ -156,9 +156,9 @@ QString VesselView::headers(double lod) const
 
 	switch (type()) {
 	case Artery:
-		return QLatin1String("\nR\nA\nB\nPeri. a\nPeri. b\nPeri. c\n\nVm\nCL\nGP\nPTP\nTone\nFlow\nPin");
+		return QLatin1String("\nR\nA\nB\nPeri. a\nPeri. b\nPeri. c\n\nVm\nCL\nGP\nPTP\nTone\nFlow\nPin\n\nLength\nD\nDmin\nDmax\nVisc. Factor\nVolume");
 	case Vein:
-		return QLatin1String("\nR\nB\nC\nPeri. a\nPeri. b\nPeri. c\n\nVm\nCL\nGP\nPTP\nTone\nFlow\nPin");
+		return QLatin1String("\nR\nB\nC\nPeri. a\nPeri. b\nPeri. c\n\nVm\nCL\nGP\nPTP\nTone\nFlow\nPin\n\nLength\nD\nDmin\nDmax\nVisc. Factor\nVolume");
 	case Capillary:
 		return QLatin1String("\nR\nAlpha\nHo");
 	}
@@ -191,6 +191,15 @@ QString VesselView::baselineValuesText(double lod) const
 		value_list << doubleToString(baseline_vessel->GP);
 		value_list << doubleToString(baseline_vessel->Ptp);
 		value_list << doubleToString(baseline_vessel->tone);
+		value_list << QString::null;
+		value_list << QString::null;
+		value_list << QString::null;
+		value_list << doubleToString(baseline_vessel->length);
+		value_list << doubleToString(baseline_vessel->D);
+		value_list << QString::null;
+		value_list << QString::null;
+		value_list << QString::null;
+		value_list << QString::null;
 		break;
 	case Capillary:
 		value_list << doubleToString(baseline_cap->R);
@@ -229,7 +238,13 @@ QString VesselView::calculatedValuesText(double lod) const
 		value_list << doubleToString(vessel->tone);
 		value_list << doubleToString(vessel->flow);
 		value_list << doubleToString(vessel->pressure);
-
+		value_list << QString::null;
+		value_list << doubleToString(vessel->length);
+		value_list << doubleToString(vessel->D_calc);
+		value_list << doubleToString(vessel->Dmin);
+		value_list << doubleToString(vessel->Dmax);
+		value_list << doubleToString(vessel->viscosity_factor);
+		value_list << doubleToString(vessel->volume);
 		break;
 	case Capillary:
 		value_list << doubleToString(cap->R);

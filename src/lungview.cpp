@@ -170,7 +170,7 @@ void LungView::zoom(double scale, QPointF scene_point)
 	// limit max zoom, depending on numGenerations()
 	ModelScene *s = dynamic_cast<ModelScene*>(scene());
 	if (s != 0) {
-		double zoom_max = 7 << s->model().nGenerations();
+		double zoom_max = 10 << s->model().nGenerations();
 		if (qMin(t.m11(), t.m22())*scale > zoom_max)
 			scale = zoom_max / qMin(t.m11(), t.m22());
 	}
