@@ -8,15 +8,15 @@ struct Vessel {
 	float tone;
 	float flow;
 	float Ppl;
-	
+
 	float a;
 	float b;
 	float c;
-	
+
 	float peri_a;
 	float peri_b;
 	float peri_c;
-	
+
 	float Kz;
 	float pad[3]; // pad to 64 bytes
 };
@@ -27,12 +27,12 @@ inline float sqr(float n)
 }
 
 __kernel void integrateInsideArtery(
-                   __global __read_only struct Vessel *v, 
-                   __global __write_only float *result)
+                __global __read_only struct Vessel *v, 
+                __global __write_only float *result)
 {
 	const size_t vessel_index = get_global_id(0) + get_global_id(1)*WIDTH;
 	const struct Vessel art = v[vessel_index];
-	
+
 	float Rtot = 0.0;
 	float Pout = art.pressure;
 
@@ -40,64 +40,64 @@ __kernel void integrateInsideArtery(
 	float Rs;
 
 	Ptm = Ptm - art.Ppl - art.peri_a - art.peri_b * exp( art.peri_c * ( Ptm - art.Ppl ));
-        if( Ptm < 0 )
-                Rs = -Ptm/( 1.36 * art.flow ); // Starling Resistor
-        else
-                Rs = art.Kz / sqr( art.a + art.b * Ptm );
+	if( Ptm < 0 )
+		Rs = -Ptm/( 1.36 * art.flow ); // Starling Resistor
+		else
+			Rs = art.Kz / sqr( art.a + art.b * Ptm );
 
-        Pout = Pout + art.flow * Rs;
-        Rtot += Rs;
+	Pout = Pout + art.flow * Rs;
+	Rtot += Rs;
 
-        for (int sum=1; sum<nSums; sum++){
-                Ptm = 1.36 * ( Pout - art.tone ) - art.GP;
-                Ptm = Ptm - art.Ppl - art.peri_a - art.peri_b * exp( art.peri_c * ( Ptm - art.Ppl ));
-                Rs = art.Kz / sqr(art.a + art.b * Ptm);
+	for (int sum=1; sum<nSums; sum++){
+		Ptm = 1.36 * ( Pout - art.tone ) - art.GP;
+		Ptm = Ptm - art.Ppl - art.peri_a - art.peri_b * exp( art.peri_c * ( Ptm - art.Ppl ));
+		Rs = art.Kz / sqr(art.a + art.b * Ptm);
 
-                Pout += art.flow * Rs;
-                Rtot += Rs;
-        }
-        Rtot = 0.5*Rtot + 0.5*art.R;
-        result[vessel_index] = Rtot;
+		Pout += art.flow * Rs;
+		Rtot += Rs;
+	}
+	Rtot = 0.5*Rtot + 0.5*art.R;
+	result[vessel_index] = Rtot;
 }
 
 __kernel void integrateOutsideArtery(
-                   __global __read_only struct Vessel *v,
-                   __global __write_only float *result)
+                __global __read_only struct Vessel *v,
+                __global __write_only float *result)
 {
 	const size_t vessel_index = get_global_id(0) + get_global_id(1)*WIDTH;
 	const struct Vessel art = v[vessel_index];
-	
+
 	float Rtot = 0.0;
 	float Pout = art.pressure;
 
 	float Ptm = 1.36 * ( Pout - art.tone ) - art.GP;
 	float Rs;
 
-        Ptm = Ptm - art.Ppl;
-        if( Ptm < 0 )
-                Rs = -Ptm/( 1.36 * art.flow ); // Starling Resistor
-        else
-                Rs = art.Kz / sqr( art.a + art.b * Ptm );
+	Ptm = Ptm - art.Ppl;
+	if( Ptm < 0 )
+		Rs = -Ptm/( 1.36 * art.flow ); // Starling Resistor
+	else
+		Rs = art.Kz / sqr( art.a + art.b * Ptm );
 
-        Pout = Pout + art.flow * Rs;
-        Rtot += Rs;
+	Pout = Pout + art.flow * Rs;
+	Rtot += Rs;
 
-        for (int sum=1; sum<nSums; sum++){
-                Ptm = 1.36 * ( Pout - art.tone ) - art.GP;
-                Ptm = Ptm - art.Ppl;
-                Rs = art.Kz / sqr(art.a + art.b * Ptm);
+	for (int sum=1; sum<nSums; sum++){
+		Ptm = 1.36 * ( Pout - art.tone ) - art.GP;
+		Ptm = Ptm - art.Ppl;
+		Rs = art.Kz / sqr(art.a + art.b * Ptm);
 
-                Pout += art.flow * Rs;
-                Rtot += Rs;
-        }
-        Rtot = 0.5*Rtot + 0.5*art.R;
-        result[vessel_index] = Rtot;
+		Pout += art.flow * Rs;
+		Rtot += Rs;
+	}
+	Rtot = 0.5*Rtot + 0.5*art.R;
+	result[vessel_index] = Rtot;
 }
 
 __kernel void integrateInsideVein(
-                   __global __read_only struct Vessel *v, 
-                   __global __read_only float *next_vein_pressure, 
-                   __global __write_only float *result)
+                __global __read_only struct Vessel *v, 
+                __global __read_only float *next_vein_pressure, 
+                __global __write_only float *result)
 {
 	const size_t vessel_index = get_global_id(0) + get_global_id(1)*WIDTH;
 	const struct Vessel vein = v[vessel_index];
@@ -134,9 +134,9 @@ __kernel void integrateInsideVein(
 }
 
 __kernel void integrateOutsideVein(
-                   __global __read_only struct Vessel *v, 
-                   __global __read_only float *next_vein_pressure, 
-                   __global __write_only float *result)
+                __global __read_only struct Vessel *v, 
+                __global __read_only float *next_vein_pressure, 
+                __global __write_only float *result)
 {
 	const size_t vessel_index = get_global_id(0) + get_global_id(1)*WIDTH;
 	const struct Vessel vein = v[vessel_index];
