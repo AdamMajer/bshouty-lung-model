@@ -27,6 +27,7 @@ class AbstractIntegrationHelper
 
 public:
 	AbstractIntegrationHelper(Model *model);
+	virtual ~AbstractIntegrationHelper();
 
 	/* Integrate resistances across all arteries and veins and returns
 	 * the maximum deviation from the pre-integration resistance value.

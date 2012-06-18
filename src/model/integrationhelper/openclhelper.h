@@ -28,7 +28,7 @@ class OpenCLIntegrationHelper : public AbstractIntegrationHelper
 {
 public:
 	OpenCLIntegrationHelper(Model *model);
-	~OpenCLIntegrationHelper();
+	virtual ~OpenCLIntegrationHelper();
 
 	virtual double integrate();
 	virtual bool isAvailable() const { return is_available; }

@@ -26,3 +26,7 @@ AbstractIntegrationHelper::AbstractIntegrationHelper(Model *m)
 
 }
 
+AbstractIntegrationHelper::~AbstractIntegrationHelper()
+{
+
+}
