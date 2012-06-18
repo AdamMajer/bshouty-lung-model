@@ -104,7 +104,7 @@ float OpenCLIntegrationHelper::integrateByDevice(OpenCL_device &dev)
 	const int n_outside_elements = nOutsideElements();
 
 	struct CL_Vessel *cl_vessel = dev.cl_vessel;
-	float *ret_values = dev.integration_workspace;
+	struct CL_Result *ret_values = dev.integration_workspace;
 	float ret = 0.0;
 
 	/* Integrate all arteries, then integrate veins. Scheduling same code in the work
@@ -138,7 +138,7 @@ float OpenCLIntegrationHelper::processWorkGroup(
         const WorkGroup &w,
         OpenCL_device &dev,
         CL_Vessel *cl_vessel_buf,
-        float *ret_values_buf)
+        CL_Result *ret_values_buf)
 {
 	const OpenCL_func f = cl->functions();
 	cl_int err;
@@ -159,6 +159,11 @@ float OpenCLIntegrationHelper::processWorkGroup(
 		                             0, NULL, NULL);
 		cl->errorCheck(err);
 		int kernel_arg_no = 0;
+
+		cl_float hct = Hct();
+		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(float), &hct);
+		cl->errorCheck(err);
+
 		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(cl_mem), &dev.mem_vein_buffer);
 		cl->errorCheck(err);
 		if (w.uses_vein_pressures) {
@@ -180,13 +185,13 @@ float OpenCLIntegrationHelper::processWorkGroup(
 		cl->errorCheck(err);
 
 		err = f.clEnqueueReadBuffer(dev.queue, dev.mem_results, CL_TRUE,
-		                            0, sizeof(float)*n, ret_values_buf,
+		                            0, sizeof(CL_Result)*n, ret_values_buf,
 		                            0, NULL, NULL);
 		cl->errorCheck(err);
 
 		for (int i=0; i<n; ++i) {
-			w.vessels[idx+i].R = ret_values_buf[i];
-			ret = qMax(ret, (cl_vessel_buf[i].R - ret_values_buf[i])/cl_vessel_buf[i].R);
+			updateResults(ret_values_buf, w.vessels+idx, n);
+			ret = qMax(ret, (cl_vessel_buf[i].R - ret_values_buf[i].R)/cl_vessel_buf[i].R);
 		}
 
 		// qDebug() << "dev type: " << (int)dev.device_type << "  ret: " << ret;
@@ -198,7 +203,9 @@ float OpenCLIntegrationHelper::processWorkGroup(
 	return ret;
 }
 
-void OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels, const Vessel *vessels, int n)
+void OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
+                                            const Vessel *vessels,
+                                            int n)
 {
 	for (int i=0; i<n; ++i) {
 		const Vessel &v = vessels[i];
@@ -217,5 +224,25 @@ void OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels, const Vessel 
 		c.pressure = v.pressure;
 		c.R = v.R;
 		c.tone = v.tone;
+
+		c.D = v.D;
+		c.len = v.length;
+	}
+}
+
+void OpenCLIntegrationHelper::updateResults(const CL_Result *cl_vessels,
+                                            Vessel *vessels,
+                                            int n)
+{
+	for (int i=0; i<n; ++i) {
+		Vessel &v = vessels[i];
+		const CL_Result &r = cl_vessels[i];
+
+		v.R = r.R;
+		v.D_calc = r.D;
+		v.Dmax = r.Dmax;
+		v.Dmin = r.Dmin;
+		v.viscosity_factor = r.viscosity_factor;
+		v.volume = r.vol;
 	}
 }

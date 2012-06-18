@@ -53,6 +53,12 @@ struct CalibrationFactors {
 struct Vessel
 {
 	double R;
+	double D;
+	double D_calc, Dmin, Dmax; // in micro-meter
+	double volume; // cm**3
+	double length; // in cm
+	double viscosity_factor;
+
 	double a,b,c;
 	double tone;
 
@@ -73,7 +79,7 @@ struct Vessel
 
 	double MV, CL;
 
-	char cacheline_padding[40]; // padding to 64-byte caching boundary
+	double cacheline_padding[6]; // padding to 64-byte caching boundary
 };
 
 struct Capillary

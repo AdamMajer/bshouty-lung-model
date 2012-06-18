@@ -55,6 +55,13 @@ bool operator==(const struct Vessel &a, const struct Vessel &b)
 	      significantChange(a.b, b.b) ||
 	      significantChange(a.c, b.c) ||
 	      significantChange(a.R, b.R) ||
+	      significantChange(a.D, b.D) ||
+	      significantChange(a.D_calc, b.D_calc) ||
+	      significantChange(a.Dmin, b.Dmin) ||
+	      significantChange(a.Dmax, b.Dmax) ||
+	      significantChange(a.volume, b.volume) ||
+	      significantChange(a.length, b.length) ||
+	      significantChange(a.viscosity_factor, b.viscosity_factor) ||
 	      significantChange(a.tone, b.tone) ||
 	      significantChange(a.GP, b.GP) ||
 	      significantChange(a.GPz, b.GPz) ||
@@ -926,6 +933,12 @@ void Model::getKz()
 
 		veins[i].length_factor =
 		        fmax(1.0, exp((log(1-(1-MV)*exp(-CL*veins[i].Ptp)))/3)/0.7368);
+
+		// Length only changes inside lung
+		if (!isOutsideLung(i)) {
+			arteries[i].length *= arteries[i].length_factor;
+			veins[i].length *= veins[i].length_factor;
+		}
 	}
 
 	for( int i=0; i<n; i++ ){
@@ -1181,6 +1194,32 @@ void Model::initVesselBaselineResistances(double cKra, double cKrv, int gen)
 		arteries[i].R = cKra * a_factor;
 		veins[i].R = cKrv * v_factor;
 
+		/* calculate baseline vessel diameters from resistances
+		 *
+		 * Initially blood is assumed to have a normal Hct of 0.45 and
+		 * a normal viscosity of 3.2 (the units are centiPoise).
+		 *
+		 * From the equations R=8*Pi*Mi*L/A^2
+		 *
+		 * One can calculate baseline vessel cross-sectional area using
+		 * the following relationship:
+		 *
+		 * R(baseline)*8000=8*pi*3.2*L/A(baseline)^2
+		 *
+		 * From A(baseline)=Pi*(vessel Diameter/2)^2
+		 * one can calculate PA and PV baseline diameters
+		 *
+		 * Based on this diameter and the diameter ratios for arteries
+		 * and veins one can calculate baseline diameters of all vessels.
+		 */
+
+		// convert cm => um (1e4 factor)
+		arteries[i].length = PA_EVL / pow(art_calib.len_ratio, gen-1);
+		arteries[i].D = 1e4 * sqrt(3.2/250.0 * arteries[i].length / arteries[i].R);
+
+		veins[i].length = PV_EVL / pow(vein_calib.len_ratio, gen-1);
+		veins[i].D = 1e4 * sqrt(3.2/250.0 * veins[i].length / veins[i].R);
+
 		// GP was calculated with GP=0 being top of lung
 		// then corrected based on transducer position
 		// GPz is a fraction of lung height
@@ -1395,6 +1434,14 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			const Vessel &v = (type==1 ? arteries[n] : veins[n]);
 
 			SET_VALUE(v.R);
+			SET_VALUE(v.D);
+			SET_VALUE(v.Dmin);
+			SET_VALUE(v.Dmax);
+			SET_VALUE(v.D_calc);
+			SET_VALUE(v.volume);
+			SET_VALUE(v.length);
+			SET_VALUE(v.viscosity_factor);
+
 			SET_VALUE(v.a);
 			SET_VALUE(v.b);
 			SET_VALUE(v.c);
@@ -1625,6 +1672,14 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			Vessel &v = (type==1 ? arteries[n] : veins[n]);
 
 			SET_VALUE(v.R);
+			SET_VALUE(v.D);
+			SET_VALUE(v.Dmin);
+			SET_VALUE(v.Dmax);
+			SET_VALUE(v.D_calc);
+			SET_VALUE(v.volume);
+			SET_VALUE(v.length);
+			SET_VALUE(v.viscosity_factor);
+
 			SET_VALUE(v.a);
 			SET_VALUE(v.b);
 			SET_VALUE(v.c);
@@ -1664,6 +1719,14 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			}
 
 			GET_VALUE(v.R);
+			GET_VALUE(v.D);
+			GET_VALUE(v.Dmin);
+			GET_VALUE(v.Dmax);
+			GET_VALUE(v.D_calc);
+			GET_VALUE(v.volume);
+			GET_VALUE(v.length);
+			GET_VALUE(v.viscosity_factor);
+
 			GET_VALUE(v.a);
 			GET_VALUE(v.b);
 			GET_VALUE(v.c);

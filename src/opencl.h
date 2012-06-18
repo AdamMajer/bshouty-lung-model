@@ -137,7 +137,7 @@ typedef struct _opencl_device
 	bool              device_enabled;
 
 	struct CL_Vessel *cl_vessel; // 1024 vessels workspace
-	float *integration_workspace; // 1024 results workspace
+	struct CL_Result *integration_workspace; // 1024 results workspace
 
 	_opencl_device() : hash(), device_enabled(true) {}
 } OpenCL_device;
@@ -162,7 +162,21 @@ struct CL_Vessel {
 	cl_float peri_c;
 
 	cl_float Kz;
-	cl_float pad[3]; // pad to 64 bytes
+
+	cl_float D;
+	cl_float len;
+	cl_float pad[1]; // pad to 64 bytes
+};
+
+struct CL_Result {
+	cl_float R;
+	cl_float D;
+	cl_float Dmin;
+	cl_float Dmax;
+	cl_float vol;
+	cl_float viscosity_factor;
+
+	cl_float pad[10]; // pad to 64 bytes
 };
 
 class opencl_exception : public std::runtime_error

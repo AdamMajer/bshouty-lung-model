@@ -36,9 +36,12 @@ public:
 
 protected:
 	float integrateByDevice(OpenCL_device &dev);
-	float processWorkGroup(const struct WorkGroup &wg, OpenCL_device &dev,
-	                       struct CL_Vessel *cl_vessel_buf, float *ret_values_buf);
+	float processWorkGroup(const struct WorkGroup &wg,
+	                       OpenCL_device &dev,
+	                       struct CL_Vessel *cl_vessel_buf,
+	                       struct CL_Result *ret_values_buf);
 	static void assignVessels(struct CL_Vessel*, const Vessel*, int n);
+	static void updateResults(const struct CL_Result*, Vessel*, int n);
 
 private:
 	bool is_available;

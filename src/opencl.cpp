@@ -299,10 +299,10 @@ void OpenCL::addDevice(cl_platform_id platform_id, cl_device_id device_id)
 	cl->errorCheck(err);
 	dev.mem_pressures = opencl.clCreateBuffer(dev.context, CL_MEM_READ_ONLY, sizeof(float)*4*256, NULL, &err);
 	cl->errorCheck(err);
-	dev.mem_results = opencl.clCreateBuffer(dev.context, CL_MEM_WRITE_ONLY, sizeof(float)*4*256, NULL, &err);
+	dev.mem_results = opencl.clCreateBuffer(dev.context, CL_MEM_WRITE_ONLY, sizeof(CL_Result)*4*256, NULL, &err);
 	cl->errorCheck(err);
 
-	dev.integration_workspace = (float*)allocPageAligned(sizeof(float)*1024);
+	dev.integration_workspace = (CL_Result*)allocPageAligned(sizeof(CL_Result)*1024);
 	dev.cl_vessel = (CL_Vessel*)allocPageAligned(sizeof(CL_Vessel)*1024);
 
 	opencl_devices.push_back(dev);

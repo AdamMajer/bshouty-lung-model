@@ -43,6 +43,7 @@ protected:
 	int nElements() const { return model->nElements(); }
 	int nOutsideElements() const { return model->nOutsideElements(); }
 	double LAP() const { return model->LAP; }
+	double Hct() const { return model->Hct; }
 
 private:
 	Model *model;
