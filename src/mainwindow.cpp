@@ -228,7 +228,6 @@ MainWindow::MainWindow(QWidget *parent)
 #endif
 }
 
-
 void MainWindow::load(const QString &filename)
 {
 	{
@@ -392,10 +391,10 @@ void MainWindow::updateResults()
 
 	DiseaseList diseases = disease_model->diseases();
 	const std::vector<std::vector<Range> > disease_param_ranges = disease_model->diseaseParamRanges();
-	for (int disease_no=0; disease_no<disease_param_ranges.size(); ++disease_no) {
+	for (unsigned disease_no=0; disease_no<disease_param_ranges.size(); ++disease_no) {
 		const std::vector<Range> &param_ranges = disease_param_ranges.at(disease_no);
 
-		for (int param_no=0; param_no<param_ranges.size(); ++param_no) {
+		for (unsigned param_no=0; param_no<param_ranges.size(); ++param_no) {
 			Range range = param_ranges.at(param_no);
 
 			if (range.sequenceCount() > 1) {

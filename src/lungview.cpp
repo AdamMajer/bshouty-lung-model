@@ -42,7 +42,7 @@ LungView::~LungView()
 void LungView::drawForeground(QPainter *painter, const QRectF &rect)
 {
 	// top 1ine of the window is for labels of generation in a given column
-	int dpx = viewport()->logicalDpiX();
+	// int dpx = viewport()->logicalDpiX();
 	int dpy = viewport()->logicalDpiY();
 	QColor bg_color(240, 240, 240, 120);
 	QRectF r = mapToScene(QRect(0, 0, width(), dpy)).boundingRect();
