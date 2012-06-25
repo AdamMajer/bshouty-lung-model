@@ -40,7 +40,7 @@
 */
 const double K1 = 0.5;
 const double K2 = 0.5;
-const int nSums = 10000; // number of divisions in the integral
+const int nSums = 8192; // number of divisions in the integral
 
 /* Helper functions */
 static inline double sqr( double n )
