@@ -26,7 +26,7 @@
 #include "ui_calibratedlg.h"
 #include <limits>
 
-const int CalibrateDlg::n_gen_progression[] = {5, 6, 15, 16, 0};
+const int CalibrateDlg::n_gen_progression[] = {/*5, 6, */15, /*16,*/ 0};
 
 CalibrateDlg::CalibrateDlg(QWidget *parent)
         : QDialog(parent),
@@ -38,12 +38,12 @@ CalibrateDlg::CalibrateDlg(QWidget *parent)
 
 	struct CalibrationValue value;
 
-	value.type = Kra;
-	value.input = base_model.getKra();
+	value.type = PA_diam;
+	value.input = base_model.getResult(Model::PA_Diam_value);
 	calibration_values.push_back(value);
 
-	value.type = Krv;
-	value.input = base_model.getKrv();
+	value.type = PV_diam;
+	value.input = base_model.getResult(Model::PV_Diam_value);
 	calibration_values.push_back(value);
 
 	value.type = Krc;
@@ -56,8 +56,9 @@ CalibrateDlg::CalibrateDlg(QWidget *parent)
 	ui->patHt->setText(doubleToString(base_model.getResult(Model::Pat_Ht_value)));
 	ui->patWt->setText(doubleToString(base_model.getResult(Model::Pat_Wt_value)));
 	ui->lungHt->setText(doubleToString(base_model.getResult(Model::Lung_Ht_value)));
-	ui->MV->setText(doubleToString(base_model.getResult(Model::MV_value)));
-	ui->CL->setText(doubleToString(base_model.getResult(Model::CL_value)));
+	ui->Vrv->setText(doubleToString(base_model.getResult(Model::Vrv_value)));
+	ui->Vfrc->setText(doubleToString(base_model.getResult(Model::Vfrc_value)));
+	ui->Vtlc->setText(doubleToString(base_model.getResult(Model::Vtlc_value)));
 
 	ui->Hct->setText(doubleToString(base_model.getResult(Model::Hct_value)));
 	ui->PA_EVL->setText(doubleToString(base_model.getResult(Model::PA_EVL_value)));
@@ -85,8 +86,9 @@ CalibrateDlg::CalibrateDlg(QWidget *parent)
 	connect(ui->patHt, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
 	connect(ui->patWt, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
 	connect(ui->lungHt, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
-	connect(ui->MV, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
-	connect(ui->CL, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->Vrv, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->Vfrc, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->Vtlc, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
 
 	connect(ui->CO, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
 	connect(ui->LAP, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
@@ -129,14 +131,14 @@ void CalibrateDlg::accept()
 	                << Model::Tlrns_value
 	                << Model::Pat_Ht_value
 	                << Model::Pat_Wt_value
-	                << Model::MV_value
-	                << Model::CL_value
+//	                << Model::MV_value
+//	                << Model::CL_value
 	                << Model::CO_value
 	                << Model::LAP_value
 	                << Model::Pal_value
 	                << Model::PAP_value
-	                << Model::Kra
-	                << Model::Krv
+	                << Model::PA_Diam_value
+	                << Model::PV_Diam_value
 	                << Model::Krc
 	                << Model::Hct_value
 	                << Model::PA_EVL_value
@@ -164,11 +166,11 @@ void CalibrateDlg::on_calculateButton_clicked()
 	double target_total = 0.0;
 	for (std::list<CalibrationValue>::iterator i=calibration_values.begin(); i!=calibration_values.end(); i++) {
 		switch (i->type) {
-		case Kra:
+		case PA_diam:
 			i->target = ui->target_rus->text().toDouble() / 100.0;
 			target_total += i->target;
 			break;
-		case Krv:
+		case PV_diam:
 			i->target = ui->target_rds->text().toDouble() / 100.0;
 			target_total += i->target;
 			break;
@@ -227,13 +229,13 @@ void CalibrateDlg::calculationComplete()
 	const double rm = m->getResult(Model::Rm_value);
 	const double rds = m->getResult(Model::Rds_value);
 
-	double kra = base_model.getKra();
-	double krv = base_model.getKrv();
+	double pa_diam = base_model.getResult(Model::PA_Diam_value);
+	double pv_diam = base_model.getResult(Model::PV_Diam_value);
 	double krc = base_model.getKrc();
 
 	// display numbers
-	ui->kra->setText(doubleToString(kra, 9));
-	ui->krv->setText(doubleToString(krv, 9));
+	ui->pa_diameter->setText(doubleToString(pa_diam, 9));
+	ui->pv_diameter->setText(doubleToString(pv_diam, 9));
 	ui->krc->setText(doubleToString(krc, 9));
 
 	ui->pap->setText(doubleToString(pap));
@@ -252,54 +254,55 @@ void CalibrateDlg::calculationComplete()
 
 	if (calibration_complete && fabs(pap-target_pap)/target_pap > tlrns) {
 		double diff = 1.0 + (target_pap-pap)/target_pap/2.0;
-		kra *= diff;
-		krv *= diff;
+		pa_diam /= sqrt(diff);
+		pv_diam /= sqrt(diff);
 		krc *= diff;
 
 		calibration_complete = false;
 	}
 
 	// first adjust for the ratio between variables
-	if (calibration_complete)
-	for (std::list<CalibrationValue>::iterator i=calibration_values.begin();
-	     i!=calibration_values.end();
-	     ++i) {
+	if (calibration_complete) {
+		for (std::list<CalibrationValue>::iterator i=calibration_values.begin();
+		     i!=calibration_values.end();
+		     ++i) {
 
-		CalibrationValue &value = *i;
+			CalibrationValue &value = *i;
 
-		switch (value.type) {
-		case Kra:
-			value.input = kra;
-			value.current_value = rus/pvr;
-			break;
-		case Krv:
-			value.input = krv;
-			value.current_value = rds/pvr;
-			break;
-		case Krc:
-			value.input = krc;
-			value.current_value = rm/pvr;
-			break;
+			switch (value.type) {
+			case PA_diam:
+				value.input = pa_diam;
+				value.current_value = rus/pvr;
+				break;
+			case PV_diam:
+				value.input = pv_diam;
+				value.current_value = rds/pvr;
+				break;
+			case Krc:
+				value.input = krc;
+				value.current_value = rm/pvr;
+				break;
+			}
+
+			value.is_modified = false;
+			CalibrationValue new_value = correctVariable(value);
+
+			switch (value.type) {
+			case PA_diam:
+				pa_diam = new_value.input;
+				break;
+			case PV_diam:
+				pv_diam = new_value.input;
+				break;
+			case Krc:
+				krc = new_value.input;
+				break;
+			}
+
+			*i = new_value;
+
+			calibration_complete = calibration_complete && !value.is_modified;
 		}
-
-		value.is_modified = false;
-		CalibrationValue new_value = correctVariable(value);
-
-		switch (value.type) {
-		case Kra:
-			kra = new_value.input;
-			break;
-		case Krv:
-			krv = new_value.input;
-			break;
-		case Krc:
-			krc = new_value.input;
-			break;
-		}
-
-		*i = new_value;
-
-		calibration_complete = calibration_complete && !value.is_modified;
 	}
 
 	if (calibration_complete) {
@@ -328,10 +331,12 @@ void CalibrateDlg::calculationComplete()
 				qFatal("Should not happen");
 			}
 		}
-	}
+	} // if (calibration_complete)
 
 	resetBaseModel();
-	base_model.setKrFactors(kra, krv, krc);
+	base_model.setKrFactors(krc);
+	base_model.setData(Model::PA_Diam_value, pa_diam);
+	base_model.setData(Model::PV_Diam_value, pv_diam);
 	model_runner->deleteLater();
 	model_runner = new AsyncRangeModelHelper(base_model, this);
 	connect(model_runner, SIGNAL(calculationComplete()),
@@ -350,8 +355,9 @@ void CalibrateDlg::valueEditorFinished(const QString &val_str)
 	v.insert(Model::Pat_Ht_value, ui->patHt);
 	v.insert(Model::Pat_Wt_value, ui->patWt);
 	v.insert(Model::Lung_Ht_value, ui->lungHt);
-	v.insert(Model::MV_value, ui->MV);
-	v.insert(Model::CL_value, ui->CL);
+	v.insert(Model::Vrv_value, ui->Vrv);
+	v.insert(Model::Vfrc_value, ui->Vfrc);
+	v.insert(Model::Vtlc_value, ui->Vtlc);
 
 	v.insert(Model::CO_value, ui->CO);
 	v.insert(Model::LAP_value, ui->LAP);
@@ -396,7 +402,18 @@ struct CalibrationValue CalibrateDlg::correctVariable(const CalibrationValue &va
 	CalibrationValue v = value;
 
 	if (fabs(value.target - value.current_value)/value.target > tlrns) {
-		v.input *= 1.0 + (value.target - value.current_value)/value.target/2.0;
+		const double diff_percent = 1.0 + (value.target - value.current_value)/value.target/2.0;
+
+		switch (value.type) {
+		case PA_diam:
+		case PV_diam:
+			v.input /= sqrt(diff_percent);
+			break;
+		default:
+			v.input *= diff_percent;
+			break;
+		}
+
 		v.is_modified = true;
 	}
 
@@ -426,8 +443,9 @@ void CalibrateDlg::resetBaseModel()
 	v.insert(Model::Pat_Ht_value, ui->patHt);
 	v.insert(Model::Pat_Wt_value, ui->patWt);
 	v.insert(Model::Lung_Ht_value, ui->lungHt);
-	v.insert(Model::MV_value, ui->MV);
-	v.insert(Model::CL_value, ui->CL);
+	v.insert(Model::Vrv_value, ui->Vrv);
+	v.insert(Model::Vfrc_value, ui->Vfrc);
+	v.insert(Model::Vtlc_value, ui->Vtlc);
 
 	v.insert(Model::CO_value, ui->CO);
 	v.insert(Model::LAP_value, ui->LAP);

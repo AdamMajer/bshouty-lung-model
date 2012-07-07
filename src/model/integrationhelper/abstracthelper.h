@@ -46,6 +46,15 @@ protected:
 	double LAP() const { return model->LAP; }
 	double Hct() const { return model->Hct; }
 
+	double arteryRatio(int idx) const {
+		const int gen = model->gen_no(idx);
+		return model->nElements(gen) / (double)model->nVessels(CalibrationFactors::Artery, gen);
+	}
+	double veinRatio(int idx) const {
+		const int gen = model->gen_no(idx);
+		return model->nElements(gen) / (double)model->nVessels(CalibrationFactors::Vein, gen);
+	}
+
 private:
 	Model *model;
 };

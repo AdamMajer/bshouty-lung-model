@@ -156,9 +156,9 @@ QString VesselView::headers(double lod) const
 
 	switch (type()) {
 	case Artery:
-		return QLatin1String("\nR\nA\nB\nPeri. a\nPeri. b\nPeri. c\n\nVm\nCL\nGP\nPTP\nTone\nFlow\nPin\n\nLength\nD\nDmin\nDmax\nVisc. Factor\nVolume");
+		return QLatin1String("\nR\nA\nB\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow\nPin\n\nLength\nD\nDmin\nDmax\nVisc. Factor\nVolume");
 	case Vein:
-		return QLatin1String("\nR\nB\nC\nPeri. a\nPeri. b\nPeri. c\n\nVm\nCL\nGP\nPTP\nTone\nFlow\nPin\n\nLength\nD\nDmin\nDmax\nVisc. Factor\nVolume");
+		return QLatin1String("\nR\nB\nC\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow\nPin\n\nLength\nD\nDmin\nDmax\nVisc. Factor\nVolume");
 	case Capillary:
 		return QLatin1String("\nR\nAlpha\nHo");
 	}
@@ -186,8 +186,6 @@ QString VesselView::baselineValuesText(double lod) const
 		value_list << QString::null;
 		value_list << QString::null;
 		value_list << QString::null;
-		value_list << doubleToString(baseline_vessel->MV);
-		value_list << doubleToString(baseline_vessel->CL);
 		value_list << doubleToString(baseline_vessel->GP);
 		value_list << doubleToString(baseline_vessel->Ptp);
 		value_list << doubleToString(baseline_vessel->tone);
@@ -199,7 +197,7 @@ QString VesselView::baselineValuesText(double lod) const
 		value_list << QString::null;
 		value_list << QString::null;
 		value_list << QString::null;
-		value_list << QString::null;
+		value_list << doubleToString(baseline_vessel->volume);
 		break;
 	case Capillary:
 		value_list << doubleToString(baseline_cap->R);
@@ -231,12 +229,10 @@ QString VesselView::calculatedValuesText(double lod) const
 		value_list << doubleToString(vessel->perivascular_press_b);
 		value_list << doubleToString(vessel->perivascular_press_c);
 		value_list << QString::null;
-		value_list << doubleToString(vessel->MV);
-		value_list << doubleToString(vessel->CL);
 		value_list << doubleToString(vessel->GP);
 		value_list << doubleToString(vessel->Ptp);
 		value_list << doubleToString(vessel->tone);
-		value_list << doubleToString(vessel->flow);
+		value_list << doubleToString(vessel->flow * 1e6/60); // L/min => uL/s
 		value_list << doubleToString(vessel->pressure);
 		value_list << QString::null;
 		value_list << doubleToString(vessel->length);

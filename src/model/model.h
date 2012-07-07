@@ -52,12 +52,12 @@ struct CalibrationFactors {
 
 struct Vessel
 {
-	double R;
-	double D;
-	double D_calc, Dmin, Dmax; // in micro-meter
+	double R; // mmHg*min/l
+	double D; // um
+	double D_calc, Dmin, Dmax; // um
 	double volume; // cm**3
-	double length; // in cm
-	double viscosity_factor;
+	double length; // um
+	double viscosity_factor; // in cP (mPa*s)
 
 	double a,b,c;
 	double tone;
@@ -73,13 +73,11 @@ struct Vessel
 	double length_factor;
 	double Kz;
 
-	double total_R;
-	double pressure;
-	double flow;
+	double total_R; // mmHg*min/l
+	double pressure; // mmHg
+	double flow; // l/min
 
-	double MV, CL;
-
-	double cacheline_padding[6]; // padding to 64-byte caching boundary
+	// double cacheline_padding[8]; // padding to 64-byte caching boundary
 };
 
 struct Capillary
@@ -108,11 +106,12 @@ public:
 	 */
 	enum DataType { Lung_Ht_value, Flow_value, LAP_value, Pal_value, Ppl_value,
 	                Ptp_value, PAP_value, Rus_value, Rds_value, Rm_value,
-	                Rt_value, PciA_value, PcoA_value, Tlrns_value, MV_value, CL_value,
+	                Rt_value, PciA_value, PcoA_value, Tlrns_value,
+	                Vrv_value, Vfrc_value, Vtlc_value,
 	                Pat_Ht_value, Pat_Wt_value,
 	                TotalR_value,
-	                Kra, Krv, Krc,
-	                Hct_value, PA_EVL_value, PV_EVL_value,
+	                Krc,
+	                Hct_value, PA_EVL_value, PA_Diam_value, PV_EVL_value, PV_Diam_value,
 	                CO_value = Flow_value,
 	                DiseaseParam = 0xFFFF
 	};
@@ -136,6 +135,12 @@ public:
 
 	// Number of elements in a given generation of the model
 	int nElements( unsigned n ) const { return 1 << (n-1); } // 2**(n-1)
+
+	// Number of real vessels (using branching factor)
+	int nVessels(CalibrationFactors::CalibrationType vessel_type, unsigned gen_no) const;
+
+	static double measuredDiameterRatio(CalibrationFactors::CalibrationType vessel_type, unsigned gen_no);
+	static double measuredLengthRatio(CalibrationFactors::CalibrationType vessel_type, unsigned gen_no);
 
 	// starting index of first element in generation n
 	int startIndex( int n ) const {
@@ -171,7 +176,7 @@ public:
 	double veinResistanceFactor(int gen);
 	double vesselResistanceFactor(int gen, const double *gen_r) const;
 
-	static double BSAz() { return BSA(175, 75); }
+	double BSAz() const;
 	static double BSA(double pat_ht, double pat_wt);
 
 	int numArteries() const { return nElements(); }
@@ -222,9 +227,7 @@ public:
 	virtual int progress() const { return prog; }
 
 	/* Only used by the calibration functionality */
-	void setKrFactors(double Kra, double Krv, double Krc);
-	double getKra();
-	double getKrv();
+	void setKrFactors(double Krc);
 	double getKrc();
 	CalibrationFactors calibrationFactor(CalibrationFactors::CalibrationType) const;
 	void setCalibrationRatios(const CalibrationFactors &art, const CalibrationFactors &vein);
@@ -234,7 +237,7 @@ public:
 
 protected:
 	void getParameters();
-	void getKz();
+	// void getKz();
 	void vascPress();
 
 	double totalResistance(int i);
@@ -245,11 +248,10 @@ protected:
 
 	void initVesselBaselineCharacteristics();
 	void initVesselBaselineResistances();
-	void initVesselBaselineResistances(double cKra, double cKrv, int gen);
+	void initVesselBaselineResistances(int gen);
 	void calculateBaselineCharacteristics();
 
-	void setNewVesselCL(double old_CL, double new_CL);
-	void setNewVesselMV(double old_MV, double new_MV);
+	double lengthFactor(const Vessel &v) const;
 
 	virtual bool initDb(QSqlDatabase &db) const;
 	virtual bool saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress);
@@ -259,9 +261,11 @@ protected:
 	DiseaseList dis;
 
 private:
-	double Tlrns, LungHt, MV, CL, Pal, Ppl, CO, CI, LAP;
+	double Tlrns, LungHt, Pal, Ppl, CO, CI, LAP;
+	double Vrv, Vfrc, Vtlc;
 	double PatWt, PatHt;
-	double Hct, PA_EVL, PV_EVL;
+	double Hct;
+	double PA_EVL, PA_diam, PV_EVL, PV_diam; // cm
 	Transducer trans_pos;
 	ModelType model_type;
 
@@ -278,8 +282,6 @@ private:
 
 
 	/* Calibration constants */
-	double Kra_factor;
-	double Krv_factor;
 	double Krc_factor;
 
 	CalibrationFactors art_calib, vein_calib;

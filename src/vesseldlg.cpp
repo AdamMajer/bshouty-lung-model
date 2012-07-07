@@ -33,8 +33,6 @@ VesselDlg::VesselDlg(VesselType type, Vessel &vessel, bool PtpGP_RO, QWidget *pa
 	ui->a->setText(doubleToString(v.a));
 	ui->b->setText(doubleToString(v.b));
 	ui->c->setText(doubleToString(v.c));
-	ui->cl->setText(doubleToString(v.CL));
-	ui->mv->setText(doubleToString(v.MV));
 	ui->tone->setText(doubleToString(v.tone));
 
 	QValidator *validator = new QRegExpValidator(QRegExp(numeric_validator_rx), this);
@@ -43,9 +41,6 @@ VesselDlg::VesselDlg(VesselType type, Vessel &vessel, bool PtpGP_RO, QWidget *pa
 	ui->b->setValidator(validator);
 	ui->c->setValidator(validator);
 	ui->tone->setValidator(validator);
-
-	ui->cl->setValidator(validator);
-	ui->mv->setValidator(validator);
 
 	if (PtpGP_RO) {
 		ui->gp->setText("*** Calculated ****");
@@ -66,8 +61,8 @@ VesselDlg::VesselDlg(VesselType type, Vessel &vessel, bool PtpGP_RO, QWidget *pa
 	ui->tone->setToolTip("<p>Smooth muscle tone (in mmHg) can be added to any vessel to simulate vasoconstriction.");
 	ui->ptp->setToolTip("<p>Transpulmonary pressure at vessel site.</p>");
 
-	ui->mv->setToolTip("<p>VM stands for Minimal Volume. It is the volume (as a percent of TLC) that the lung assumes at a transpulmonary pressure (Ptp) of 0.</p><p>Changing value here will override model-wide M<sub>V</sub> value.</p><p>Range: 0.01 - 0.25</p>");
-	ui->cl->setToolTip("<p>Patient lung compliance in L/cm H2O</p><p>Changing value here will override model-wide C<sub>L</sub> value.</p><p>Range: 0.0001 - 1.0</p>");
+//	ui->mv->setToolTip("<p>VM stands for Minimal Volume. It is the volume (as a percent of TLC) that the lung assumes at a transpulmonary pressure (Ptp) of 0.</p><p>Changing value here will override model-wide M<sub>V</sub> value.</p><p>Range: 0.01 - 0.25</p>");
+//	ui->cl->setToolTip("<p>Patient lung compliance in L/cm H2O</p><p>Changing value here will override model-wide C<sub>L</sub> value.</p><p>Range: 0.0001 - 1.0</p>");
 
 	switch (type) {
 	case Artery:
@@ -96,8 +91,6 @@ void VesselDlg::accept()
 	refs[ui->a] = &v.a;
 	refs[ui->b] = &v.b;
 	refs[ui->c] = &v.c;
-	refs[ui->mv] = &v.MV;
-	refs[ui->cl] = &v.CL;
 	refs[ui->gp] = &v.GP;
 	refs[ui->ptp] = &v.Ptp;
 	refs[ui->tone] = &v.tone;

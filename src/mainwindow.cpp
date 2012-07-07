@@ -76,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
 	calc_thread = 0;
 	mres = 0;
 
-	baseline = new Model(Model::Middle, Model::SingleLung, 5);
+	baseline = new Model(Model::Middle, Model::SingleLung, 15);
 	model = baseline->clone();
 	ui = new Ui::MainWindow;
 	ui->setupUi(this);
@@ -160,14 +160,21 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->patHt->setProperty(range_property, "20 to 250;1");
 	ui->patWt->setProperty(range_property, "1 to 200;0.1");
 	ui->lungHt->setProperty(range_property, "1 to 50;0.1");
-	ui->MV->setProperty(range_property, "0 to 1;0.001");
-	ui->CL->setProperty(range_property, "0.005 to 100;0.01");
+	ui->Vrv->setProperty(range_property, "10 to 100;1");
+	ui->Vfrc->setProperty(range_property, "10 to 100;1");
+	ui->Vtlc->setProperty(range_property, "10 to 100;1");
 
 	ui->Pal->setProperty(range_property, "0 to 80;0.1");
 	ui->Ppl->setProperty(range_property, "-30 to 30;0.1");
 	ui->LAP->setProperty(range_property, "-10 to 50;0.1");
 	ui->CO->setProperty(range_property, "0 to 25;0.1");
 	ui->PAPm->setProperty(range_property, "0 to 120;0.1");
+
+	ui->Hct->setProperty(range_property, "0.05 to 0.95;0.01");
+	ui->PA_EVL->setProperty(range_property, "5 to 20;0.1");
+	ui->PA_Diameter->setProperty(range_property, "0.5 to 5;0.05");
+	ui->PV_EVL->setProperty(range_property, "5 to 20;0.1");
+	ui->PV_Diameter->setProperty(range_property, "0.5 to 5;0.05");
 
 	// on_actionModelWizard_triggered();
 	ui->diseaseView->hide();
@@ -191,12 +198,17 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->CORangeLabel->setVisible(false);
 	ui->PalModLabel->setVisible(false);
 	ui->PplModLabel->setVisible(false);
+	ui->pv_params_label->setVisible(false);
 
 	connect(ui->patHt, SIGNAL(focusChange(bool)), SLOT(animatePatHtLabel(bool)));
 	connect(ui->patWt, SIGNAL(focusChange(bool)), SLOT(animatePatWtLabel(bool)));
 	connect(ui->lungHt, SIGNAL(focusChange(bool)), SLOT(animateLungHtLabel(bool)));
 	connect(ui->Ppl, SIGNAL(focusChange(bool)), SLOT(animatePplModLabel(bool)));
 	connect(ui->Pal, SIGNAL(focusChange(bool)), SLOT(animatePalModLabel(bool)));
+	connect(ui->PA_Diameter, SIGNAL(focusChange(bool)), SLOT(animatePVParams(bool)));
+	connect(ui->PA_EVL, SIGNAL(focusChange(bool)), SLOT(animatePVParams(bool)));
+	connect(ui->PV_Diameter, SIGNAL(focusChange(bool)), SLOT(animatePVParams(bool)));
+	connect(ui->PV_EVL, SIGNAL(focusChange(bool)), SLOT(animatePVParams(bool)));
 
 	connect(ui->patHt, SIGNAL(textChanged(QString)), SLOT(patHtWtChanged()));
 	connect(ui->patWt, SIGNAL(textChanged(QString)), SLOT(patHtWtChanged()));
@@ -204,8 +216,14 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->Pal, SIGNAL(textChanged(QString)), SLOT(vesselPtpDependenciesChanged()));
 	connect(ui->Ppl, SIGNAL(textChanged(QString)), SLOT(vesselPtpDependenciesChanged()));
 
-	connect(ui->CL, SIGNAL(textEdited(QString)), SLOT(globalMvClChanged()));
-	connect(ui->MV, SIGNAL(textEdited(QString)), SLOT(globalMvClChanged()));
+	connect(ui->Vtlc, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vfrc, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vtlc, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+
+	connect(ui->PA_Diameter, SIGNAL(textChanged(QString)), SLOT(vesselDimsChanged()));
+	connect(ui->PA_EVL, SIGNAL(textChanged(QString)), SLOT(vesselDimsChanged()));
+	connect(ui->PV_Diameter, SIGNAL(textChanged(QString)), SLOT(vesselDimsChanged()));
+	connect(ui->PV_EVL, SIGNAL(textChanged(QString)), SLOT(vesselDimsChanged()));
 
 	disease_box_group = new QButtonGroup(this);
 	disease_box_group->setExclusive(false);
@@ -822,13 +840,16 @@ void MainWindow::updateInputsOutputs()
 	GET_MODEL(Model::Pal_value, ui->Pal);
 	GET_MODEL(Model::Ppl_value, ui->Ppl);
 	GET_MODEL(Model::Tlrns_value, ui->Tolerance);
-	GET_MODEL(Model::MV_value, ui->MV);
-	GET_MODEL(Model::CL_value, ui->CL);
+	GET_MODEL(Model::Vrv_value, ui->Vrv);
+	GET_MODEL(Model::Vfrc_value, ui->Vfrc);
+	GET_MODEL(Model::Vtlc_value, ui->Vtlc);
 	GET_MODEL(Model::Pat_Ht_value, ui->patHt);
 	GET_MODEL(Model::Pat_Wt_value, ui->patWt);
 	GET_MODEL(Model::Hct_value, ui->Hct);
 	GET_MODEL(Model::PA_EVL_value, ui->PA_EVL);
+	GET_MODEL(Model::PA_Diam_value, ui->PA_Diameter);
 	GET_MODEL(Model::PV_EVL_value, ui->PV_EVL);
+	GET_MODEL(Model::PV_Diam_value, ui->PV_Diameter);
 
 	/* Update results in the results pane */
 	double pvr = model->getResult(Model::TotalR_value);
@@ -873,9 +894,7 @@ void MainWindow::updateInputsOutputs()
 	ui->vein_diam_ratio->setText(doubleToString(vc.diam_ratio));
 	ui->vein_len_ratio->setText(doubleToString(vc.len_ratio));
 
-	ui->kra_factor->setText(doubleToString(model->getKra()));
 	ui->krc_factor->setText(doubleToString(model->getKrc()));
-	ui->krv_factor->setText(doubleToString(model->getKrv()));
 
 #undef GET_MODEL
 }
@@ -902,13 +921,16 @@ QList<QPair<Model::DataType, Range> > MainWindow::fetchModelInputs() const
 	ADD_MODEL_RANGE(ret, Model::Pal_value, ui->Pal);
 	ADD_MODEL_RANGE(ret, Model::Ppl_value, ui->Ppl);
 	ADD_MODEL_RANGE(ret, Model::Tlrns_value, ui->Tolerance);
-	ADD_MODEL_RANGE(ret, Model::MV_value, ui->MV);
-	ADD_MODEL_RANGE(ret, Model::CL_value, ui->CL);
+	ADD_MODEL_RANGE(ret, Model::Vrv_value, ui->Vrv);
+	ADD_MODEL_RANGE(ret, Model::Vfrc_value, ui->Vfrc);
+	ADD_MODEL_RANGE(ret, Model::Vtlc_value, ui->Vtlc);
 	ADD_MODEL_RANGE(ret, Model::Pat_Ht_value, ui->patHt);
 	ADD_MODEL_RANGE(ret, Model::Pat_Wt_value, ui->patWt);
 	ADD_MODEL_RANGE(ret, Model::Hct_value, ui->Hct);
 	ADD_MODEL_RANGE(ret, Model::PA_EVL_value, ui->PA_EVL);
+	ADD_MODEL_RANGE(ret, Model::PA_Diam_value, ui->PA_Diameter);
 	ADD_MODEL_RANGE(ret, Model::PV_EVL_value, ui->PV_EVL);
+	ADD_MODEL_RANGE(ret, Model::PV_Diam_value, ui->PV_Diameter);
 
 	if (ui->PAPm->isVisible()) {
 		// PAPm range for calculation of compromise
@@ -1005,8 +1027,20 @@ bool MainWindow::isVesselPtpReadOnly() const
 
 void MainWindow::animateLabelVisibility(QWidget *label, bool fVisible)
 {
-	if (label->isVisible() == fVisible)
-		return;
+	// remove animations already in progress
+	for (std::list<QPropertyAnimation*>::iterator i=animations.begin(); i!=animations.end(); ) {
+		QPropertyAnimation &anim = **i;
+		if (anim.targetObject() == label) {
+			anim.deleteLater();
+			i = animations.erase(i);
+
+			// invalidate current geometry that may not be optimal
+			label->setVisible(false);
+		}
+		else {
+			++i;
+		}
+	}
 
 	// called first to update geometry
 	label->setVisible(true);
@@ -1239,8 +1273,8 @@ void MainWindow::patHtWtChanged()
 
 	ui->CO->setDisabled(is_range);
 	animateLabelVisibility(ui->CORangeLabel, is_range);
-	ui->CL->setDisabled(is_range);
-	animateLabelVisibility(ui->CLRangeLabel, is_range);
+//	ui->CL->setDisabled(is_range);
+//	animateLabelVisibility(ui->CLRangeLabel, is_range);
 
 	bool data_modified = false;
 	if (ht_range.sequenceCount() == 1) {
@@ -1256,7 +1290,7 @@ void MainWindow::patHtWtChanged()
 	// redisplay CO/CL, if it changed
 	if (data_modified) {
 		ui->CO->setText(doubleToString(baseline->getResult(Model::CO_value)));
-		ui->CL->setText(doubleToString(baseline->getResult(Model::CL_value)));
+//		ui->CL->setText(doubleToString(baseline->getResult(Model::CL_value)));
 
 		scene->update();
 	}
@@ -1288,16 +1322,40 @@ void MainWindow::vesselPtpDependenciesChanged()
 		scene->update();
 }
 
-void MainWindow::globalMvClChanged()
+void MainWindow::globalVolumesChanged()
 {
-	bool cl_ok, mv_ok;
-	const double new_cl = ui->CL->text().toDouble(&cl_ok);
-	const double new_mv = ui->MV->text().toDouble(&mv_ok);
+	bool Vrv_ok, Vfrc_ok, Vtlc_ok;
+	const double new_Vrv = ui->Vrv->text().toDouble(&Vrv_ok);
+	const double new_Vfrc = ui->Vfrc->text().toDouble(&Vfrc_ok);
+	const double new_Vtlc = ui->Vtlc->text().toDouble(&Vtlc_ok);
 
-	if (cl_ok)
-		baseline->setData(Model::CL_value, new_cl);
-	if (mv_ok)
-		baseline->setData(Model::MV_value, new_mv);
+	if (Vrv_ok)
+		baseline->setData(Model::Vrv_value, new_Vrv);
+	if (Vfrc_ok)
+		baseline->setData(Model::Vfrc_value, new_Vfrc);
+	if (Vtlc_ok)
+		baseline->setData(Model::Vtlc_value, new_Vtlc);
+
+	scene->update();
+}
+
+void MainWindow::vesselDimsChanged()
+{
+	bool pa_diam_ok, pv_diam_ok, pa_evl_ok, pv_evl_ok;
+
+	const double new_pa_diam = ui->PA_Diameter->text().toDouble(&pa_diam_ok);
+	const double new_pv_diam = ui->PV_Diameter->text().toDouble(&pv_diam_ok);
+	const double new_pa_evl = ui->PA_EVL->text().toDouble(&pa_evl_ok);
+	const double new_pv_evl = ui->PV_EVL->text().toDouble(&pv_evl_ok);
+
+	if (pa_diam_ok)
+		baseline->setData(Model::PA_Diam_value, new_pa_diam);
+	if (pv_diam_ok)
+		baseline->setData(Model::PV_Diam_value, new_pv_diam);
+	if (pa_evl_ok)
+		baseline->setData(Model::PA_EVL_value, new_pa_evl);
+	if (pv_evl_ok)
+		baseline->setData(Model::PV_EVL_value, new_pv_evl);
 
 	scene->update();
 }
@@ -1325,6 +1383,12 @@ void MainWindow::animatePplModLabel(bool fVisible)
 void MainWindow::animatePalModLabel(bool fVisible)
 {
 	animateLabelVisibility(ui->PalModLabel, fVisible);
+}
+
+void MainWindow::animatePVParams(bool fVisible)
+{
+	qDebug("focus: %d", fVisible);
+	animateLabelVisibility(ui->pv_params_label, fVisible);
 }
 
 void MainWindow::animationFinished()

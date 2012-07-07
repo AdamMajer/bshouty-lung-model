@@ -199,7 +199,7 @@ Range Disease::paramRange(int n) const
 	return Range(QString::null);
 }
 
-#define SET_PROPERTY(a) global.setProperty(#a, model.getResult(Model::a##_value))
+#define SET_GLOBAL_PROPERTY(a) global.setProperty("lung_"#a, model.getResult(Model::a##_value))
 void Disease::processModel(Model &model)
 {
 	QScriptEngine e;
@@ -211,18 +211,16 @@ void Disease::processModel(Model &model)
 	QScriptValue cap_function = p.property("cap", QScriptValue::ResolveLocal);
 
 	// Assign model's properties to the script
-	SET_PROPERTY(Lung_Ht);
-	SET_PROPERTY(Flow);
-	SET_PROPERTY(LAP);
-	SET_PROPERTY(Pal);
-	SET_PROPERTY(Ppl);
-	SET_PROPERTY(Ptp);
-	SET_PROPERTY(PAP);
-	SET_PROPERTY(Tlrns);
-	SET_PROPERTY(MV);
-	SET_PROPERTY(CL);
-	SET_PROPERTY(Pat_Ht);
-	SET_PROPERTY(Pat_Wt);
+	SET_GLOBAL_PROPERTY(Lung_Ht);
+	SET_GLOBAL_PROPERTY(Flow);
+	SET_GLOBAL_PROPERTY(LAP);
+	SET_GLOBAL_PROPERTY(Pal);
+	SET_GLOBAL_PROPERTY(Ppl);
+	SET_GLOBAL_PROPERTY(Ptp);
+	SET_GLOBAL_PROPERTY(PAP);
+	SET_GLOBAL_PROPERTY(Tlrns);
+	SET_GLOBAL_PROPERTY(Pat_Ht);
+	SET_GLOBAL_PROPERTY(Pat_Wt);
 	global.setProperty("n_gen", model.nGenerations());
 
 	// Process vessels
@@ -253,7 +251,7 @@ void Disease::processModel(Model &model)
 			processCapillary(model, global, cap_function, i);
 	}
 }
-#undef SET_PROPERTY
+#undef SET_GLOBAL_PROPERTY
 
 void Disease::save()
 {
@@ -325,7 +323,7 @@ void Disease::processVessel(Vessel &v, QScriptValue &global, QScriptValue &f, in
 {
 	global.setProperty("gen", gen);
 	global.setProperty("vessel_idx", ves_no);
-	SET_PROPERTY(R);
+	SET_PROPERTY(D);
 	SET_PROPERTY(a);
 	SET_PROPERTY(b);
 	SET_PROPERTY(c);
@@ -336,7 +334,6 @@ void Disease::processVessel(Vessel &v, QScriptValue &global, QScriptValue &f, in
 	SET_PROPERTY(perivascular_press_a);
 	SET_PROPERTY(perivascular_press_b);
 	SET_PROPERTY(perivascular_press_c);
-	SET_PROPERTY(Kz);
 
 	if (!callScript(f))
 		return;
@@ -351,8 +348,7 @@ void Disease::processVessel(Vessel &v, QScriptValue &global, QScriptValue &f, in
 	GET_PROPERTY(perivascular_press_a);
 	GET_PROPERTY(perivascular_press_b);
 	GET_PROPERTY(perivascular_press_c);
-	GET_PROPERTY(Kz);
-	GET_PROPERTY(R);
+	GET_PROPERTY(D);
 }
 
 void Disease::processCapillary(Model &m, QScriptValue &global, QScriptValue &f, int ves_no)

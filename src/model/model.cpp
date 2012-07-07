@@ -40,13 +40,22 @@
 */
 const double K1 = 0.5;
 const double K2 = 0.5;
-const int nSums = 8192; // number of divisions in the integral
+const int nSums = 16; // number of divisions in the integral
 
 /* Helper functions */
 static inline double sqr( double n )
 {
 	return n*n;
 }
+
+#if defined(Q_OS_WIN32) && !defined(__GNUC__)
+inline double cbrt(double x) {
+	if (x > 0)
+		return pow(x, 1.0/3.0);
+
+	return -pow(-x, 1.0/3.0);
+}
+#endif
 
 bool operator==(const struct Vessel &a, const struct Vessel &b)
 {
@@ -122,8 +131,6 @@ Model::Model(Transducer transducer_pos, ModelType type, int n_gen)
 	if (arteries == 0 || veins == 0 || caps == 0)
 		throw std::bad_alloc();
 
-	Kra_factor = calibrationValue(Kra);
-	Krv_factor = calibrationValue(Krv);
 	Krc_factor = calibrationValue(Krc);
 
 	/* set to zero, mostly to prevent valgrind complaining */
@@ -138,8 +145,6 @@ Model::Model(Transducer transducer_pos, ModelType type, int n_gen)
 	PatHt = calibrationValue(Pat_Ht_value);
 	PatWt = calibrationValue(Pat_Wt_value);
 	LungHt = calibrationValue(Lung_Ht_value);
-	MV = calibrationValue(MV_value);
-	CL = calibrationValue(CL_value);
 
 	Pal = calibrationValue(Pal_value);
 	Ppl = calibrationValue(Ppl_value);
@@ -147,9 +152,15 @@ Model::Model(Transducer transducer_pos, ModelType type, int n_gen)
 	CO = calibrationValue(CO_value);
 	LAP = calibrationValue(LAP_value);
 
+	Vrv = calibrationValue(Vrv_value);
+	Vfrc = calibrationValue(Vfrc_value);
+	Vtlc = calibrationValue(Vtlc_value);
+
 	Hct = calibrationValue(Hct_value);
 	PA_EVL = calibrationValue(PA_EVL_value);
+	PA_diam = calibrationValue(PA_Diam_value);
 	PV_EVL = calibrationValue(PV_EVL_value);
+	PV_diam = calibrationValue(PV_Diam_value);
 
 	CI = CO/BSAz();
 
@@ -198,13 +209,15 @@ Model& Model::operator =(const Model &other)
 	// Assigns all values from other other model to the current model
 	Tlrns = other.Tlrns;
 	LungHt = other.LungHt;
-	MV = other.MV;
-	CL = other.CL;
 	Pal = other.Pal;
 	Ppl = other.Ppl;
 	CO = other.CO;
 	CI = other.CI;
 	LAP = other.LAP;
+
+	Vrv = other.Vrv;
+	Vfrc = other.Vfrc;
+	Vtlc = other.Vtlc;
 
 	PatWt = other.PatWt;
 	PatHt = other.PatHt;
@@ -212,7 +225,9 @@ Model& Model::operator =(const Model &other)
 
 	Hct = other.Hct;
 	PA_EVL = other.PA_EVL;
+	PA_diam = other.PA_diam;
 	PV_EVL = other.PV_EVL;
+	PV_diam = other.PV_diam;
 
 	modified_flag = other.modified_flag;
 	model_reset = other.model_reset;
@@ -221,8 +236,6 @@ Model& Model::operator =(const Model &other)
 	dis = other.dis;
 	model_type = other.model_type;
 
-	Kra_factor = other.Kra_factor;
-	Krv_factor = other.Krv_factor;
 	Krc_factor = other.Krc_factor;
 	art_calib = other.art_calib;
 	vein_calib = other.vein_calib;
@@ -273,11 +286,140 @@ Model* Model::clone() const
 	return new Model(*this);
 }
 
+int Model::nVessels(CalibrationFactors::CalibrationType vessel_type,
+                    unsigned gen_no) const
+{
+	if (gen_no > (unsigned)nGenerations())
+		return 0;
+
+	switch (gen_no) {
+	case 0:
+		return 0;
+	case 1:
+		return 1;
+	}
+
+	double branching_ratio = 0;
+
+	switch (vessel_type) {
+	case CalibrationFactors::Artery:
+		branching_ratio = art_calib.branch_ratio;
+		break;
+	case CalibrationFactors::Vein:
+		branching_ratio = vein_calib.branch_ratio;
+		break;
+	}
+
+	double n_vessels = branching_ratio;
+	while (--gen_no > 0)
+		n_vessels *= branching_ratio;
+
+	return n_vessels;
+}
+
+double Model::measuredDiameterRatio(CalibrationFactors::CalibrationType vessel_type,
+                                    unsigned gen_no)
+{
+	const static double artery_ratios[15] = {
+		1,
+		0.48346560846561,
+		0.28637566137566,
+		0.18584656084656,
+		0.11772486772487,
+		0.07738095238095,
+		0.05092592592593,
+		0.03373015873016,
+		0.02314814814815,
+		0.01455026455026,
+		0.00992063492063,
+		0.00634920634921,
+		0.0037037037037,
+		0.00238095238095,
+		0.00132275132275
+	};
+
+	const static double vein_ratios[15] = {
+		1,
+		0.67463377023901,
+		0.45875096376253,
+		0.31457208943716,
+		0.22359290670779,
+		0.15497301464919,
+		0.10717039321511,
+		0.06939090208173,
+		0.04857363145721,
+		0.03006939090208,
+		0.017733230532,
+		0.01002313030069,
+		0.00508866615266,
+		0.00246723207402,
+		0.00138781804163
+	};
+
+	switch (vessel_type) {
+	case CalibrationFactors::Artery:
+		return artery_ratios[gen_no];
+	case CalibrationFactors::Vein:
+		return vein_ratios[gen_no];
+	}
+
+	return 1;
+}
+
+double Model::measuredLengthRatio(CalibrationFactors::CalibrationType vessel_type,
+                                  unsigned gen_no)
+{
+	const static double artery_ratios[15] = {
+		1,
+		0.92786561264822,
+		0.49505928853755,
+		0.35474308300395,
+		0.21343873517787,
+		0.15217391304348,
+		0.09881422924901,
+		0.07509881422925,
+		0.06324110671937,
+		0.05335968379447,
+		0.04743083003953,
+		0.03063241106719,
+		0.02569169960474,
+		0.01877470355731,
+		0.0197628458498
+	};
+
+	const static double vein_ratios[15] = {
+		1,
+		0.28026905829596,
+		0.25868834080717,
+		0.12808295964126,
+		0.08267937219731,
+		0.07343049327354,
+		0.0625,
+		0.04792600896861,
+		0.035033632287,
+		0.02270179372197,
+		0.01457399103139,
+		0.01205156950673,
+		0.00504484304933,
+		0.00364349775785,
+		0.00336322869955
+	};
+
+	switch (vessel_type) {
+	case CalibrationFactors::Artery:
+		return artery_ratios[gen_no];
+	case CalibrationFactors::Vein:
+		return vein_ratios[gen_no];
+	}
+
+	return 0;
+}
+
 double Model::arteryResistanceFactor(int gen)
 {
 //	double r[] = {1, 3.31, 10.96, 36.29, 120.17};
 //	return r[gen-1];
-
+/*
 	if (art_calib.gen_r[0] == 0) {
 		// calculate generation resistances for 16 generations
 		const double len_ratio = art_calib.len_ratio;
@@ -295,13 +437,14 @@ double Model::arteryResistanceFactor(int gen)
 			ind_r *= a_factor;
 		}
 	}
-
+*/
 	return vesselResistanceFactor(gen, art_calib.gen_r);
 }
 
 double Model::veinResistanceFactor(int gen)
 {
 	if (vein_calib.gen_r[0] == 0) {
+		/*
 		// calculate generation resistances for 16 generations
 		const double len_ratio = vein_calib.len_ratio;
 		const double diam_ratio = vein_calib.diam_ratio;
@@ -317,6 +460,7 @@ double Model::veinResistanceFactor(int gen)
 			n_vessel *= 2.0 / branch_ratio;
 			ind_r *= v_factor;
 		}
+		*/
 	}
 
 	return vesselResistanceFactor(gen, vein_calib.gen_r);
@@ -371,6 +515,12 @@ double Model::vesselResistanceFactor(int gen, const double *gen_r) const
 		gen_sum += gen_r[i] / nElements(i+1);
 
 	return gen_sum * nElements(gen);
+}
+
+double Model::BSAz() const
+{
+	return BSA(calibrationValue(Model::Pat_Ht_value),
+	           calibrationValue(Model::Pat_Wt_value));
 }
 
 double Model::BSA(double pat_ht, double pat_wt)
@@ -480,10 +630,6 @@ double Model::getResult(DataType type) const
 		}
 	case Tlrns_value:
 		return Tlrns;
-	case MV_value:
-		return MV;
-	case CL_value:
-		return CL;
 	case Pat_Ht_value:
 		return PatHt;
 	case Pat_Wt_value:
@@ -493,17 +639,24 @@ double Model::getResult(DataType type) const
 	case DiseaseParam:
 		break;
 
+	case Vrv_value:
+		return Vrv;
+	case Vfrc_value:
+		return Vfrc;
+	case Vtlc_value:
+		return Vtlc;
+
 	case Hct_value:
 		return Hct;
 	case PA_EVL_value:
 		return PA_EVL;
+	case PA_Diam_value:
+		return PA_diam;
 	case PV_EVL_value:
 		return PV_EVL;
+	case PV_Diam_value:
+		return PV_diam;
 
-	case Kra:
-		return Kra_factor;
-	case Krv:
-		return Krv_factor;
 	case Krc:
 		return Krc_factor;
 	}
@@ -568,18 +721,26 @@ bool Model::setData(DataType type, double val)
 			return true;
 		}
 		break;
-	case MV_value:
-		if (significantChange(MV, val)) {
-			setNewVesselMV(MV, val);
-			MV = val;
+	case Vrv_value:
+		if (significantChange(Vrv, val)) {
+			Vrv = val;
+			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
 		}
 		break;
-	case CL_value:
-		if (significantChange(CL, val)) {
-			setNewVesselCL(CL, val);
-			CL = val;
+	case Vfrc_value:
+		if (significantChange(Vfrc, val)) {
+			Vfrc = val;
+			calculateBaselineCharacteristics();
+			modified_flag = true;
+			return true;
+		}
+	case Vtlc_value:
+		break;
+		if (significantChange(Vtlc, val)) {
+			Vtlc = val;
+			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
 		}
@@ -594,6 +755,15 @@ bool Model::setData(DataType type, double val)
 	case PA_EVL_value:
 		if (significantChange(PA_EVL, val)) {
 			PA_EVL = val;
+			initVesselBaselineResistances();
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case PA_Diam_value:
+		if (significantChange(PA_diam, val)) {
+			PA_diam = val;
+			initVesselBaselineResistances();
 			modified_flag = true;
 			return true;
 		}
@@ -601,6 +771,15 @@ bool Model::setData(DataType type, double val)
 	case PV_EVL_value:
 		if (significantChange(PV_EVL, val)) {
 			PV_EVL = val;
+			initVesselBaselineResistances();
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case PV_Diam_value:
+		if (significantChange(PV_diam, val)) {
+			PV_diam = val;
+			initVesselBaselineResistances();
 			modified_flag = true;
 			return true;
 		}
@@ -635,14 +814,8 @@ bool Model::setData(DataType type, double val)
 	case DiseaseParam:
 		break;
 
-	case Kra:
-		setKrFactors(val, Krv_factor, Krc_factor);
-		break;
-	case Krv:
-		setKrFactors(Kra_factor, val, Krc_factor);
-		break;
 	case Krc:
-		setKrFactors(Kra_factor, Krc_factor, val);
+		setKrFactors(val);
 		break;
 	}
 
@@ -683,7 +856,6 @@ int Model::calc( int max_iter )
 		getParameters();
 		for (DiseaseList::iterator i=dis.begin(); i!=dis.end(); ++i)
 			i->processModel(*this);
-		getKz();
 
 		model_reset = false;
 	}
@@ -776,10 +948,8 @@ Model::DataType Model::diseaseHybridType(int disease_no, int param_no)
 	return (Model::DataType)((param_no<<24) | (disease_no<<16) | DiseaseParam);
 }
 
-void Model::setKrFactors(double Kra, double Krv, double Krc)
+void Model::setKrFactors(double Krc)
 {
-	Kra_factor = Kra;
-	Krv_factor = Krv;
 	Krc_factor = Krc;
 
 	// flag recalculation of gen_r
@@ -787,22 +957,6 @@ void Model::setKrFactors(double Kra, double Krv, double Krc)
 	memset(vein_calib.gen_r, 0, sizeof(double)*16);
 
 	initVesselBaselineResistances();
-}
-
-double Model::getKra()
-{
-	if (Kra_factor == 0.0)
-		Kra_factor = calibrationValue(Kra);
-
-	return Kra_factor;
-}
-
-double Model::getKrv()
-{
-	if (Krv_factor == 0.0)
-		Krv_factor = calibrationValue(Krv);
-
-	return Krv_factor;
 }
 
 double Model::getKrc()
@@ -848,8 +1002,13 @@ double Model::calibrationValue(DataType type)
 {
 	QVariant ret = DbSettings::value(calibrationPath(type));
 
-	if (!ret.isNull())
-		return ret.toDouble();
+	if (!ret.isNull()) {
+		bool fOK;
+		double ret_value = ret.toDouble(&fOK);
+
+		if (fOK)
+			return ret_value;
+	}
 
 	switch (type) {
 	case Model::Tlrns_value:
@@ -860,10 +1019,12 @@ double Model::calibrationValue(DataType type)
 		return 75.0;
 	case Model::Lung_Ht_value:
 		return 20;
-	case Model::MV_value:
-		return 0.1;
-	case Model::CL_value:
-		return 0.002617*175 - 0.1410;
+	case Model::Vrv_value:
+		return 0.3;
+	case Model::Vfrc_value:
+		return 0.45;
+	case Model::Vtlc_value:
+		return 1.0;
 	case Model::CO_value:
 		return 6.45;
 	case Model::LAP_value:
@@ -878,11 +1039,10 @@ double Model::calibrationValue(DataType type)
 	case Model::PA_EVL_value:
 	case Model::PV_EVL_value:
 		return 10.0;
+	case Model::PA_Diam_value:
+	case Model::PV_Diam_value:
+		return 1.5;
 
-	case Model::Kra:
-		return 0.0601624004060655;
-	case Model::Krv:
-		return 0.0569240525006599;
 	case Model::Krc:
 		return 3135.049210184;
 
@@ -906,6 +1066,8 @@ void Model::getParameters()
 {
 	/* This procedure gets the arterial and venous parameters
 	 * that determine perivascular pressure
+	 *
+	 * Adjust length basedon Ptp
 	 */
 	int n = nElements();
 	for (int i=0; i<n; i++) {
@@ -914,49 +1076,15 @@ void Model::getParameters()
 		art.perivascular_press_b = -16.0 - 0.2*art.Ptp;
 		art.perivascular_press_c = -0.013 - 0.0002*art.Ptp;
 
+		art.length *= art.length_factor;
+
+
 		Vessel &vein = veins[i];
 		vein.perivascular_press_a = 12.0 - 0.1*vein.Ptp;
 		vein.perivascular_press_b = -12.0 - 0.2*vein.Ptp;
 		vein.perivascular_press_c = -0.020 - 0.0002*vein.Ptp;
-	}
-}
 
-void Model::getKz()
-{
-	/* Effect of lung volume on vessel dimensions */
-	int n = nElements();
-	// double Ptp = Pal - Ppl;
-
-	for (int i=0; i<n; ++i) {
-		arteries[i].length_factor =
-		        fmax(1.0, exp((log(1-(1-MV)*exp(-CL*arteries[i].Ptp)))/3)/0.7368);
-
-		veins[i].length_factor =
-		        fmax(1.0, exp((log(1-(1-MV)*exp(-CL*veins[i].Ptp)))/3)/0.7368);
-
-		// Length only changes inside lung
-		if (!isOutsideLung(i)) {
-			arteries[i].length *= arteries[i].length_factor;
-			veins[i].length *= veins[i].length_factor;
-		}
-	}
-
-	for( int i=0; i<n; i++ ){
-		if (isOutsideLung(i)) {
-			/* Vessels outside the lung have fixed length */
-			arteries[i].Kz = arteries[i].R *
-			                sqr(arteries[i].a + arteries[i].b * 35 ) / nSums;
-
-			veins[i].Kz = veins[i].R /
-			                (nSums*sqr(1+(veins[i].b*exp(veins[i].c*35))));
-		}
-		else {
-			arteries[i].Kz = arteries[i].length_factor*arteries[i].R*
-			                sqr(arteries[i].a+arteries[i].b*35) / nSums;
-
-			veins[i].Kz = veins[i].length_factor*veins[i].R/
-			                (nSums*sqr(1+(veins[i].b*exp(veins[i].c*35))));
-		}
+		vein.length *= vein.length_factor;
 	}
 }
 
@@ -1046,8 +1174,8 @@ double Model::deltaCapillaryResistance( int i )
 	const Vessel & con_vein = veins[gen_start+i];
 
 	const double Ri = caps[i].R;
-	const double Pin = 1.36 * con_artery.pressure - con_artery.GP; // convert pressures from mmHg => cmH20
-	const double Pout = 1.36 * con_vein.pressure - con_vein.GP;
+	const double Pin = 1.35951002636 * con_artery.pressure - con_artery.GP; // convert pressures from mmHg => cmH20
+	const double Pout = 1.35951002636 * con_vein.pressure - con_vein.GP;
 
 	const double x = Pout - Pal;
 	const double y = Pin - Pal;
@@ -1127,25 +1255,21 @@ void Model::initVesselBaselineCharacteristics()
 			veins[i].c = -10.0;
 		}
 		else {
+			// correcting area to Ptp=0, Ptm=35 cmH2O
 			veins[i].b = 2.4307;
 			veins[i].c = -0.2355;
 		}
 		veins[i].a = 0;
 		veins[i].tone = 0;
-
-		veins[i].CL = CL;
-		veins[i].MV = MV;
 	}
 
 	const int num_arteries = numArteries();
 	for (int i=0; i<num_arteries; ++i) {
-		arteries[i].a = 0.2419;
-		arteries[i].b = 0.02166;
+		// correcting area to Ptp=0, Ptm=35 cmH2O
+		arteries[i].a = 0.2419 / 1.2045;
+		arteries[i].b = 0.0275 / 1.2045;
 		arteries[i].c = 0;
 		arteries[i].tone = 0;
-
-		arteries[i].CL = CL;
-		arteries[i].MV = MV;
 	}
 
 	// Initialize capillaries
@@ -1158,17 +1282,9 @@ void Model::initVesselBaselineCharacteristics()
 
 void Model::initVesselBaselineResistances()
 {
-	double new_CL = 0.002617 * PatHt - 0.1410;
 	CO = CI * BSA(PatHt, PatWt);
 
-	setNewVesselCL(CL, new_CL);
-	CL = new_CL;
-
-	// corrected Kra and Krv
-	double cKra = getKra()*(BSAz() / BSA(PatHt, PatWt));
-	double cKrv = getKrv()*(BSAz() / BSA(PatHt, PatWt));
-
-	initVesselBaselineResistances(cKra, cKrv, 1);
+	initVesselBaselineResistances(1);
 
 	// Initialize capillaries
 	const int nCapillaries = numCapillaries();
@@ -1178,7 +1294,7 @@ void Model::initVesselBaselineResistances()
 	}
 }
 
-void Model::initVesselBaselineResistances(double cKra, double cKrv, int gen)
+void Model::initVesselBaselineResistances(int gen)
 {
 	// Get starting index and number of elements in the generation
 	int start_index = startIndex( gen );
@@ -1186,13 +1302,15 @@ void Model::initVesselBaselineResistances(double cKra, double cKrv, int gen)
 	int n = num_elements + start_index;
 
 	// Initialize elements in Arteries and Veins
-	double a_factor = arteryResistanceFactor(gen);
-	double v_factor = veinResistanceFactor(gen);
+	const double art_ratio = num_elements/(double)nVessels(CalibrationFactors::Artery, gen);
+	const double vein_ratio = num_elements/(double)nVessels(CalibrationFactors::Vein, gen);
+	const double Mi = 3.2; // viscosity constatant
+	const double Kr = 1.2501e8 * 64.0 * Mi / M_PI; // constant for R(D,L) calculation;
+	const double Kra_factor = Kr*art_ratio;
+	const double Krv_factor = Kr*vein_ratio;
+
 	for( int i=start_index; i<n; i++ ){
 		int vessel_no = i - start_index;
-
-		arteries[i].R = cKra * a_factor;
-		veins[i].R = cKrv * v_factor;
 
 		/* calculate baseline vessel diameters from resistances
 		 *
@@ -1205,20 +1323,22 @@ void Model::initVesselBaselineResistances(double cKra, double cKrv, int gen)
 		 * the following relationship:
 		 *
 		 * R(baseline)*8000=8*pi*3.2*L/A(baseline)^2
-		 *
-		 * From A(baseline)=Pi*(vessel Diameter/2)^2
-		 * one can calculate PA and PV baseline diameters
-		 *
-		 * Based on this diameter and the diameter ratios for arteries
-		 * and veins one can calculate baseline diameters of all vessels.
 		 */
 
-		// convert cm => um (1e4 factor)
-		arteries[i].length = PA_EVL / pow(art_calib.len_ratio, gen-1);
-		arteries[i].D = 1e4 * sqrt(3.2/250.0 * arteries[i].length / arteries[i].R);
+		const double art_d = 1e4 * PA_diam * measuredDiameterRatio(CalibrationFactors::Artery, gen-1);
+		arteries[i].length = 1e4 * PA_EVL * measuredLengthRatio(CalibrationFactors::Artery, gen-1);
+		arteries[i].D = art_d;
+		arteries[i].R = Kra_factor*arteries[i].length/sqr(sqr(art_d));
+		arteries[i].viscosity_factor = 1.0;
+		arteries[i].volume = 1e-9 * M_PI/4.0*art_d*art_d*arteries[i].length / art_ratio;
 
-		veins[i].length = PV_EVL / pow(vein_calib.len_ratio, gen-1);
-		veins[i].D = 1e4 * sqrt(3.2/250.0 * veins[i].length / veins[i].R);
+		const double vein_d = 1e4 * PV_diam * measuredDiameterRatio(CalibrationFactors::Vein, gen-1);
+		veins[i].length = 1e4 * PV_EVL * measuredLengthRatio(CalibrationFactors::Vein, gen-1);
+		veins[i].D = vein_d;
+		veins[i].R = Krv_factor*veins[i].length/sqr(sqr(vein_d));
+		veins[i].viscosity_factor = 1.0;
+		veins[i].volume = 1e-9 * M_PI/4.0*vein_d*vein_d+veins[i].length / vein_ratio;
+
 
 		// GP was calculated with GP=0 being top of lung
 		// then corrected based on transducer position
@@ -1245,7 +1365,7 @@ void Model::initVesselBaselineResistances(double cKra, double cKrv, int gen)
 
 	// Initialize more generations, if they exist
 	if( gen < nGenerations())
-		initVesselBaselineResistances(cKra, cKrv, gen+1); // R(n+1) = 0.5 * R(n)
+		initVesselBaselineResistances(gen+1);
 }
 
 void Model::calculateBaselineCharacteristics()
@@ -1284,37 +1404,29 @@ void Model::calculateBaselineCharacteristics()
 			art.Ptp = 0;
 		if (vein.Ptp < 0)
 			vein.Ptp = 0;
+
+		art.length_factor = lengthFactor(art);
+		vein.length_factor = lengthFactor(vein);
 	}
 }
 
-void Model::setNewVesselCL(double old_CL, double new_CL)
+double Model::lengthFactor(const Vessel &v) const
 {
-	/* Only override CL values that are not overrides from model-wide CL */
-	const int n_arteries = numArteries();
-	const int n_veins = numVeins();
+	const double min_ratio = 0.4 * Vtlc;
+	double len_ratio;
 
-	for (int i=0; i<n_arteries; ++i)
-		if (!significantChange(old_CL, arteries[i].CL))
-			arteries[i].CL = new_CL;
+	if (v.Ptp > 35.0)
+		return 1.0;
 
-	for (int i=0; i<n_veins; ++i)
-		if (!significantChange(old_CL, veins[i].CL))
-			veins[i].CL = new_CL;
-}
+	if (v.Ptp > 15.0)
+		len_ratio = 0.005 * v.Ptp + 0.825;
+	else if (v.Ptp > 5.0)
+		len_ratio = (0.09-0.1*Vfrc)*v.Ptp + 1.5*Vfrc - 0.45;
+	else
+		len_ratio = 0.2*(Vfrc-Vrv)*v.Ptp + Vrv;
 
-void Model::setNewVesselMV(double old_MV, double new_MV)
-{
-	/* Only override MV values that are not overrides from model-wide MV */
-	const int n_arteries = numArteries();
-	const int n_veins = numVeins();
-
-	for (int i=0; i<n_arteries; ++i)
-		if (!significantChange(old_MV, arteries[i].MV))
-			arteries[i].MV = new_MV;
-
-	for (int i=0; i<n_veins; ++i)
-		if (!significantChange(old_MV, veins[i].MV))
-			veins[i].MV = new_MV;
+	len_ratio = qMax(len_ratio, min_ratio);
+	return cbrt(len_ratio);
 }
 
 bool Model::initDb(QSqlDatabase &db) const
@@ -1368,8 +1480,6 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 
 	SET_VALUE(Tlrns);
 	SET_VALUE(LungHt);
-	SET_VALUE(MV);
-	SET_VALUE(CL);
 	SET_VALUE(Pal);
 	SET_VALUE(Ppl);
 	SET_VALUE(CO);
@@ -1381,8 +1491,10 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(PA_EVL);
 	SET_VALUE(PV_EVL);
 
-	SET_VALUE(Kra_factor);
-	SET_VALUE(Krv_factor);
+	SET_VALUE(Vrv);
+	SET_VALUE(Vfrc);
+	SET_VALUE(Vtlc);
+
 	SET_VALUE(Krc_factor);
 
 	SET_VALUE(art_calib.branch_ratio);
@@ -1451,8 +1563,6 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			SET_VALUE(v.GPz);
 			SET_VALUE(v.Ppl);
 			SET_VALUE(v.Ptp);
-			SET_VALUE(v.CL);
-			SET_VALUE(v.MV);
 
 			SET_VALUE(v.perivascular_press_a);
 			SET_VALUE(v.perivascular_press_b);
@@ -1559,8 +1669,6 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 
 	SET_VALUE(Tlrns);
 	SET_VALUE(LungHt);
-	SET_VALUE(MV);
-	SET_VALUE(CL);
 	SET_VALUE(Pal);
 	SET_VALUE(Ppl);
 	SET_VALUE(CO);
@@ -1572,8 +1680,10 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(PA_EVL);
 	SET_VALUE(PV_EVL);
 
-	SET_VALUE(Kra_factor);
-	SET_VALUE(Krv_factor);
+	SET_VALUE(Vrv);
+	SET_VALUE(Vfrc);
+	SET_VALUE(Vtlc);
+
 	SET_VALUE(Krc_factor);
 
 	SET_VALUE(art_calib.branch_ratio);
@@ -1628,8 +1738,6 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 
 	GET_VALUE(Tlrns);
 	GET_VALUE(LungHt);
-	GET_VALUE(MV);
-	GET_VALUE(CL);
 	GET_VALUE(Pal);
 	GET_VALUE(Ppl);
 	GET_VALUE(CO);
@@ -1641,8 +1749,10 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	GET_VALUE(PA_EVL);
 	GET_VALUE(PV_EVL);
 
-	GET_VALUE(Kra_factor);
-	GET_VALUE(Krv_factor);
+	GET_VALUE(Vrv);
+	GET_VALUE(Vfrc);
+	GET_VALUE(Vtlc);
+
 	GET_VALUE(Krc_factor);
 
 	GET_VALUE(art_calib.branch_ratio);
@@ -1654,7 +1764,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 
 
 	// force recalculation of Kr factors
-	setKrFactors(Kra_factor, Krv_factor, Krc_factor);
+	setKrFactors(Krc_factor);
 
 	// load values of each vessel
 	values.clear();
@@ -1689,8 +1799,6 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			SET_VALUE(v.GPz);
 			SET_VALUE(v.Ppl);
 			SET_VALUE(v.Ptp);
-			SET_VALUE(v.CL);
-			SET_VALUE(v.MV);
 
 			SET_VALUE(v.perivascular_press_a);
 			SET_VALUE(v.perivascular_press_b);
@@ -1736,8 +1844,6 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			GET_VALUE(v.GPz);
 			GET_VALUE(v.Ppl);
 			GET_VALUE(v.Ptp);
-			GET_VALUE(v.CL);
-			GET_VALUE(v.MV);
 
 			GET_VALUE(v.perivascular_press_a);
 			GET_VALUE(v.perivascular_press_b);

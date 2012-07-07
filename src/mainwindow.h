@@ -119,7 +119,8 @@ protected slots:
 
 	void patHtWtChanged();
 	void vesselPtpDependenciesChanged();
-	void globalMvClChanged();
+	void globalVolumesChanged();
+	void vesselDimsChanged();
 
 	// label animations
 	void animatePatHtLabel(bool fVisible);
@@ -127,6 +128,7 @@ protected slots:
 	void animateLungHtLabel(bool fVisible);
 	void animatePplModLabel(bool fVisible);
 	void animatePalModLabel(bool fVisible);
+	void animatePVParams(bool fVisible);
 	void animationFinished();
 
 private:

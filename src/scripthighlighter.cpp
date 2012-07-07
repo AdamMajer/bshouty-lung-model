@@ -44,9 +44,10 @@ static QStringList lung_vars = QStringList()
         << "GP" << "Ppl" << "Ptp" << "Kz"
         << "perivascular_press_a" << "perivascular_press_b" << "perivascular_press_c"
         << "Alpha" << "Ho"
+        << "D"
         // Model parameters
         << "Lung_Ht" << "Flow" << "LAP" << "Pal" << "Ppl" << "Ptp" << "PAP"
-        << "Tlrns" << "MV" << "CL" << "Pat_Ht" << "Pat_Wt";
+        << "Tlrns" << "Pat_Ht" << "Pat_Wt";
 
 ScriptHighlighter::ScriptHighlighter(QTextEdit *parent)
         : QSyntaxHighlighter(parent)

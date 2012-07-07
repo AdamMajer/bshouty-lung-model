@@ -33,7 +33,7 @@ class CalibrateDlg : public QDialog
 	Q_OBJECT
 
 public:
-	enum ValueType {Kra, Krv, Krc};
+	enum ValueType {Krc, PA_diam, PV_diam};
 
 	CalibrateDlg(QWidget *parent);
 	~CalibrateDlg();
