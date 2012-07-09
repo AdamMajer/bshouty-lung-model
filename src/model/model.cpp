@@ -80,7 +80,6 @@ bool operator==(const struct Vessel &a, const struct Vessel &b)
 	      significantChange(a.perivascular_press_b, b.perivascular_press_b) ||
 	      significantChange(a.perivascular_press_c, b.perivascular_press_c) ||
 	      significantChange(a.length_factor, b.length_factor) ||
-	      significantChange(a.Kz, b.Kz) ||
 	      significantChange(a.total_R, b.total_R) ||
 	      significantChange(a.pressure, b.pressure) ||
 	      significantChange(a.flow, b.flow));
@@ -1261,6 +1260,9 @@ void Model::initVesselBaselineCharacteristics()
 		}
 		veins[i].a = 0;
 		veins[i].tone = 0;
+
+		veins[i].vessel_ratio = static_cast<double>(nElements(gen_no(i))) /
+		                        nVessels(CalibrationFactors::Vein, gen_no(i));
 	}
 
 	const int num_arteries = numArteries();
@@ -1270,6 +1272,9 @@ void Model::initVesselBaselineCharacteristics()
 		arteries[i].b = 0.0275 / 1.2045;
 		arteries[i].c = 0;
 		arteries[i].tone = 0;
+
+		arteries[i].vessel_ratio = static_cast<double>(nElements(gen_no(i))) /
+		                        nVessels(CalibrationFactors::Artery, gen_no(i));
 	}
 
 	// Initialize capillaries
@@ -1569,11 +1574,12 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			SET_VALUE(v.perivascular_press_c);
 
 			SET_VALUE(v.length_factor);
-			SET_VALUE(v.Kz);
 
 			SET_VALUE(v.total_R);
 			SET_VALUE(v.pressure);
 			SET_VALUE(v.flow);
+
+			SET_VALUE(v.vessel_ratio);
 
 			for (QMap<QString,double>::const_iterator i=values.begin();
 			     i!=values.end();
@@ -1805,11 +1811,12 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			SET_VALUE(v.perivascular_press_c);
 
 			SET_VALUE(v.length_factor);
-			SET_VALUE(v.Kz);
 
 			SET_VALUE(v.total_R);
 			SET_VALUE(v.pressure);
 			SET_VALUE(v.flow);
+
+			SET_VALUE(v.vessel_ratio);
 
 			for (QMap<QString,double>::iterator i=values.begin();
 			     i!=values.end();
@@ -1850,11 +1857,12 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			GET_VALUE(v.perivascular_press_c);
 
 			GET_VALUE(v.length_factor);
-			GET_VALUE(v.Kz);
 
 			GET_VALUE(v.total_R);
 			GET_VALUE(v.pressure);
 			GET_VALUE(v.flow);
+
+			GET_VALUE(v.vessel_ratio);
 
 			progress_value += div_per_vessel;
 			while (progress && progress_value - current_value > 1.0) {

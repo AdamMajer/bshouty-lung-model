@@ -57,6 +57,7 @@ struct Vessel
 	double D_calc, Dmin, Dmax; // um
 	double volume; // cm**3
 	double length; // um
+	double length_factor; // adjustment to vessel Ptp
 	double viscosity_factor; // in cP (mPa*s)
 
 	double a,b,c;
@@ -69,15 +70,13 @@ struct Vessel
 	// calclated in GetParameters()
 	double perivascular_press_a, perivascular_press_b, perivascular_press_c;
 
-	// calculated in getKz()
-	double length_factor;
-	double Kz;
-
 	double total_R; // mmHg*min/l
 	double pressure; // mmHg
 	double flow; // l/min
 
-	// double cacheline_padding[8]; // padding to 64-byte caching boundary
+	double vessel_ratio; // n_model_vessels / real vessels
+
+	// double cacheline_padding[1]; // padding to 64-byte caching boundary
 };
 
 struct Capillary

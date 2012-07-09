@@ -95,7 +95,6 @@ double CpuIntegrationHelper::integrateArtery(int vessel_index)
 		                art.perivascular_press_b * exp( art.perivascular_press_c * ( Ptm - art.Ppl ));
 
 	const double dL = art.length * art.length_factor / nSums;
-	const double vessel_ratio = arteryRatio(vessel_index);
 
 	// min diameter is always first segment
 	art.viscosity_factor = 0.0;
@@ -110,7 +109,7 @@ double CpuIntegrationHelper::integrateArtery(int vessel_index)
 		art.Dmin = art.D * sqrt(A);
 		const double vf = viscosityFactor(art.Dmin, hct);
 
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(art.Dmin)) * vessel_ratio;
+		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(art.Dmin)) * art.vessel_ratio;
 		art.viscosity_factor += vf;
 		art.volume += M_PI/4.0 * sqr(art.Dmin) * dL;
 	}
@@ -135,7 +134,7 @@ double CpuIntegrationHelper::integrateArtery(int vessel_index)
 		D_integral += D;
 		const double vf = viscosityFactor(D, hct);
 
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vessel_ratio;
+		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * art.vessel_ratio;
 		art.viscosity_factor += vf;
 		art.volume += M_PI/4.0 * sqr(D) * dL;
 
@@ -146,7 +145,7 @@ double CpuIntegrationHelper::integrateArtery(int vessel_index)
 	art.Dmax = D; // max diameter is always last segment
 	art.D_calc = D_integral /= nSums;
 
-	art.volume = art.volume / (1e9*vessel_ratio); // um**3 => uL, and correct for real number of vessels
+	art.volume = art.volume / (1e9*art.vessel_ratio); // um**3 => uL, and correct for real number of vessels
 	art.R = Rtot;
 	// art.R = K1 * art.R + K2 * Rin;
 
@@ -176,7 +175,6 @@ double CpuIntegrationHelper::integrateVein(int vessel_index)
 		                vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
 
 	const double dL =  vein.length * vein.length_factor / (double)nSums;
-	const double vessel_ratio = veinRatio(vessel_index);
 
 	// min diameter is always first segment
 	vein.viscosity_factor = 0.0;
@@ -189,7 +187,7 @@ double CpuIntegrationHelper::integrateVein(int vessel_index)
 		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220;
 		vein.Dmin = vein.D / sqrt(inv_A);
 		const double vf = viscosityFactor(vein.Dmin, hct);
-		Rs = 128*Kr/M_PI * 3.2 * dL / sqr(sqr(vein.Dmin)) * vessel_ratio;
+		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(vein.Dmin)) * vein.vessel_ratio;
 		vein.viscosity_factor += vf;
 		vein.volume += M_PI/4.0 * sqr(vein.Dmin) * dL;
 	}
@@ -214,7 +212,7 @@ double CpuIntegrationHelper::integrateVein(int vessel_index)
 		D_integral += D;
 		const double vf = viscosityFactor(D, hct);
 
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vessel_ratio;
+		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
 		vein.viscosity_factor += vf;
 		vein.volume += M_PI/4.0 * sqr(D) * dL;
 
@@ -225,7 +223,7 @@ double CpuIntegrationHelper::integrateVein(int vessel_index)
 	vein.Dmax = D; // max diameter is always last segment
 	vein.D_calc = D_integral / nSums;
 
-	vein.volume = vein.volume / (1e9*vessel_ratio); // um**3 => uL, and correct for real number of vessels
+	vein.volume = vein.volume / (1e9*vein.vessel_ratio); // um**3 => uL, and correct for real number of vessels
 	vein.R = Rtot;
 	// vein.R = K1 * vein.R + K2 * Rin;
 
