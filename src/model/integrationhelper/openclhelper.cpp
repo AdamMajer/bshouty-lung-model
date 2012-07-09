@@ -216,7 +216,6 @@ void OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
 		c.c = v.c;
 		c.flow = v.flow;
 		c.GP = v.GP;
-		c.Kz = v.Kz;
 		c.peri_a = v.perivascular_press_a;
 		c.peri_b = v.perivascular_press_b;
 		c.peri_c = v.perivascular_press_c;
@@ -226,7 +225,9 @@ void OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
 		c.tone = v.tone;
 
 		c.D = v.D;
-		c.len = v.length;
+		c.len = v.length * v.length_factor;
+
+		c.vessel_ratio = v.vessel_ratio;
 	}
 }
 

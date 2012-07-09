@@ -161,10 +161,11 @@ struct CL_Vessel {
 	cl_float peri_b;
 	cl_float peri_c;
 
-	cl_float Kz;
-
 	cl_float D;
 	cl_float len;
+
+	cl_float vessel_ratio;
+
 	cl_float pad[1]; // pad to 64 bytes
 };
 
