@@ -1410,8 +1410,14 @@ void Model::calculateBaselineCharacteristics()
 		if (vein.Ptp < 0)
 			vein.Ptp = 0;
 
-		art.length_factor = lengthFactor(art);
-		vein.length_factor = lengthFactor(vein);
+		if (isOutsideLung(i)) {
+			art.length_factor = 1.0;
+			vein.length_factor = 1.0;
+		}
+		else {
+			art.length_factor = lengthFactor(art);
+			vein.length_factor = lengthFactor(vein);
+		}
 	}
 }
 
