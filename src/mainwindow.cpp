@@ -1263,8 +1263,6 @@ void MainWindow::patHtWtChanged()
 
 	ui->CO->setDisabled(is_range);
 	animateLabelVisibility(ui->CORangeLabel, is_range);
-//	ui->CL->setDisabled(is_range);
-//	animateLabelVisibility(ui->CLRangeLabel, is_range);
 
 	bool data_modified = false;
 	if (ht_range.sequenceCount() == 1) {
@@ -1277,10 +1275,19 @@ void MainWindow::patHtWtChanged()
 		data_modified = baseline->setData(Model::Pat_Wt_value, val) || data_modified;
 	}
 
-	// redisplay CO/CL, if it changed
+	// redisplay CO/CL, PA and PV diameters, if it changed
 	if (data_modified) {
+		ui->CO->blockSignals(true);
+		ui->PA_Diameter->blockSignals(true);
+		ui->PV_Diameter->blockSignals(true);
+
 		ui->CO->setText(doubleToString(baseline->getResult(Model::CO_value)));
-//		ui->CL->setText(doubleToString(baseline->getResult(Model::CL_value)));
+		ui->PA_Diameter->setText(doubleToString(baseline->getResult(Model::PA_Diam_value)));
+		ui->PV_Diameter->setText(doubleToString(baseline->getResult(Model::PV_Diam_value)));
+
+		ui->CO->blockSignals(false);
+		ui->PA_Diameter->blockSignals(false);
+		ui->PV_Diameter->blockSignals(false);
 
 		scene->update();
 	}

@@ -807,7 +807,19 @@ bool Model::setData(DataType type, double val)
 	/* For Height and Weight, we have to recalculate the entire lung baseline */
 	case Pat_Ht_value:
 		if (significantChange(PatHt, val)) {
+			/* MPA axial diameter fit from Table 2
+			 * (Knobel et al, "Geometry and dimensions of the pulmonary
+			 *  artery bifurcation in children and adolescents: assessment
+			 *  in vivo by contrast-enhanced MR-angiography)
+			 */
+
+			double baseline_diameter = 4.85 + 13.43*sqrt(BSA(PatHt, PatWt));
+			double new_diameter = 4.85 + 13.43*sqrt(BSA(val, PatWt));
+
 			PatHt = val;
+			PA_diam *= new_diameter/baseline_diameter;
+			PV_diam *= new_diameter/baseline_diameter;
+
 			initVesselBaselineResistances();
 			modified_flag = true;
 			return true;
@@ -815,7 +827,13 @@ bool Model::setData(DataType type, double val)
 		break;
 	case Pat_Wt_value:
 		if (significantChange(PatWt, val)) {
+			double baseline_diameter = 4.85 + 13.43*sqrt(BSA(PatHt, PatWt));
+			double new_diameter = 4.85 + 13.43*sqrt(BSA(PatHt, val));
+
 			PatWt = val;
+			PA_diam *= new_diameter/baseline_diameter;
+			PV_diam *= new_diameter/baseline_diameter;
+
 			initVesselBaselineResistances();
 			modified_flag = true;
 			return true;
