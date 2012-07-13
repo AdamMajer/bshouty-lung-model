@@ -394,71 +394,6 @@ p, li { white-space: pre-wrap; }
      </layout>
     </widget>
    </item>
-   <item row="2" column="2">
-    <widget class="QGroupBox" name="groupBox_5">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="title">
-      <string>Branching Characteristics</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="1">
-       <widget class="QLabel" name="label_22">
-        <property name="text">
-         <string>Arteries</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_23">
-        <property name="text">
-         <string>Veins</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_24">
-        <property name="text">
-         <string>D/M Branching Ratio</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="arteries_branching"/>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLineEdit" name="veins_branching"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_25">
-        <property name="text">
-         <string>M/D Length Ratio</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="arteries_length"/>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLineEdit" name="veins_length"/>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_26">
-        <property name="text">
-         <string>M/D Diameter Ratio</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="arteries_diameter"/>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLineEdit" name="veins_diameter"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="3" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox_4">
      <property name="title">
@@ -692,12 +627,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>target_rus</tabstop>
   <tabstop>target_rm</tabstop>
   <tabstop>target_rds</tabstop>
-  <tabstop>arteries_branching</tabstop>
-  <tabstop>veins_branching</tabstop>
-  <tabstop>arteries_length</tabstop>
-  <tabstop>veins_length</tabstop>
-  <tabstop>arteries_diameter</tabstop>
-  <tabstop>veins_diameter</tabstop>
   <tabstop>pap</tabstop>
   <tabstop>rus</tabstop>
   <tabstop>rm</tabstop>

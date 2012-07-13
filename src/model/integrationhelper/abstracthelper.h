@@ -48,11 +48,11 @@ protected:
 
 	double arteryRatio(int idx) const {
 		const int gen = model->gen_no(idx);
-		return model->nElements(gen) / (double)model->nVessels(CalibrationFactors::Artery, gen);
+		return model->nElements(gen) / (double)model->nVessels(Vessel::Artery, gen);
 	}
 	double veinRatio(int idx) const {
 		const int gen = model->gen_no(idx);
-		return model->nElements(gen) / (double)model->nVessels(CalibrationFactors::Vein, gen);
+		return model->nElements(gen) / (double)model->nVessels(Vessel::Vein, gen);
 	}
 
 private:

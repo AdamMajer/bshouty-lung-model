@@ -75,13 +75,6 @@ CalibrateDlg::CalibrateDlg(QWidget *parent)
 	config_values.insert(ui->target_rm,  QPair<QLatin1String,double>(rm_ratio, 16));
 	config_values.insert(ui->target_rds, QPair<QLatin1String,double>(rds_ratio, 42));
 
-	config_values.insert(ui->arteries_branching, QPair<QLatin1String,double>(art_branching_ratio, 3.36));
-	config_values.insert(ui->arteries_length, QPair<QLatin1String,double>(art_length_ratio, 1.49));
-	config_values.insert(ui->arteries_diameter, QPair<QLatin1String,double>(art_diam_ratio, 1.56));
-	config_values.insert(ui->veins_branching, QPair<QLatin1String,double>(vein_branching_ratio, 3.33));
-	config_values.insert(ui->veins_length, QPair<QLatin1String,double>(vein_length_ratio, 1.50));
-	config_values.insert(ui->veins_diameter, QPair<QLatin1String,double>(vein_diam_ratio, 1.58));
-
 	connect(ui->tolerance, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
 	connect(ui->patHt, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
 	connect(ui->patWt, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
@@ -459,12 +452,4 @@ void CalibrateDlg::resetBaseModel()
 	for (QMap<Model::DataType,QLineEdit*>::const_iterator i=v.begin(); i!=v.end(); ++i) {
 		base_model.setData(i.key(), i.value()->text().toDouble());
 	}
-
-	CalibrationFactors art_f(ui->arteries_length->text().toDouble(),
-	                         ui->arteries_diameter->text().toDouble(),
-	                         ui->arteries_branching->text().toDouble());
-	CalibrationFactors vein_f(ui->veins_length->text().toDouble(),
-	                          ui->veins_diameter->text().toDouble(),
-	                          ui->veins_branching->text().toDouble());
-	base_model.setCalibrationRatios(art_f, vein_f);
 }

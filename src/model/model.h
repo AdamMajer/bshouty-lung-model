@@ -30,28 +30,10 @@ extern const double K1;
 extern const double K2;
 extern const int nSums; // number of divisions in the integral
 
-struct CalibrationFactors {
-	double len_ratio;
-	double diam_ratio;
-	double branch_ratio;
-
-	double gen_r[16];
-
-	enum CalibrationType { Artery, Vein };
-
-	// loads from saved calibration factors
-	CalibrationFactors(CalibrationType type);
-
-	// sets calibration factors
-	CalibrationFactors(double l, double d, double b)
-	        : len_ratio(l), diam_ratio(d), branch_ratio(b) {
-
-		memset(gen_r, 0, sizeof(double)*16);
-	}
-};
-
 struct Vessel
 {
+	enum Type { Artery, Vein };
+
 	double R; // mmHg*min/l
 	double D; // um
 	double D_calc, Dmin, Dmax; // um
@@ -135,11 +117,11 @@ public:
 	// Number of elements in a given generation of the model
 	int nElements( unsigned n ) const { return 1 << (n-1); } // 2**(n-1)
 
-	// Number of real vessels (using branching factor)
-	int nVessels(CalibrationFactors::CalibrationType vessel_type, unsigned gen_no) const;
+	// Number of real vessels
+	int nVessels(Vessel::Type vessel_type, unsigned gen_no) const;
 
-	static double measuredDiameterRatio(CalibrationFactors::CalibrationType vessel_type, unsigned gen_no);
-	static double measuredLengthRatio(CalibrationFactors::CalibrationType vessel_type, unsigned gen_no);
+	static double measuredDiameterRatio(Vessel::Type vessel_type, unsigned gen_no);
+	static double measuredLengthRatio(Vessel::Type vessel_type, unsigned gen_no);
 
 	// starting index of first element in generation n
 	int startIndex( int n ) const {
@@ -149,7 +131,7 @@ public:
 	// generation number of the index
 	int gen_no( int i ) const {
 		int n=0;
-		// increment is to account for 0-based indexing
+		// increment is to account for 0-based indexing of vessel numbers
 		++i;
 		while( i > 0 ){
 			i>>=1;
@@ -160,10 +142,10 @@ public:
 	}
 
 	// First 1/5th of generations is deemed to be outside the lung, rounded up
-	// so 15-gen model => 3 vessels outside
-	//    16-gen model => 4 vessels outside
+	// so 15-gen model => 3 vessel generations outside
+	//    16-gen model => 4 vessel generations outside
 	bool isOutsideLung(int i) const {
-		return gen_no(i) <= (nGenerations()+4)/5;
+		return i < nOutsideElements();
 	}
 
 	int nOutsideElements() const {
@@ -171,9 +153,9 @@ public:
 	}
 
 	// Resistance factor from Generation (gen) to (gen+1)
-	double arteryResistanceFactor(int gen);
-	double veinResistanceFactor(int gen);
-	double vesselResistanceFactor(int gen, const double *gen_r) const;
+	//double arteryResistanceFactor(int gen);
+	//double veinResistanceFactor(int gen);
+	//double vesselResistanceFactor(int gen, const double *gen_r) const;
 
 	double BSAz() const;
 	static double BSA(double pat_ht, double pat_wt);
@@ -228,8 +210,6 @@ public:
 	/* Only used by the calibration functionality */
 	void setKrFactors(double Krc);
 	double getKrc();
-	CalibrationFactors calibrationFactor(CalibrationFactors::CalibrationType) const;
-	void setCalibrationRatios(const CalibrationFactors &art, const CalibrationFactors &vein);
 
 	static QString calibrationPath(DataType type);
 	static double calibrationValue(DataType);
@@ -282,8 +262,6 @@ private:
 
 	/* Calibration constants */
 	double Krc_factor;
-
-	CalibrationFactors art_calib, vein_calib;
 };
 
 typedef QList<QPair<int, Model*> > ModelCalcList;
