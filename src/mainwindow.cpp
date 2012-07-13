@@ -76,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
 	calc_thread = 0;
 	mres = 0;
 
-	baseline = new Model(Model::Middle, Model::SingleLung, 15);
+	baseline = new Model(Model::Middle, Model::DoubleLung, 15);
 	model = baseline->clone();
 	ui = new Ui::MainWindow;
 	ui->setupUi(this);

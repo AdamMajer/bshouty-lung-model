@@ -288,78 +288,110 @@ Model* Model::clone() const
 int Model::nVessels(CalibrationFactors::CalibrationType vessel_type,
                     unsigned gen_no) const
 {
+	/* As measured in Huang's paper - Morphometry of
+	 * Pulmonary Vasculature, Table 5
+	 */
+
+	const static int artery_number[16] = {
+	        1,
+	        2,
+	        7,
+	        43,
+	        127,
+	        450,
+	        1724,
+	        6225,
+	        22004,
+	        86020,
+	        285772,
+	        674169,
+	        2256846,
+	        5101903,
+	        14057197,
+	        51205812
+	};
+
+	const static int vein_number[16] = {
+	        1,
+	        2,
+	        4,
+	        11,
+	        31,
+	        63,
+	        143,
+	        435,
+	        1067,
+	        3721,
+	        15567,
+	        73025,
+	        453051,
+	        2166333,
+	        8494245,
+	        39823553
+	};
+
 	if (gen_no > (unsigned)nGenerations())
 		return 0;
 
-	switch (gen_no) {
-	case 0:
-		return 0;
-	case 1:
-		return 1;
-	}
-
-	double branching_ratio = 0;
-
 	switch (vessel_type) {
 	case CalibrationFactors::Artery:
-		branching_ratio = art_calib.branch_ratio;
-		break;
+		return artery_number[gen_no-1];
 	case CalibrationFactors::Vein:
-		branching_ratio = vein_calib.branch_ratio;
-		break;
+		return vein_number[gen_no-1];
 	}
 
-	double n_vessels = branching_ratio;
-	while (--gen_no > 0)
-		n_vessels *= branching_ratio;
-
-	return n_vessels;
+	return 0;
 }
 
 double Model::measuredDiameterRatio(CalibrationFactors::CalibrationType vessel_type,
                                     unsigned gen_no)
 {
-	const static double artery_ratios[15] = {
-		1,
-		0.48346560846561,
-		0.28637566137566,
-		0.18584656084656,
-		0.11772486772487,
-		0.07738095238095,
-		0.05092592592593,
-		0.03373015873016,
-		0.02314814814815,
-		0.01455026455026,
-		0.00992063492063,
-		0.00634920634921,
-		0.0037037037037,
-		0.00238095238095,
-		0.00132275132275
+	/* Values for the main artery and vein were added later assuming
+	 * standard diameter ratio of 1.57
+	 */
+	const static double artery_ratios[16] = {
+	        1,
+		0.49664429530201,
+		0.24630872483221,
+		0.13959731543624,
+		0.09093959731544,
+		0.05872483221477,
+		0.03892617449664,
+		0.0258389261745,
+		0.01711409395973,
+		0.01140939597315,
+		0.00738255033557,
+		0.00503355704698,
+		0.00325503355705,
+		0.00187919463087,
+		0.00120805369128,
+		0.0006711409396
 	};
 
-	const static double vein_ratios[15] = {
-		1,
-		0.67463377023901,
-		0.45875096376253,
-		0.31457208943716,
-		0.22359290670779,
-		0.15497301464919,
-		0.10717039321511,
-		0.06939090208173,
-		0.04857363145721,
-		0.03006939090208,
-		0.017733230532,
-		0.01002313030069,
-		0.00508866615266,
-		0.00246723207402,
-		0.00138781804163
+	const static double vein_ratios[16] = {
+	        1,
+		0.67552083333333,
+		0.45052083333333,
+		0.30520833333333,
+		0.20833333333333,
+		0.15,
+		0.10364583333333,
+		0.07395833333333,
+		0.046875,
+		0.03229166666667,
+		0.01979166666667,
+		0.01197916666667,
+		0.00677083333333,
+		0.00348958333333,
+		0.00161458333333,
+		0.0009375
 	};
 
 	switch (vessel_type) {
 	case CalibrationFactors::Artery:
-		return artery_ratios[gen_no];
+		return artery_ratios[gen_no-1];
 	case CalibrationFactors::Vein:
-		return vein_ratios[gen_no];
+		return vein_ratios[gen_no-1];
 	}
 
 	return 1;
@@ -368,50 +400,55 @@ double Model::measuredDiameterRatio(CalibrationFactors::CalibrationType vessel_t
 double Model::measuredLengthRatio(CalibrationFactors::CalibrationType vessel_type,
                                   unsigned gen_no)
 {
-	const static double artery_ratios[15] = {
-		1,
-		0.92786561264822,
-		0.49505928853755,
-		0.35474308300395,
-		0.21343873517787,
-		0.15217391304348,
-		0.09881422924901,
-		0.07509881422925,
-		0.06324110671937,
-		0.05335968379447,
-		0.04743083003953,
-		0.03063241106719,
-		0.02569169960474,
-		0.01877470355731,
-		0.0197628458498
+	/* Length ratios assume 2.5 cm main PA, 5cm left PA
+	 * same for the veins
+	 */
+	const static double artery_ratios[16] = {
+	        1,
+	        0.506,
+	        0.714,
+	        0.5194,
+	        0.3614,
+	        0.247,
+	        0.1316,
+	        0.0746,
+	        0.0562,
+	        0.0384,
+	        0.0216,
+	        0.0136,
+	        0.009,
+	        0.0072,
+	        0.0052,
+	        0.0044
 	};
 
-	const static double vein_ratios[15] = {
-		1,
-		0.28026905829596,
-		0.25868834080717,
-		0.12808295964126,
-		0.08267937219731,
-		0.07343049327354,
-		0.0625,
-		0.04792600896861,
-		0.035033632287,
-		0.02270179372197,
-		0.01457399103139,
-		0.01205156950673,
-		0.00504484304933,
-		0.00364349775785,
-		0.00336322869955
+	const static double vein_ratios[16] = {
+	        1,
+	        0.7136,
+	        0.6998,
+	        0.3898,
+	        0.5298,
+	        0.358,
+	        0.2956,
+	        0.2248,
+	        0.1356,
+	        0.0958,
+	        0.0584,
+	        0.03,
+	        0.0212,
+	        0.0076,
+	        0.0042,
+	        0.0026
 	};
 
 	switch (vessel_type) {
 	case CalibrationFactors::Artery:
-		return artery_ratios[gen_no];
+		return artery_ratios[gen_no-1];
 	case CalibrationFactors::Vein:
-		return vein_ratios[gen_no];
+		return vein_ratios[gen_no-1];
 	}
 
-	return 0;
+	return 1;
 }
 
 double Model::arteryResistanceFactor(int gen)
@@ -1037,13 +1074,14 @@ double Model::calibrationValue(DataType type)
 		return 0.45;
 	case Model::PA_EVL_value:
 	case Model::PV_EVL_value:
-		return 10.0;
+		return 5.0;
 	case Model::PA_Diam_value:
+		return 2.44701828402914;
 	case Model::PV_Diam_value:
-		return 1.5;
+		return 1.68227300704001;
 
 	case Model::Krc:
-		return 3135.049210184;
+		return 3161.06957165224;
 
 	case Model::Ptp_value:
 	case Model::PAP_value:
@@ -1330,15 +1368,15 @@ void Model::initVesselBaselineResistances(int gen)
 		 * R(baseline)*8000=8*pi*3.2*L/A(baseline)^2
 		 */
 
-		const double art_d = 1e4 * PA_diam * measuredDiameterRatio(CalibrationFactors::Artery, gen-1);
-		arteries[i].length = 1e4 * PA_EVL * measuredLengthRatio(CalibrationFactors::Artery, gen-1);
+		const double art_d = 1e4 * PA_diam * measuredDiameterRatio(CalibrationFactors::Artery, gen);
+		arteries[i].length = 1e4 * PA_EVL * measuredLengthRatio(CalibrationFactors::Artery, gen);
 		arteries[i].D = art_d;
 		arteries[i].R = Kra_factor*arteries[i].length/sqr(sqr(art_d));
 		arteries[i].viscosity_factor = 1.0;
 		arteries[i].volume = 1e-9 * M_PI/4.0*art_d*art_d*arteries[i].length / art_ratio;
 
-		const double vein_d = 1e4 * PV_diam * measuredDiameterRatio(CalibrationFactors::Vein, gen-1);
-		veins[i].length = 1e4 * PV_EVL * measuredLengthRatio(CalibrationFactors::Vein, gen-1);
+		const double vein_d = 1e4 * PV_diam * measuredDiameterRatio(CalibrationFactors::Vein, gen);
+		veins[i].length = 1e4 * PV_EVL * measuredLengthRatio(CalibrationFactors::Vein, gen);
 		veins[i].D = vein_d;
 		veins[i].R = Krv_factor*veins[i].length/sqr(sqr(vein_d));
 		veins[i].viscosity_factor = 1.0;
