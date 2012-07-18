@@ -697,6 +697,7 @@ bool Model::setData(DataType type, double val)
 	case CO_value:
 		if (significantChange(CO, val)) {
 			CO = val;
+			CI = CO / BSA(PatHt, PatWt);
 			modified_flag = true;
 			return true;
 		}
