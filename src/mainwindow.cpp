@@ -137,6 +137,7 @@ MainWindow::MainWindow(QWidget *parent)
 	                << linked_control(ui->actionPAP, ui->calculationTypePAPm);
 	foreach (const linked_control &c, linked_controls)
 		connect(c.first, SIGNAL(toggled(bool)), c.second, SLOT(setChecked(bool)));
+	scene = 0;
 	setupNewModelScene();
 
 	connect(ui->recalc, SIGNAL(clicked()), SLOT(updateResults()));
@@ -932,8 +933,14 @@ QList<QPair<Model::DataType, Range> > MainWindow::fetchModelInputs() const
 
 void MainWindow::setupNewModelScene()
 {
+	// FIXME: adapt model scene to redraw model without reallocation if the
+	// new model contains same geometry.
+	ModelScene *old_scene = scene;
 	scene = new ModelScene(*baseline, *model, this);
 	ui->view->setScene(scene);
+
+	if (old_scene)
+		delete old_scene;
 
 	connect(scene, SIGNAL(arteryDoubleClicked(int,int)), SLOT(modifyArtery(int,int)));
 	connect(scene, SIGNAL(veinDoubleClicked(int,int)), SLOT(modifyVein(int,int)));
