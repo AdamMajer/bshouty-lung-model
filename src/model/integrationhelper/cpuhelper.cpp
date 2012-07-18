@@ -143,7 +143,7 @@ double CpuIntegrationHelper::integrateArtery(int vessel_index)
 	}
 	art.viscosity_factor /= nSums;
 	art.Dmax = D; // max diameter is always last segment
-	art.D_calc = D_integral /= nSums;
+	art.D_calc = D_integral / nSums;
 
 	art.volume = art.volume / (1e9*art.vessel_ratio); // um**3 => uL, and correct for real number of vessels
 	art.R = Rtot;
