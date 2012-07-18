@@ -128,6 +128,10 @@ int Range::sequenceCount() const
 
 bool Range::contains(const Range &other) const
 {
-	return other.v_min-v_min > -std::numeric_limits<double>::epsilon()*v_min &&
-	       other.v_max-v_max <  std::numeric_limits<double>::epsilon()*v_max;
+	// avoid comparison with 0
+	const double v_min_scaling = fabs(v_min) > std::numeric_limits<double>::min() ? fabs(v_min) : std::numeric_limits<double>::min();
+	const double v_max_scaling = fabs(v_max) > std::numeric_limits<double>::min() ? fabs(v_max) : std::numeric_limits<double>::min();
+
+	return other.v_min-v_min >= -std::numeric_limits<double>::epsilon()*v_min_scaling &&
+	       other.v_max-v_max <=  std::numeric_limits<double>::epsilon()*v_max_scaling;
 }
