@@ -1213,7 +1213,6 @@ void MainWindow::calculationTypeButtonGroupClick(int id)
 
 void MainWindow::allocateNewModel(bool propagate_diseases_to_new_model)
 {
-	ModelScene *old_scene = scene;
 	Model *old_model = model;
 
 	Model::ModelType model_type = Model::SingleLung;
@@ -1257,7 +1256,6 @@ void MainWindow::allocateNewModel(bool propagate_diseases_to_new_model)
 	setupNewModelScene();
 	updateInputsOutputs();
 
-	delete old_scene;
 	delete old_model;
 }
 
