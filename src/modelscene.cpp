@@ -198,11 +198,37 @@ ModelScene::~ModelScene()
 
 QRectF ModelScene::generationRect(int n) const
 {
+	/*
 	double x = 0.0;
 	for (int i=1; i<n; ++i)
 		x += 100 / exp2(i);
 
 	return QRectF(x, 0, 100/exp2(n), 100);
+	*/
+
+	if (n<1 || n>16)
+		return QRectF();
+
+	const double rect_w[17] = { 0,
+	                            50,
+	                            75,
+	                            87.5,
+	                            93.75,
+	                            96.875,
+	                            98.4375,
+	                            99.21875,
+	                            99.609375,
+	                            99.8046875,
+	                            99.90234375,
+	                            99.951171875,
+	                            99.9755859375,
+	                            99.98779296875,
+	                            99.993896484375,
+	                            99.9969482421875,
+	                            99.99847412109375
+	                          };
+
+	return QRectF(rect_w[n], 0, rect_w[n]-rect_w[n-1], 100);
 }
 
 void ModelScene::updateModelValues()
