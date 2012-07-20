@@ -64,6 +64,11 @@ void* allocateCachelineAligned(int size);
 void* allocatePageAligned(int size);
 void freeAligned(void *);
 
+inline double sqr( double n )
+{
+	return n*n;
+}
+
 /* Globals */
 class OpenCL;
 

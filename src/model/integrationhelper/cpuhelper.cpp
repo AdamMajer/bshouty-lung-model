@@ -27,11 +27,6 @@ extern const int nSums;
 
 const double Kr = 1.2501e8; // cP/um**3 => mmHg*min/l
 
-static inline double sqr(double n)
-{
-	return n*n;
-}
-
 static inline double viscosityFactor(double D, double Hct)
 {
 	const double C = (0.8+exp(-0.075*D)) * ((1/(1 + 1e-11*pow(D, 12)))-1.0) + (1/(1+1e-11*pow(D,12)));

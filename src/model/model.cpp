@@ -42,12 +42,6 @@ const double K1 = 0.5;
 const double K2 = 0.5;
 const int nSums = 16; // number of divisions in the integral
 
-/* Helper functions */
-static inline double sqr( double n )
-{
-	return n*n;
-}
-
 #if defined(Q_OS_WIN32) && !defined(__GNUC__)
 inline double cbrt(double x) {
 	if (x > 0)
