@@ -79,8 +79,14 @@ void VesselConnectionView::paint(QPainter *painter,
 
 	painter->setPen(QPen(penColor(option), 3.2/2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 	painter->drawPath(path);
-	painter->fillPath(fill, gradient);
-	painter->fillPath(fill, gradient2);
+
+	if (isClearBg()) {
+		painter->fillPath(fill, Qt::white);
+	}
+	else {
+		painter->fillPath(fill, gradient);
+		painter->fillPath(fill, gradient2);
+	}
 }
 
 void VesselConnectionView::setupPath()

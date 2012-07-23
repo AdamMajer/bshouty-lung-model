@@ -148,8 +148,12 @@ public:
 		return i < nOutsideElements();
 	}
 
+	int nGenOutside() const {
+		return (nGenerations()+4)/5;
+	}
+
 	int nOutsideElements() const {
-		return (1 << ((nGenerations()+4)/5))-1;
+		return (1 << nGenOutside())-1;
 	}
 
 	// Resistance factor from Generation (gen) to (gen+1)

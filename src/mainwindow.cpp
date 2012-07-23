@@ -106,6 +106,14 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(calc_type, SIGNAL(triggered(QAction*)),
 	        SLOT(setCalculationType(QAction*)));
 
+	QActionGroup *overlay_type = new QActionGroup(this);
+	overlay_type->addAction(ui->actionNoOverlay);
+	overlay_type->addAction(ui->actionFlowOverlay);
+	overlay_type->addAction(ui->actionVolumeOverlay);
+	overlay_type->setExclusive(true);
+	connect(overlay_type, SIGNAL(triggered(QAction*)),
+	        SLOT(setOverlayType(QAction*)));
+
 	QButtonGroup *bg = new QButtonGroup(this);
 	bg->addButton(ui->oneLungModel, 1);
 	bg->addButton(ui->twoLungModel, 2);
@@ -752,6 +760,19 @@ void MainWindow::adjustVisibleModelInputs(ModelCalculationType calculation_type)
 	}
 }
 
+void MainWindow::setOverlayType(QAction *ac)
+{
+	if (ac == ui->actionNoOverlay) {
+		ui->view->clearOverlay();
+		return;
+	}
+
+	if (ac == ui->actionFlowOverlay)
+		ui->view->setOverlayType(LungView::FlowOverlay);
+	else if(ac == ui->actionVolumeOverlay)
+		ui->view->setOverlayType(LungView::VolumeOverlay);
+}
+
 void MainWindow::modifyArtery(int gen, int idx)
 {
 	Vessel v(baseline->artery(gen, idx));
@@ -886,6 +907,9 @@ void MainWindow::updateInputsOutputs()
 
 	// update calibration ratios
 	ui->krc_factor->setText(doubleToString(model->getKrc()));
+
+	// force overlay relaculation, if any
+	ui->view->setOverlayType(ui->view->overlayType());
 
 #undef GET_MODEL
 }

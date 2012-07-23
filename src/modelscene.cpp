@@ -107,6 +107,9 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 
 				caps[i].con = 0;
 				caps[i].v = c;
+
+				arteries[n].con = 0;
+				veins[n].con = 0;
 			}
 			else {
 				// Add connecting items to next generation
@@ -196,6 +199,20 @@ ModelScene::~ModelScene()
 	delete []caps;
 }
 
+void ModelScene::setOverlay(bool active_overlay)
+{
+	const int n_elem = m.nElements();
+	for (int i=0; i<n_elem; ++i) {
+		arteries[i].v->setClear(active_overlay);
+		veins[i].v->setClear(active_overlay);
+
+		if (arteries[i].con != NULL) {
+			arteries[i].con->setClear(active_overlay);
+			veins[i].con->setClear(active_overlay);
+		}
+	}
+}
+
 QRectF ModelScene::generationRect(int n) const
 {
 	/*
@@ -228,7 +245,11 @@ QRectF ModelScene::generationRect(int n) const
 	                            99.99847412109375
 	                          };
 
-	return QRectF(rect_w[n], 0, rect_w[n]-rect_w[n-1], 100);
+	int extra_h = 0;
+	if (model().modelType() == Model::DoubleLung)
+		extra_h = 10;
+
+	return QRectF(rect_w[n-1], -extra_h, rect_w[n]-rect_w[n-1], 96 + extra_h*2);
 }
 
 void ModelScene::updateModelValues()

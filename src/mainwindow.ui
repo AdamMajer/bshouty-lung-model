@@ -83,9 +83,18 @@
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
    </widget>
+   <widget class="QMenu" name="menuOverlays">
+    <property name="title">
+     <string>O&amp;verlays</string>
+    </property>
+    <addaction name="actionNoOverlay"/>
+    <addaction name="actionFlowOverlay"/>
+    <addaction name="actionVolumeOverlay"/>
+   </widget>
    <addaction name="menuData"/>
    <addaction name="menuDisease"/>
    <addaction name="menuModel"/>
+   <addaction name="menuOverlays"/>
    <addaction name="menu_Window"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -1487,6 +1496,39 @@ p, li { white-space: pre-wrap; }
   <action name="actionCalibrateModel">
    <property name="text">
     <string>Calibrate Kr Factors</string>
+   </property>
+  </action>
+  <action name="actionFlowOverlay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Flow</string>
+   </property>
+   <property name="shortcut">
+    <string>F9</string>
+   </property>
+  </action>
+  <action name="actionVolumeOverlay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Volume</string>
+   </property>
+   <property name="shortcut">
+    <string>F10</string>
+   </property>
+  </action>
+  <action name="actionNoOverlay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>No Overlay</string>
    </property>
   </action>
  </widget>

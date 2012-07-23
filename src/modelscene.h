@@ -40,6 +40,8 @@ public:
 	ModelScene(const Model &baseline, const Model &m, QObject *parent);
 	~ModelScene();
 
+	void setOverlay(bool active_overlay);
+
 	const Model & model() const { return m; }
 	const Model &baselineModel() const { return baseline; }
 	QRectF generationRect(int n) const;

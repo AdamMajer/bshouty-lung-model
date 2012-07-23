@@ -19,12 +19,20 @@
 
 #include <QGraphicsView>
 
+class Model;
+class ModelScene;
 class LungView : public QGraphicsView
 {
 public:
+	enum OverlayType { NoOverlay, FlowOverlay, VolumeOverlay };
+
 	LungView(QWidget *parent = 0);
 	LungView(QGraphicsScene* scene, QWidget * parent = 0);
 	~LungView();
+
+	void setOverlayType(OverlayType type);
+	OverlayType overlayType() const { return overlay_type; }
+	void clearOverlay();
 
 protected:
 	virtual void drawForeground(QPainter *painter, const QRectF &rect);
@@ -36,11 +44,22 @@ protected:
 	virtual void wheelEvent(QWheelEvent *event);
 
 	void drawGenLabel(QPainter *p, QRect r, int gen);
+	void drawOverlay(QPainter *p, const QRectF &r);
+	void drawOverlayLegend(QPainter *p, const QRectF &r);
 	void zoom(double scale, QPointF scene_point);
+
+	void calculateFlowOverlay(const Model &model);
+	void calculateVolumeOverlay(const Model &model);
+	static QColor gradientColor(double stddev_from_mean);
 
 private:
 	void init();
 	void setMarginToSceneTransform();
 
 	bool fControlButtonDown;
+	OverlayType overlay_type;
+	QString overlay_text[7];
+
+	QImage overlay_image; // (32x32768), or (gen*2,max_vessel_count_in_gen)
+	QPixmap overlay_pixmap;
 };

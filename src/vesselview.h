@@ -44,6 +44,9 @@ public:
 	QColor baseColor(const QStyleOptionGraphicsItem *option) const;
 	QColor penColor(const QStyleOptionGraphicsItem *option) const;
 
+	void setClear(bool is_clear_bg);
+	bool isClearBg() const { return is_clear_bg; }
+
 	virtual QRectF boundingRect() const;
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	                   QWidget *widget);
@@ -62,6 +65,8 @@ private:
 
 	QLineF top, bottom;
 	QRectF fill;
+
+	bool is_clear_bg;
 
 	const ::Capillary *cap, *baseline_cap;
 	const Vessel *vessel, *baseline_vessel;

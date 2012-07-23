@@ -31,6 +31,7 @@ VesselView::VesselView(const void *baseline_data, const void *vessel_or_cap,
         : v_type(t), gen(g), idx(i)
 {
 	setAcceptHoverEvents(true);
+	is_clear_bg = false;
 
 	cap = 0;
 	vessel = 0;
@@ -59,6 +60,9 @@ VesselView::~VesselView()
 
 QColor VesselView::baseColor(const QStyleOptionGraphicsItem *option) const
 {
+	if (is_clear_bg)
+		return Qt::white;
+
 	if (option->state & QStyle::State_MouseOver)
 		return Qt::gray;
 
@@ -76,6 +80,14 @@ QColor VesselView::penColor(const QStyleOptionGraphicsItem *) const
 {
 
 	return Qt::darkBlue;
+}
+
+void VesselView::setClear(bool is_clear_bg_new)
+{
+	if (is_clear_bg != is_clear_bg_new) {
+		is_clear_bg = is_clear_bg_new;
+		update();
+	}
 }
 
 QRectF VesselView::boundingRect() const
@@ -96,19 +108,24 @@ void VesselView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 		// round cap is only on the left side of 1st
 		p.setCapStyle(Qt::RoundCap);
 
-	QGradientStops stops(4);
-	stops << QGradientStop(0, baseColor(option).dark())
-	      << QGradientStop(0.4, baseColor(option))
-	      << QGradientStop(0.6, baseColor(option))
-	      << QGradientStop(1, baseColor(option).dark());
-	QLinearGradient gradient(QLineF(fill.topLeft(), fill.topRight()).pointAt(0.5),
-	                         QLineF(fill.bottomRight(), fill.bottomLeft()).pointAt(0.5));
-	gradient.setStops(stops);
-
 	painter->setPen(p);
 	painter->drawLine(top);
 	painter->drawLine(bottom);
-	painter->fillRect(fill, gradient);
+
+	if (is_clear_bg) {
+		painter->fillRect(fill, Qt::white);
+	}
+	else {
+		QGradientStops stops(4);
+		stops << QGradientStop(0, baseColor(option).dark())
+		      << QGradientStop(0.4, baseColor(option))
+		      << QGradientStop(0.6, baseColor(option))
+		      << QGradientStop(1, baseColor(option).dark());
+		QLinearGradient gradient(QLineF(fill.topLeft(), fill.topRight()).pointAt(0.5),
+		                         QLineF(fill.bottomRight(), fill.bottomLeft()).pointAt(0.5));
+		gradient.setStops(stops);
+		painter->fillRect(fill, gradient);
+	}
 
 	QRectF draw_area = painter->transform().mapRect(fill.adjusted(3, 3, -3, -3));
 	painter->resetTransform();
