@@ -173,9 +173,9 @@ QString VesselView::headers(double lod) const
 
 	switch (type()) {
 	case Artery:
-		return QLatin1String("\nR\nA\nB\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow\nPin\n\nLength\nD\nDmin\nDmax\nVisc. Factor\nVolume");
+		return QString::fromUtf8("\nR\nA\nB\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow (μL/s)\nPin\n\nLength (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc. Factor\nVolume (μL)");
 	case Vein:
-		return QLatin1String("\nR\nB\nC\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow\nPin\n\nLength\nD\nDmin\nDmax\nVisc. Factor\nVolume");
+		return QString::fromUtf8("\nR\nB\nC\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow (μL/s)\nPin\n\nLength (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc. Factor\nVolume (μL)");
 	case Capillary:
 		return QLatin1String("\nR\nAlpha\nHo");
 	}
