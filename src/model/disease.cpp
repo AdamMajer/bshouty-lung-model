@@ -304,7 +304,7 @@ void Disease::processArtery(Model &m, QScriptValue &global, QScriptValue &f, int
 
 	if (v == m.artery(gen, ves_no))
 		return;
-	m.setArtery(gen, ves_no, v);
+	m.setArtery(gen, ves_no, v, false);
 }
 
 void Disease::processVein(Model &m, QScriptValue &global, QScriptValue &f, int gen, int ves_no)
@@ -314,7 +314,7 @@ void Disease::processVein(Model &m, QScriptValue &global, QScriptValue &f, int g
 
 	if (v == m.vein(gen, ves_no))
 		return;
-	m.setVein(gen, ves_no, v);
+	m.setVein(gen, ves_no, v, false);
 }
 
 #define SET_PROPERTY(a) global.setProperty(#a, v.a)
@@ -369,7 +369,7 @@ void Disease::processCapillary(Model &m, QScriptValue &global, QScriptValue &f, 
 
 	if (v == m.capillary(ves_no))
 		return;
-	m.setCapillary(ves_no, v);
+	m.setCapillary(ves_no, v, false);
 }
 
 bool Disease::callScript(QScriptValue &f)

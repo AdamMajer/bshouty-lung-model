@@ -173,9 +173,9 @@ public:
 	const Vessel& vein( int gen, int index ) const;
 	const Capillary& capillary( int index ) const;
 
-	void setArtery( int gen, int index, const Vessel & );
-	void setVein( int gen, int index, const Vessel & );
-	void setCapillary( int index, const Capillary & );
+	void setArtery( int gen, int index, const Vessel &, bool fOverride=true );
+	void setVein( int gen, int index, const Vessel &, bool fOverride=true );
+	void setCapillary( int index, const Capillary &, bool fOverride=true );
 
 	virtual double getResult( DataType ) const;
 	virtual bool setData( DataType, double );
@@ -253,6 +253,7 @@ private:
 	ModelType model_type;
 
 	int n_generations;
+	std::vector<bool> vessel_value_override; // [arts + veins + caps]
 	Vessel *arteries, *veins;
 	Capillary *caps;
 

@@ -97,6 +97,8 @@ Model::Model(Transducer transducer_pos, ModelType type, int n_gen)
 	if (model_type == DoubleLung)
 		n_generations++;
 
+	vessel_value_override.resize(nElements()*2 + numCapillaries(), false);
+
 	arteries = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numArteries());
 	veins = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numVeins());
 	caps = (Capillary*)allocateCachelineAligned(sizeof(Capillary)*numCapillaries());
@@ -234,6 +236,8 @@ Model& Model::operator =(const Model &other)
 	memcpy(arteries, other.arteries, numArteries()*sizeof(Vessel));
 	memcpy(veins, other.veins, numVeins()*sizeof(Vessel));
 	memcpy(caps, other.caps, numCapillaries()*sizeof(Capillary));
+
+	vessel_value_override = other.vessel_value_override;
 
 	prog = other.prog;
 
@@ -556,30 +560,40 @@ const Capillary& Model::capillary( int index ) const
 	return caps[ index ];
 }
 
-void Model::setArtery( int gen, int index, const Vessel & v )
+void Model::setArtery(int gen, int index, const Vessel & v, bool override)
 {
 	if( gen <= 0 || index < 0 || gen > n_generations || index >= nElements( gen ))
 		throw "Out of bounds";
 
-	arteries[ index + startIndex( gen )] = v;
+	const int idx = index + startIndex(gen);
+
+	arteries[idx] = v;
+	vessel_value_override[idx] = vessel_value_override[idx] || override;
 	modified_flag = true;
 }
 
-void Model::setVein( int gen, int index, const Vessel & v )
+void Model::setVein(int gen, int index, const Vessel & v, bool override)
 {
 	if( gen <= 0 || index < 0 || gen > n_generations || index >= nElements( gen ))
 		throw "Out of bounds";
 
-	veins[ index + startIndex( gen )] = v;
+	const int idx = index + startIndex(gen);
+	const int o_idx = nElements() + o_idx;
+
+	arteries[idx] = v;
+	vessel_value_override[o_idx] = vessel_value_override[o_idx] || override;
 	modified_flag = true;
 }
 
-void Model::setCapillary( int index, const Capillary & c )
+void Model::setCapillary(int index, const Capillary & c, bool override)
 {
 	if( index < 0 || index >= nElements( n_generations ))
 		throw "Out of bounds";
 
+	const int c_idx = index + nElements()*2;
+
 	caps[ index ] = c;
+	vessel_value_override[c_idx] = vessel_value_override[c_idx] || override;
 	modified_flag = true;
 }
 
@@ -1240,8 +1254,26 @@ void Model::initVesselBaselineCharacteristics()
 	calculateBaselineCharacteristics();
 
 	/* Initialize vessel parameters */
+	const int num_arteries = numArteries();
+	for (int i=0; i<num_arteries; ++i) {
+		if (vessel_value_override[i])
+			continue;
+
+		// correcting area to Ptp=0, Ptm=35 cmH2O
+		arteries[i].a = 0.2419 / 1.2045;
+		arteries[i].b = 0.0275 / 1.2045;
+		arteries[i].c = 0;
+		arteries[i].tone = 0;
+
+		arteries[i].vessel_ratio = static_cast<double>(nElements(gen_no(i))) /
+		                        nVessels(Vessel::Artery, gen_no(i));
+	}
+
 	const int num_veins = numVeins();
 	for (int i=0; i<num_veins; ++i) {
+		if (vessel_value_override[num_arteries + i])
+			continue;
+
 		if (isOutsideLung(i)) {
 			// correct for vessels outside the lung
 			veins[i].b = 10.0;
@@ -1259,21 +1291,12 @@ void Model::initVesselBaselineCharacteristics()
 		                        nVessels(Vessel::Vein, gen_no(i));
 	}
 
-	const int num_arteries = numArteries();
-	for (int i=0; i<num_arteries; ++i) {
-		// correcting area to Ptp=0, Ptm=35 cmH2O
-		arteries[i].a = 0.2419 / 1.2045;
-		arteries[i].b = 0.0275 / 1.2045;
-		arteries[i].c = 0;
-		arteries[i].tone = 0;
-
-		arteries[i].vessel_ratio = static_cast<double>(nElements(gen_no(i))) /
-		                        nVessels(Vessel::Artery, gen_no(i));
-	}
-
 	// Initialize capillaries
 	const int nCapillaries = numCapillaries();
 	for (int i=0; i<nCapillaries; i++) {
+		if (vessel_value_override[num_arteries + num_veins + i])
+			continue;
+
 		caps[i].Alpha = 0.219;
 		caps[i].Ho = 4.28;
 	}
@@ -1289,6 +1312,9 @@ void Model::initVesselBaselineResistances()
 	const int nCapillaries = numCapillaries();
 	const double cKrc = getKrc() * BSAz() / BSA(PatHt, PatWt);
 	for (int i=0; i<nCapillaries; i++) {
+		if (vessel_value_override[nElements()*2 + i])
+			continue;
+
 		caps[i].R = cKrc * nElements(n_generations) / nElements(16);
 	}
 }
@@ -1301,6 +1327,7 @@ void Model::initVesselBaselineResistances(int gen)
 	int n = num_elements + start_index;
 
 	// Initialize elements in Arteries and Veins
+	const int n_arteries = numArteries();
 	const double art_ratio = num_elements/(double)nVessels(Vessel::Artery, gen);
 	const double vein_ratio = num_elements/(double)nVessels(Vessel::Vein, gen);
 	const double Mi = 3.2; // viscosity constatant
@@ -1324,20 +1351,23 @@ void Model::initVesselBaselineResistances(int gen)
 		 * R(baseline)*8000=8*pi*3.2*L/A(baseline)^2
 		 */
 
-		const double art_d = 1e4 * PA_diam * measuredDiameterRatio(Vessel::Artery, gen);
-		arteries[i].length = 1e4 * PA_EVL * measuredLengthRatio(Vessel::Artery, gen);
-		arteries[i].D = art_d;
-		arteries[i].R = Kra_factor*arteries[i].length/sqr(sqr(art_d));
-		arteries[i].viscosity_factor = 1.0;
-		arteries[i].volume = 1e-9 * M_PI/4.0*art_d*art_d*arteries[i].length / art_ratio;
+		if (!vessel_value_override[i]) {
+			const double art_d = 1e4 * PA_diam * measuredDiameterRatio(Vessel::Artery, gen);
+			arteries[i].length = 1e4 * PA_EVL * measuredLengthRatio(Vessel::Artery, gen);
+			arteries[i].D = art_d;
+			arteries[i].R = Kra_factor*arteries[i].length/sqr(sqr(art_d));
+			arteries[i].viscosity_factor = 1.0;
+			arteries[i].volume = 1e-9 * M_PI/4.0*art_d*art_d*arteries[i].length / art_ratio;
+		}
 
-		const double vein_d = 1e4 * PV_diam * measuredDiameterRatio(Vessel::Vein, gen);
-		veins[i].length = 1e4 * PV_EVL * measuredLengthRatio(Vessel::Vein, gen);
-		veins[i].D = vein_d;
-		veins[i].R = Krv_factor*veins[i].length/sqr(sqr(vein_d));
-		veins[i].viscosity_factor = 1.0;
-		veins[i].volume = 1e-9 * M_PI/4.0*vein_d*vein_d+veins[i].length / vein_ratio;
-
+		if (!vessel_value_override[n_arteries+i]) {
+			const double vein_d = 1e4 * PV_diam * measuredDiameterRatio(Vessel::Vein, gen);
+			veins[i].length = 1e4 * PV_EVL * measuredLengthRatio(Vessel::Vein, gen);
+			veins[i].D = vein_d;
+			veins[i].R = Krv_factor*veins[i].length/sqr(sqr(vein_d));
+			veins[i].viscosity_factor = 1.0;
+			veins[i].volume = 1e-9 * M_PI/4.0*vein_d*vein_d+veins[i].length / vein_ratio;
+		}
 
 		// GP was calculated with GP=0 being top of lung
 		// then corrected based on transducer position
@@ -1356,10 +1386,14 @@ void Model::initVesselBaselineResistances(int gen)
 			}
 		}
 
-		veins[i].GPz = arteries[i].GPz =
-		                (vessel_no*exp((effective_ngen-gp_gen+1)*M_LN2)+
+		const double GPz = (vessel_no*exp((effective_ngen-gp_gen+1)*M_LN2)+
 		                 exp((effective_ngen-gp_gen)*M_LN2)-1) /
 		                (exp((effective_ngen)*M_LN2) - 2);
+
+		if (!vessel_value_override[i])
+			arteries[i].GPz = GPz;
+		if (!vessel_value_override[n_arteries+i])
+			veins[i].GPz = GPz;
 	}
 
 	// Initialize more generations, if they exist
@@ -1541,7 +1575,11 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	int n_elements = nElements();
 	for (int type=1; type<=2; ++type) {
 		for (int n=0; n<n_elements; ++n) {
+			const int override_offset = (type==1 ? n : nElements()+n);
 			const Vessel &v = (type==1 ? arteries[n] : veins[n]);
+
+			if (!vessel_value_override[override_offset])
+				continue;
 
 			SET_VALUE(v.R);
 			SET_VALUE(v.D);
@@ -1599,7 +1637,11 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	values.clear();
 
 	for (int n=0; n<n_elements; ++n) {
+		const int override_offset = nElements()*2+n;
 		const Capillary &cap = caps[n];
+
+		if (!vessel_value_override[override_offset])
+			continue;
 
 		SET_VALUE(cap.R);
 		SET_VALUE(cap.Ho);
@@ -1760,10 +1802,24 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	double progress_value=0, current_value=0;
 
 	q.prepare("SELECT value FROM vessel_values WHERE type=? AND vessel_idx=? AND key=? AND offset=?");
-	int n_elements = nElements();
+
+	// restore defaults before we load overrides from file
+	std::fill(vessel_value_override.begin(), vessel_value_override.end(), false);
+	initVesselBaselineCharacteristics();
+
+	QSqlQuery saved_elements(db);
 	for (int type=1; type<=2; ++type) {
-		for (int n=0; n<n_elements; ++n) {
+		std::vector<int> vessel_idx;
+
+		saved_elements.exec("SELECT vessel_idx FROM vessel_values WHERE vessel_idx IS NOT NULL AND type=" + QString::number(type));
+		while (saved_elements.next())
+			vessel_idx.push_back(saved_elements.value(0).toInt());
+
+		foreach (int n, vessel_idx) {
+			const int override_offset = (type==1 ? n : nElements()+n);
 			Vessel &v = (type==1 ? arteries[n] : veins[n]);
+
+			vessel_value_override[override_offset] = true;
 
 			SET_VALUE(v.R);
 			SET_VALUE(v.D);
@@ -1851,11 +1907,17 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 		}
 	}
 
-	n_elements = nElements(n_generations);
 	values.clear();
 
-	for (int n=0; n<n_elements; ++n) {
+	std::vector<int> vessel_idx;
+	saved_elements.exec("SELECT vessel_idx FROM vessel_values WHERE vessel_idx IS NOT NULL AND type=3");
+	while (saved_elements.next())
+		vessel_idx.push_back(saved_elements.value(0).toInt());
+
+	foreach (int n, vessel_idx) {
 		Capillary &cap = caps[n];
+
+		vessel_value_override[nElements()*2+n] = true;
 
 		SET_VALUE(cap.R);
 		SET_VALUE(cap.Ho);
