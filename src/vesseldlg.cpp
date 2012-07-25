@@ -29,14 +29,14 @@ VesselDlg::VesselDlg(VesselType type, Vessel &vessel, bool PtpGP_RO, QWidget *pa
 	ui = new Ui::VesselDlg;
 	ui->setupUi( this );
 
-	ui->R->setText(doubleToString(v.R));
+	ui->D->setText(doubleToString(v.D));
 	ui->a->setText(doubleToString(v.a));
 	ui->b->setText(doubleToString(v.b));
 	ui->c->setText(doubleToString(v.c));
 	ui->tone->setText(doubleToString(v.tone));
 
 	QValidator *validator = new QRegExpValidator(QRegExp(numeric_validator_rx), this);
-	ui->R->setValidator(validator);
+	ui->D->setValidator(validator);
 	ui->a->setValidator(validator);
 	ui->b->setValidator(validator);
 	ui->c->setValidator(validator);
@@ -56,7 +56,7 @@ VesselDlg::VesselDlg(VesselType type, Vessel &vessel, bool PtpGP_RO, QWidget *pa
 		ui->ptp->setValidator(validator);
 	}
 
-	ui->R->setToolTip("<p>Baseline resistance defined under standardized conditions of P<sub>tm</sub>=35cmH<sub>2</sub>O and P<sub>tp</sub>=0.</p>");
+	ui->D->setToolTip("<p>Baseline vessel diameter defined under standardized conditions of P<sub>tm</sub>=35cmH<sub>2</sub>O and P<sub>tp</sub>=0.</p>");
 	ui->gp->setToolTip("<p>Gravitational pressure at vessel site.");
 	ui->tone->setToolTip("<p>Smooth muscle tone (in mmHg) can be added to any vessel to simulate vasoconstriction.");
 	ui->ptp->setToolTip("<p>Transpulmonary pressure at vessel site.</p>");
@@ -87,7 +87,7 @@ void VesselDlg::accept()
 
 	QMap<QLineEdit*,double*> refs;
 
-	refs[ui->R] = &v.R;
+	refs[ui->D] = &v.D;
 	refs[ui->a] = &v.a;
 	refs[ui->b] = &v.b;
 	refs[ui->c] = &v.c;
