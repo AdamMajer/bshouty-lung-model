@@ -628,7 +628,10 @@ double Model::getResult(DataType type) const
 			int start = startIndex( n_generations );
 			int end = start + n;
 			while( start < end ){
-				ret += arteries[start].pressure;
+				if (isnan(arteries[start].pressure))
+					n--;
+				else
+					ret += arteries[start].pressure;
 				start++;
 			}
 
@@ -640,7 +643,10 @@ double Model::getResult(DataType type) const
 			int start = startIndex( n_generations );
 			int end = start + n;
 			while( start < end ){
-				ret += veins[start].pressure;
+				if (isnan(veins[start].pressure))
+					n--;
+				else
+					ret += veins[start].pressure;
 				start++;
 			}
 
@@ -1132,10 +1138,18 @@ double Model::totalResistance(int i)
 
 	// Add the connecting resistances in parallel
 	// TODO: parallelize
-	double R_tot = arteries[i].R +
-	        1/(1/totalResistance( connection_first ) +
-	           1/totalResistance( connection_first+1 )) +
-	        veins[i].R;
+	const double R1 = totalResistance(connection_first);
+	const double R2 = totalResistance(connection_first+1);
+	double R_tot;
+
+	if (isinf(R1) && isinf(R2))
+		R_tot = std::numeric_limits<double>::infinity();
+	else if(isinf(R1))
+		R_tot = arteries[i].R + R2 + veins[i].R;
+	else if(isinf(R2))
+		R_tot = arteries[i].R + R1 + veins[i].R;
+	else
+		R_tot = arteries[i].R + 1/(1/R1 + 1/R2) + veins[i].R;
 
 	arteries[i].total_R = R_tot;
 	veins[i].total_R = R_tot;
@@ -1157,15 +1171,27 @@ void Model::calculateChildrenFlowPress( int i )
 	int connection_first = ( i - current_gen_start ) * 2 + next_gen_start;
 
 	// Calculate flows in children based on pressure of parent
-	for( int con=connection_first; con<=connection_first+1; con++ )
-		veins[ con ].flow = arteries[ con ].flow =
-						  ( arteries[i].pressure - veins[i].pressure ) /
-						  ( arteries[con].total_R );
+	for( int con=connection_first; con<=connection_first+1; con++ ) {
+		if (isnan(arteries[i].pressure) || isnan(veins[i].pressure))
+			veins[con].flow = arteries[con].flow = 0.0;
+		else
+			veins[ con ].flow = arteries[ con ].flow =
+			                ( arteries[i].pressure - veins[i].pressure ) /
+			                arteries[con].total_R;
+	}
 
 	// Calculate pressure in children vessels based on the calculated flow and their resistances
 	for( int con=connection_first; con<=connection_first+1; con++ ){
-		arteries[ con ].pressure = arteries[i].pressure - arteries[ con ].flow * arteries[ con ].R;
-		veins[ con ].pressure = veins[i].pressure + veins[ con ].flow * veins[ con ].R;
+		if (isinf(arteries[con].R) || isinf(veins[con].R)) {
+			// all vessels inside have no flow, so pressure is undefined
+			arteries[con].pressure = std::numeric_limits<double>::quiet_NaN();
+			veins[con].pressure = std::numeric_limits<double>::quiet_NaN();
+		}
+
+		else {
+			arteries[ con ].pressure = arteries[i].pressure - arteries[ con ].flow * arteries[ con ].R;
+			veins[ con ].pressure = veins[i].pressure + veins[ con ].flow * veins[ con ].R;
+		}
 	}
 
 	// Now, calculate the same thing for child generations
@@ -1179,6 +1205,11 @@ double Model::deltaCapillaryResistance( int i )
 	const int gen_start = startIndex( nGenerations());
 	const Vessel & con_artery = arteries[gen_start+i];
 	const Vessel & con_vein = veins[gen_start+i];
+
+	if (isnan(con_artery.pressure) || isnan(con_vein.pressure)) {
+		// pressure is undefined, no flow
+		return 0;
+	}
 
 	const double Ri = caps[i].R;
 	const double Pin = 1.35951002636 * con_artery.pressure - con_artery.GP; // convert pressures from mmHg => cmH20

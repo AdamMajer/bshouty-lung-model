@@ -18,6 +18,7 @@
  */
 
 #include <QtConcurrentRun>
+#include <limits>
 #include "cpuhelper.h"
 
 
@@ -74,6 +75,10 @@ double CpuIntegrationHelper::integrateArtery(int vessel_index)
 	double Rin = art.R;
 	double P = art.pressure;
 
+	// undefined pressure signals no flow (closed vessel(s) somewhere)
+	if (isnan(P))
+		return 0.0;
+
 	double Ptm_i = 1.35951002636 * ( P - art.tone ) - art.GP;
 	double Ptm = Ptm_i;
 	double Rs;
@@ -81,6 +86,17 @@ double CpuIntegrationHelper::integrateArtery(int vessel_index)
 
 	/* First segment is slightly different from others, so we pull it out */
 	/* First 1/5th of generations is outside the lung - use different equation */
+
+	// check if vessel is closed
+	if (art.D < 0.1) {
+		art.D_calc = art.D = 0.0;
+		art.Dmax = art.Dmin = art.D;
+
+		art.viscosity_factor = std::numeric_limits<double>::infinity();
+		art.volume = 0;
+		art.R = std::numeric_limits<double>::infinity();
+		return Rin > 1e100 ? 0 : 10.0;
+	}
 
 	const bool is_outside_lung = isOutsideLung(vessel_index);
 	if (is_outside_lung)
@@ -156,12 +172,28 @@ double CpuIntegrationHelper::integrateVein(int vessel_index)
 	double Rin = vein.R;
 	double P = ((vessel_index == 0) ? LAP() : veins()[(vessel_index-1)/2].pressure);
 
+	// undefined pressure signals no flow (closed vessel(s) somewhere)
+	if (isnan(P))
+		return 0.0;
+
 	double Ptm = 1.35951002636 * ( P - vein.tone ) - vein.GP;
 	double Rs;
 	double D_integral = 0.0;
 
 	/* First segment is slightly different from others, so we pull it out */
 	/* First 1/5th of generations is outside the lung - use different equation */
+
+	// check if vessel is closed
+	if (vein.D < 0.1) {
+		vein.D_calc = vein.D = 0.0;
+		vein.Dmax = vein.Dmin = vein.D;
+
+		vein.viscosity_factor = std::numeric_limits<double>::infinity();
+		vein.volume = 0;
+		vein.R = std::numeric_limits<double>::infinity();
+		return Rin > 1e100 ? 0 : 10.0;
+	}
+
 	const bool is_outside_lung = isOutsideLung(vessel_index);
 	if (is_outside_lung)
 		Ptm = Ptm - vein.Ppl;
