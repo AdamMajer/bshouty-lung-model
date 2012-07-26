@@ -128,7 +128,8 @@ void LungView::scrollContentsBy(int dx, int dy)
 	QGraphicsView::scrollContentsBy(dx, dy);
 	viewport()->update(0, 0, width(), dpy*5/4 + dy);
 	if (overlay_type != NoOverlay)
-		viewport()->update(0, height()-dpy*5/4-dy, width(), dpy*5/4+dy);
+		viewport()->update(0, height()-dpy*5/4+std::min(dy,0),
+		                   width(), dpy*5/4-std::min(dy,0));
 }
 
 void LungView::keyPressEvent(QKeyEvent *event)
