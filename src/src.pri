@@ -16,6 +16,7 @@ SOURCES += \
 	$${SRC_DIR}/multimodeloutput.cpp \
 	$${SRC_DIR}/opencldlg.cpp \
 	$${SRC_DIR}/opencl.cpp \
+	$${SRC_DIR}/overlaymapwidget.cpp \
 	$${SRC_DIR}/rangestepdlg.cpp \
 	$${SRC_DIR}/scripteditdlg.cpp \
 	$${SRC_DIR}/scripthighlighter.cpp \
@@ -42,6 +43,7 @@ HEADERS += \
 	$${SRC_DIR}/multimodeloutput.h \
 	$${SRC_DIR}/opencldlg.h \
 	$${SRC_DIR}/opencl.h \
+	$${SRC_DIR}/overlaymapwidget.h \
 	$${SRC_DIR}/rangestepdlg.h \
 	$${SRC_DIR}/scripteditdlg.h \
 	$${SRC_DIR}/scripthighlighter.h \

@@ -90,6 +90,8 @@
     <addaction name="actionNoOverlay"/>
     <addaction name="actionFlowOverlay"/>
     <addaction name="actionVolumeOverlay"/>
+    <addaction name="separator"/>
+    <addaction name="actionOverlayMap"/>
    </widget>
    <addaction name="menuData"/>
    <addaction name="menuDisease"/>
@@ -1534,6 +1536,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>No Overlay</string>
+   </property>
+  </action>
+  <action name="actionOverlayMap">
+   <property name="text">
+    <string>Overlay map...</string>
    </property>
   </action>
  </widget>

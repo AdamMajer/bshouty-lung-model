@@ -31,6 +31,7 @@
 #include "model/compromisemodel.h"
 #include "opencldlg.h"
 #include "opencl.h"
+#include "overlaymapwidget.h"
 #include "wizard.h"
 
 #include <QActionGroup>
@@ -729,6 +730,28 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::on_actionAboutQt_triggered()
 {
 	QApplication::aboutQt();
+}
+
+void MainWindow::on_actionOverlayMap_triggered()
+{
+	QDialog dlg(this);
+	QLayout *layout = new QVBoxLayout(&dlg);
+	OverlayMapWidget *widget = new OverlayMapWidget(ui->view->overlayMap(),
+	                                                &dlg);
+	widget->setMinimumSize(400,300);
+	widget->setStyleSheet("background: white");
+
+	QCheckBox *visible_check = new QCheckBox("Show Grid", &dlg);
+	visible_check->setChecked(false);
+
+	layout->addWidget(widget);
+	layout->addWidget(visible_check);
+
+	connect(visible_check, SIGNAL(toggled(bool)),
+	        widget, SLOT(setGrid(bool)));
+
+	dlg.setWindowTitle("Overlay Map");
+	dlg.exec();
 }
 
 void MainWindow::setNumLungs(QAction *)

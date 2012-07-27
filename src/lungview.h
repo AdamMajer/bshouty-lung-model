@@ -34,6 +34,8 @@ public:
 	OverlayType overlayType() const { return overlay_type; }
 	void clearOverlay();
 
+	const QImage& overlayMap() const { return overlay_image; }
+
 protected:
 	virtual void drawForeground(QPainter *painter, const QRectF &rect);
 	virtual void scrollContentsBy(int dx, int dy);
