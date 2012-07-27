@@ -18,6 +18,7 @@
  */
 
 #include <QtConcurrentRun>
+#include "common.h"
 #include <limits>
 #include "cpuhelper.h"
 
