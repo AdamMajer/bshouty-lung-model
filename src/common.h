@@ -26,6 +26,9 @@
 #define _USE_MATH_DEFINES
 long int lrint(double x);
 
+#define isnan(x) _isnan(x)
+#define isinf(x) (_finite(x)==0)
+
 #define fmax(a,b) (a<b?b:a)
 #endif
 
