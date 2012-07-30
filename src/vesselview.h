@@ -70,6 +70,7 @@ private:
 
 	const ::Capillary *cap, *baseline_cap;
 	const Vessel *vessel, *baseline_vessel;
+	QString vessel_title;
 };
 
 
