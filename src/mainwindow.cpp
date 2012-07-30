@@ -738,6 +738,10 @@ void MainWindow::on_actionOverlayMap_triggered()
 	QGridLayout *layout = new QGridLayout(&dlg);
 	OverlayMapWidget *widget = new OverlayMapWidget(ui->view->overlayMap(),
 	                                                &dlg);
+	QSizePolicy expanding_policy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	expanding_policy.setHorizontalStretch(10);
+	expanding_policy.setVerticalStretch(10);
+	widget->setSizePolicy(expanding_policy);
 	widget->setMinimumSize(400,300);
 	widget->setStyleSheet("background: white");
 
