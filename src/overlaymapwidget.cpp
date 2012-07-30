@@ -59,5 +59,15 @@ void OverlayMapWidget::paintEvent(QPaintEvent *ev)
 		p.drawLines(grid);
 	}
 
+	QPen pen = p.pen();
+	pen.setWidth(3);
+	p.setPen(pen);
+
+	QVector<QLineF> lines;
+	// NOTE: don't split the first generation as it "belongs" to both lungs
+	lines << QLineF(width()/32.0, height()/2.0, width()*31.0/32.0, height()/2.0);
+	lines << QLineF(width()/2.0, 0, width()/2.0, height());
+	p.drawLines(lines);
+
 	ev->accept();
 }
