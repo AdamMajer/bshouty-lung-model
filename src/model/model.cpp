@@ -1397,7 +1397,7 @@ void Model::initVesselBaselineResistances(int gen)
 			veins[i].D = vein_d;
 			veins[i].R = Krv_factor*veins[i].length/sqr(sqr(vein_d));
 			veins[i].viscosity_factor = 1.0;
-			veins[i].volume = 1e-9 * M_PI/4.0*vein_d*vein_d+veins[i].length / vein_ratio;
+			veins[i].volume = 1e-9 * M_PI/4.0*vein_d*vein_d*veins[i].length / vein_ratio;
 		}
 
 		// GP was calculated with GP=0 being top of lung
