@@ -18,7 +18,7 @@ OverlayMapWidget::~OverlayMapWidget()
 
 void OverlayMapWidget::setGrid(bool is_visible)
 {
-	/* 16 x 32 grid */
+	/* 32 x 32 grid */
 	if (grid_visible == is_visible)
 		return;
 
@@ -41,11 +41,11 @@ void OverlayMapWidget::paintEvent(QPaintEvent *ev)
 	p.drawPixmap(paint_rect, map, pixmap_rect);
 
 	if (grid_visible) {
-		/* 16 x 32 grid, with border */
+		/* 32 x 32 grid, with border */
 		QVector<QLineF> grid;
 		const int h = height()-1;
 		const int w = width()-1;
-		const double y_spacing = h / 16.0;
+		const double y_spacing = h / 32.0;
 		const double x_spacing = w / 32.0;
 
 		const double x_start = paint_rect.left() - fmod(paint_rect.left(), x_spacing);
