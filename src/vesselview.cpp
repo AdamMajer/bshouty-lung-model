@@ -37,11 +37,13 @@ VesselView::VesselView(const void *baseline_data, const void *vessel_or_cap,
 	vessel = 0;
 
 	QString vessel_side;
-	if (gen>1)
+	int gen_count = 1;
+	if (gen>1) {
 		vessel_side = (idx < 1<<(gen-2)) ? QLatin1String("Lt.") : QLatin1String("Rt.");
+		gen_count = 1<<(gen-2);
+	}
 
 	vessel_title = QLatin1String("%3  %4 (%1 of %2)");
-	int gen_count = 1<<(gen-2);
 	int idx_from_bottom = gen_count - idx%gen_count;
 
 	switch (v_type) {
