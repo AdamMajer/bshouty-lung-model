@@ -737,6 +737,8 @@ void MainWindow::on_actionOverlayMap_triggered()
 	QDialog dlg(this);
 	QGridLayout *layout = new QGridLayout(&dlg);
 	OverlayMapWidget *widget = new OverlayMapWidget(ui->view->overlayMap(),
+	                                                ui->view->overlayMean(),
+	                                                ui->view->overlayStddev(),
 	                                                &dlg);
 	QSizePolicy expanding_policy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	expanding_policy.setHorizontalStretch(10);

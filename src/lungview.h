@@ -35,6 +35,11 @@ public:
 	void clearOverlay();
 
 	const QImage& overlayMap() const { return overlay_image; }
+	double overlayStddev() const { return overlay_stddev; }
+	double overlayMean() const { return overlay_mean; }
+
+	static QColor gradientColor(double stddev_from_mean);
+	static double gradientToDistanceFromMean(QColor color);
 
 protected:
 	virtual void drawForeground(QPainter *painter, const QRectF &rect);
@@ -52,7 +57,6 @@ protected:
 
 	void calculateFlowOverlay(const Model &model);
 	void calculateVolumeOverlay(const Model &model);
-	static QColor gradientColor(double stddev_from_mean);
 
 private:
 	void init();
@@ -63,5 +67,6 @@ private:
 	QString overlay_text[7];
 
 	QImage overlay_image; // (32x32768), or (gen*2,max_vessel_count_in_gen)
+	double overlay_stddev, overlay_mean;
 	QPixmap overlay_pixmap;
 };
