@@ -75,6 +75,38 @@ void LungView::clearOverlay()
 	setOverlayType(NoOverlay);
 }
 
+QColor LungView::gradientColor(double stddev_from_mean)
+{
+	// 3 standard deviations is maximum
+	// blue => transparent => red
+
+	if (stddev_from_mean <= -2.0)
+		return QColor::fromRgbF(0, 0, 1.0, 0.5);
+	if (stddev_from_mean >= 2.0)
+		return QColor::fromRgbF(1.0, 0, 0, 0.5);
+
+	const double scale = stddev_from_mean / 2.0;
+	if (stddev_from_mean < 0) {
+		return QColor::fromRgbF(0, 0, -scale, -scale/2.0);
+	}
+
+	return QColor::fromRgbF(scale, 0, 0, scale/2.0);
+}
+
+double LungView::gradientToDistanceFromMean(QColor c)
+{
+	double b, g, r;
+
+	c.getRgbF(&r, &g, &b, 0);
+	if (r > 0)
+		return r*2.0;
+
+	if (b > 0)
+		return -b*2.0;
+
+	return 0.0;
+}
+
 void LungView::drawForeground(QPainter *painter, const QRectF &rect)
 {
 	drawOverlay(painter, rect);
@@ -356,10 +388,9 @@ void LungView::calculateFlowOverlay(const Model &model)
 	// The gradient should span 1 standard deviations
 	const double flow_conversion = 1e6 / 60.0; // flow L/min => uL/s
 	const int n_gen = model.nGenerations();
-	const double mean = model.getResult(Model::Flow_value);
 	double variance = 0.0;
-	qDebug("overlay: ngen %d", n_gen);
 
+	overlay_mean = model.getResult(Model::Flow_value);
 	for (int gen=1; gen<=n_gen; ++gen) {
 		const int n_elements = model.nElements(gen);
 
@@ -367,13 +398,13 @@ void LungView::calculateFlowOverlay(const Model &model)
 			const Vessel &art = model.artery(gen, i);
 			const Vessel &vein = model.vein(gen, i);
 
-			variance += sqr(art.flow*n_elements - mean);
-			variance += sqr(vein.flow*n_elements - mean);
+			variance += sqr(art.flow*n_elements - overlay_mean);
+			variance += sqr(vein.flow*n_elements - overlay_mean);
 		}
 	}
 
 	// stddev used is no smaller than 1%
-	const double stddev = std::max(mean*0.01, sqrt(variance / (model.nElements()*2)));
+	overlay_stddev = std::max(overlay_mean*0.01, sqrt(variance / (model.nElements()*2)));
 
 	// QPainter paint(&overlay_image);
 	for (int gen=1; gen<=n_gen; ++gen) {
@@ -387,8 +418,8 @@ void LungView::calculateFlowOverlay(const Model &model)
 			const Vessel &art = model.artery(gen, i);
 			const Vessel &vein = model.vein(gen, i);
 
-			QRgb art_col = gradientColor((art.flow*n_elements - mean)/stddev).rgba();
-			QRgb vein_col = gradientColor((vein.flow*n_elements - mean)/stddev).rgba();
+			QRgb art_col = gradientColor((art.flow*n_elements - overlay_mean)/overlay_stddev).rgba();
+			QRgb vein_col = gradientColor((vein.flow*n_elements - overlay_mean)/overlay_stddev).rgba();
 
 			for (int j=y; j<y+paint_height; ++j) {
 				overlay_image.setPixel(gen-1, j, art_col);
@@ -407,9 +438,9 @@ void LungView::calculateFlowOverlay(const Model &model)
 		label.setRealNumberNotation(QTextStream::FixedNotation);
 		label.setRealNumberPrecision(1);
 
-		label << stddev*(i-3)*100.0/3.0/mean << "%";
+		label << overlay_stddev*(i-3)*100.0/2.0/overlay_mean << "%";
 	}
-	qDebug("flow stddev: %f - mean: %f", stddev, mean);
+	qDebug("flow stddev: %f - mean: %f", overlay_stddev, overlay_mean);
 }
 
 void LungView::calculateVolumeOverlay(const Model &model)
@@ -441,6 +472,7 @@ void LungView::calculateVolumeOverlay(const Model &model)
 	}
 
 	const double mean_volume_per_gen = total_volume / (2 * n_gen);
+	overlay_mean = mean_volume_per_gen;
 
 	for (int gen=model.nGenOutside(); gen<=n_gen; ++gen) {
 		const int n_elements = model.nElements(gen);
@@ -456,6 +488,7 @@ void LungView::calculateVolumeOverlay(const Model &model)
 
 	const double stddev = std::max(mean_volume_per_gen*0.01,
 	                               sqrt(variance / (model.nElements()*2)));
+	overlay_stddev = stddev;
 
 	// finally, draw the overlay based on stddev
 	for (int gen=model.nGenOutside()+1; gen<=n_gen; ++gen) {
@@ -488,27 +521,9 @@ void LungView::calculateVolumeOverlay(const Model &model)
 		label.setRealNumberNotation(QTextStream::FixedNotation);
 		label.setRealNumberPrecision(1);
 
-		label << stddev*(i-3)*100.0/3.0/mean_volume_per_gen << "%";
+		label << stddev*(i-3)*100.0/2.0/mean_volume_per_gen << "%";
 	}
 	qDebug("volume stddev: %f -- mean: %f", stddev, mean_volume_per_gen);
-}
-
-QColor LungView::gradientColor(double stddev_from_mean)
-{
-	// 3 standard deviations is maximum
-	// blue => transparent => red
-
-	if (stddev_from_mean <= -1.0)
-		return QColor(0, 0, 255, 128);
-	if (stddev_from_mean >= 1.0)
-		return QColor(255, 0, 0, 128);
-
-	const double scale = stddev_from_mean / 1.0;
-	if (stddev_from_mean < 0) {
-		return QColor(0, 0, -scale*255, -scale*128);
-	}
-
-	return QColor(scale*255, 0, 0, scale*128);
 }
 
 void LungView::init()

@@ -36,13 +36,29 @@ VesselView::VesselView(const void *baseline_data, const void *vessel_or_cap,
 	cap = 0;
 	vessel = 0;
 
+	QString vessel_side;
+	int gen_count = 1;
+	if (gen>1) {
+		vessel_side = (idx < 1<<(gen-2)) ? QLatin1String("Lt.") : QLatin1String("Rt.");
+		gen_count = 1<<(gen-2);
+	}
+
+	vessel_title = QLatin1String("%3  %4 (%1 of %2)");
+	int idx_from_bottom = gen_count - idx%gen_count;
+
 	switch (v_type) {
 	case Capillary:
 		cap = static_cast<const ::Capillary*>(vessel_or_cap);
 		baseline_cap = static_cast<const ::Capillary*>(baseline_data);
+		vessel_title = vessel_title.arg(idx_from_bottom).arg(gen_count).arg("Capillary").arg(vessel_side);
 		break;
 	case Vein:
+		vessel_title = vessel_title.arg(idx_from_bottom).arg(gen_count).arg("Vein").arg(vessel_side);
+		vessel = static_cast<const ::Vessel*>(vessel_or_cap);
+		baseline_vessel = static_cast<const ::Vessel*>(baseline_data);
+		break;
 	case Artery:
+		vessel_title = vessel_title.arg(idx_from_bottom).arg(gen_count).arg("Artery").arg(vessel_side);
 		vessel = static_cast<const ::Vessel*>(vessel_or_cap);
 		baseline_vessel = static_cast<const ::Vessel*>(baseline_data);
 		break;
@@ -137,8 +153,11 @@ void VesselView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 		double offset = draw_area.width()/3;
 		draw_area.adjust(0, 0, -offset*2, 0);
 		QFont font = painter->font();
+		QTextOption to(Qt::AlignLeft);
 
-		// scale the font to allow a minimum of 18 lines of text to be displayed
+		to.setWrapMode(QTextOption::NoWrap);
+
+		// scale the font to allow a minimum of 22 (3 for title) lines of text to be displayed
 		double line_height = painter->fontMetrics().lineSpacing();
 		double scale_factor = draw_area.height() / (25.0 * line_height);
 
@@ -146,19 +165,29 @@ void VesselView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 			font.setPixelSize(font.pixelSize() * scale_factor);
 		else
 			font.setPointSizeF(font.pointSizeF() * scale_factor);
+
+		font.setUnderline(true);
+		painter->setFont(font);
+		painter->drawText(draw_area.adjusted(0, 0, offset*2, 0),
+		                  Qt::AlignHCenter | Qt::AlignTop,
+		                  vessel_title);
+
+		font.setUnderline(false);
 		painter->setFont(font);
 		line_height = painter->fontMetrics().lineSpacing();
 
-		painter->drawText(draw_area.adjusted(offset, line_height, offset, 0),
-		                  baselineValuesText(lod));
-		painter->drawText(draw_area.adjusted(offset*2, line_height, offset*2, 0),
-		                  calculatedValuesText(lod));
+		painter->drawText(draw_area.adjusted(offset, line_height*4, offset, 0),
+		                  baselineValuesText(lod),
+		                  to);
+		painter->drawText(draw_area.adjusted(offset*2, line_height*4, offset*2, 0),
+		                  calculatedValuesText(lod),
+		                  to);
 
 		font.setBold(true);
 		painter->setFont(font);
-		painter->drawText(draw_area, headers(lod));
-		painter->drawText(draw_area.adjusted(offset,0,offset,0), "Baseline");
-		painter->drawText(draw_area.adjusted(offset*2,0,offset*2,0), "Calculated");
+		painter->drawText(draw_area.adjusted(0,line_height*3,0,0), headers(lod), to);
+		painter->drawText(draw_area.adjusted(offset,line_height*3,offset,0), "Baseline", to);
+		painter->drawText(draw_area.adjusted(offset*2,line_height*3,offset*2,0), "Calculated", to);
 	}
 }
 
@@ -173,9 +202,9 @@ QString VesselView::headers(double lod) const
 
 	switch (type()) {
 	case Artery:
-		return QString::fromUtf8("\nR\nA\nB\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow (μL/s)\nPin\n\nLength (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc. Factor (cP)\nVolume (μL)");
+		return QString::fromUtf8("\nR\nA\nB\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow (μL/s)\nPin\n\nLength (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)");
 	case Vein:
-		return QString::fromUtf8("\nR\nB\nC\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow (μL/s)\nPin\n\nLength (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc. Factor (cP)\nVolume (μL)");
+		return QString::fromUtf8("\nR\nB\nC\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow (μL/s)\nPin\n\nLength (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)");
 	case Capillary:
 		return QLatin1String("\nR\nAlpha\nHo");
 	}

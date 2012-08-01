@@ -735,17 +735,28 @@ void MainWindow::on_actionAboutQt_triggered()
 void MainWindow::on_actionOverlayMap_triggered()
 {
 	QDialog dlg(this);
-	QLayout *layout = new QVBoxLayout(&dlg);
+	QGridLayout *layout = new QGridLayout(&dlg);
 	OverlayMapWidget *widget = new OverlayMapWidget(ui->view->overlayMap(),
+	                                                ui->view->overlayMean(),
+	                                                ui->view->overlayStddev(),
 	                                                &dlg);
+	QSizePolicy expanding_policy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	expanding_policy.setHorizontalStretch(10);
+	expanding_policy.setVerticalStretch(10);
+	widget->setSizePolicy(expanding_policy);
 	widget->setMinimumSize(400,300);
 	widget->setStyleSheet("background: white");
 
 	QCheckBox *visible_check = new QCheckBox("Show Grid", &dlg);
 	visible_check->setChecked(false);
 
-	layout->addWidget(widget);
-	layout->addWidget(visible_check);
+	layout->addWidget(new QLabel("<center>Arteries", &dlg), 0, 1);
+	layout->addWidget(new QLabel("<center>Veins", &dlg), 0, 2);
+	layout->addWidget(new QLabel("Lt", &dlg), 1, 0);
+	layout->addWidget(new QLabel("Rt", &dlg), 2, 0);
+
+	layout->addWidget(widget, 1, 1, 2, 2);
+	layout->addWidget(visible_check, 3, 0, 1, 3);
 
 	connect(visible_check, SIGNAL(toggled(bool)),
 	        widget, SLOT(setGrid(bool)));

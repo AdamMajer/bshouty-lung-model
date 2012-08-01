@@ -1,24 +1,39 @@
 #include "overlaymapwidget.h"
+#include <QLabel>
 #include <QPainter>
 #include <QPaintEvent>
 #include <QPixmap>
 #include <cmath>
+#include "common.h"
+#include "lungview.h"
 
-OverlayMapWidget::OverlayMapWidget(const QImage &map, QWidget *parent)
+OverlayMapWidget::OverlayMapWidget(const QImage &map,
+                                   double mean_value,
+                                   double std_dev,
+                                   QWidget *parent)
         : QWidget(parent),
-          map(QPixmap::fromImage(map))
+//          map(QPixmap::fromImage(map)),
+          original_map(map),
+          mean(mean_value), stddev(std_dev)
 {
 	grid_visible = false;
+
+	info_widget = new QLabel(this);
+	info_widget->setFrameStyle(QFrame::Box | QFrame::Plain);
+	info_widget->setStyleSheet("background: yellow;");
+
+	setMouseTracking(true);
+	setCursor(Qt::CrossCursor);
 }
 
 OverlayMapWidget::~OverlayMapWidget()
 {
-
+	delete info_widget;
 }
 
 void OverlayMapWidget::setGrid(bool is_visible)
 {
-	/* 16 x 32 grid */
+	/* 32 x 32 grid */
 	if (grid_visible == is_visible)
 		return;
 
@@ -28,24 +43,21 @@ void OverlayMapWidget::setGrid(bool is_visible)
 
 void OverlayMapWidget::paintEvent(QPaintEvent *ev)
 {
+	if (map.size() != size())
+		map = QPixmap::fromImage(original_map.scaled(size()));
+
 	QPainter p(this);
 
 	const QRect paint_rect = ev->rect();
-	const double y_scale = map.height() / (double)height();
-	const double x_scale = map.width() / (double)width();
-
-	const QRect pixmap_rect(paint_rect.left()*x_scale, paint_rect.top()*y_scale,
-	                        paint_rect.width()*x_scale, paint_rect.height()*y_scale);
-
 	p.eraseRect(paint_rect);
-	p.drawPixmap(paint_rect, map, pixmap_rect);
+	p.drawPixmap(paint_rect, map, paint_rect);
 
 	if (grid_visible) {
-		/* 16 x 32 grid, with border */
+		/* 32 x 32 grid, with border */
 		QVector<QLineF> grid;
 		const int h = height()-1;
 		const int w = width()-1;
-		const double y_spacing = h / 16.0;
+		const double y_spacing = h / 32.0;
 		const double x_spacing = w / 32.0;
 
 		const double x_start = paint_rect.left() - fmod(paint_rect.left(), x_spacing);
@@ -59,5 +71,78 @@ void OverlayMapWidget::paintEvent(QPaintEvent *ev)
 		p.drawLines(grid);
 	}
 
+	QPen pen = p.pen();
+	pen.setWidth(3);
+	p.setPen(pen);
+
+	QVector<QLineF> lines;
+	// NOTE: don't split the first generation as it "belongs" to both lungs
+	lines << QLineF(width()/32.0, height()/2.0, width()*31.0/32.0, height()/2.0);
+	lines << QLineF(width()/2.0, 0, width()/2.0, height());
+	p.drawLines(lines);
+
 	ev->accept();
+}
+
+void OverlayMapWidget::enterEvent(QEvent *ev)
+{
+	QWidget::enterEvent(ev);
+
+	info_widget->show();
+}
+
+void OverlayMapWidget::leaveEvent(QEvent *ev)
+{
+	QWidget::leaveEvent(ev);
+
+	info_widget->hide();
+}
+
+void OverlayMapWidget::mouseMoveEvent(QMouseEvent *ev)
+{
+	const QPoint & pos = ev->pos();
+	const int h = height();
+	const int w = width();
+
+	if (pos.x() >= 0 && pos.y() >= 0 &&
+	    pos.x() < w && pos.y() < h) {
+		const QColor & color = original_map.pixel(pos.x() * original_map.width() / w,
+		                                          pos.y() * original_map.height() / h);
+		const double mean_dist = LungView::gradientToDistanceFromMean(color);
+		const double value = mean + mean_dist*stddev;
+
+		QString text = QLatin1String("Value: %1\nMean: %2 %3%");
+
+		info_widget->setText(text.arg(doubleToString(value),
+		                              doubleToString(mean),
+		                              (mean_dist>0?"+":"") + doubleToString(stddev*mean_dist*100.0/mean)));
+		info_widget->resize(info_widget->sizeHint());
+
+		const QSize s = info_widget->size();
+		const int min_dist = s.height();
+
+		QPoint widget_pos;
+		if (pos.x() + s.width() + min_dist < w) {
+			widget_pos.setX(pos.x() + min_dist);
+		}
+		else {
+			widget_pos.setX(std::max(0, pos.x() - min_dist - s.width()));
+		}
+
+		widget_pos.setY(std::max(0, std::min(pos.y(), h-min_dist)));
+		info_widget->move(widget_pos);
+	}
+
+	ev->accept();
+}
+
+void OverlayMapWidget::showEvent(QShowEvent *ev)
+{
+	QWidget::showEvent(ev);
+
+	const QPoint mouse_pos = info_widget->mapFromGlobal(QCursor::pos());
+	if (info_widget->rect().contains(mouse_pos))
+		info_widget->show();
+	else
+		info_widget->hide();
 }
