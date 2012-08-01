@@ -110,6 +110,7 @@ MainWindow::MainWindow(QWidget *parent)
 	QActionGroup *overlay_type = new QActionGroup(this);
 	overlay_type->addAction(ui->actionNoOverlay);
 	overlay_type->addAction(ui->actionFlowOverlay);
+	overlay_type->addAction(ui->actionFixedFlowOverlay);
 	overlay_type->addAction(ui->actionVolumeOverlay);
 	overlay_type->setExclusive(true);
 	connect(overlay_type, SIGNAL(triggered(QAction*)),
@@ -803,6 +804,8 @@ void MainWindow::setOverlayType(QAction *ac)
 
 	if (ac == ui->actionFlowOverlay)
 		ui->view->setOverlayType(LungView::FlowOverlay);
+	else if (ac == ui->actionFixedFlowOverlay)
+		ui->view->setOverlayType(LungView::FixedFlowOverlay);
 	else if(ac == ui->actionVolumeOverlay)
 		ui->view->setOverlayType(LungView::VolumeOverlay);
 }

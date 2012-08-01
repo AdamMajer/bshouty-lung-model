@@ -89,6 +89,7 @@
     </property>
     <addaction name="actionNoOverlay"/>
     <addaction name="actionFlowOverlay"/>
+    <addaction name="actionFixedFlowOverlay"/>
     <addaction name="actionVolumeOverlay"/>
     <addaction name="separator"/>
     <addaction name="actionOverlayMap"/>
@@ -1541,6 +1542,14 @@ p, li { white-space: pre-wrap; }
   <action name="actionOverlayMap">
    <property name="text">
     <string>Overlay map...</string>
+   </property>
+  </action>
+  <action name="actionFixedFlowOverlay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fixed Flow</string>
    </property>
   </action>
  </widget>

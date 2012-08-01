@@ -24,7 +24,11 @@ class ModelScene;
 class LungView : public QGraphicsView
 {
 public:
-	enum OverlayType { NoOverlay, FlowOverlay, VolumeOverlay };
+	enum OverlayType { NoOverlay,
+		           FlowOverlay,
+		           FixedFlowOverlay,
+		           VolumeOverlay
+	};
 
 	LungView(QWidget *parent = 0);
 	LungView(QGraphicsScene* scene, QWidget * parent = 0);
@@ -56,6 +60,7 @@ protected:
 	void zoom(double scale, QPointF scene_point);
 
 	void calculateFlowOverlay(const Model &model);
+	void calculateFixedFlowOverlay(const Model &model);
 	void calculateVolumeOverlay(const Model &model);
 
 private:

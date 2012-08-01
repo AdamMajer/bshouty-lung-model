@@ -52,10 +52,12 @@ void LungView::setOverlayType(OverlayType type)
 		return;
 
 	switch (overlay_type) {
-	case FlowOverlay: {
+	case FlowOverlay:
 		calculateFlowOverlay(s->model());
 		break;
-	}
+	case FixedFlowOverlay:
+		calculateFixedFlowOverlay(s->model());
+		break;
 	case VolumeOverlay:
 		calculateVolumeOverlay(s->model());
 		break;
@@ -385,7 +387,7 @@ void LungView::calculateFlowOverlay(const Model &model)
 {
 	// Flow in each generation is the same, so generate a
 	// standard deviation from the expected flow for all vessels
-	// The gradient should span 1 standard deviations
+	// The gradient should span 2 standard deviations
 	const double flow_conversion = 1e6 / 60.0; // flow L/min => uL/s
 	const int n_gen = model.nGenerations();
 	double variance = 0.0;
@@ -441,6 +443,51 @@ void LungView::calculateFlowOverlay(const Model &model)
 		label << overlay_stddev*(i-3)*100.0/2.0/overlay_mean << "%";
 	}
 	qDebug("flow stddev: %f - mean: %f", overlay_stddev, overlay_mean);
+}
+
+void LungView::calculateFixedFlowOverlay(const Model &model)
+{
+	// The gradient should spans +- 100% from the mean
+	const double flow_conversion = 1e6 / 60.0; // flow L/min => uL/s
+	const int n_gen = model.nGenerations();
+
+	overlay_mean = model.getResult(Model::Flow_value);
+	overlay_stddev = overlay_mean/2.0;
+
+	// QPainter paint(&overlay_image);
+	for (int gen=1; gen<=n_gen; ++gen) {
+		const int n_elements = model.nElements(gen);
+
+		// We can use `int` as height() is always a multiple of n_elements
+		int paint_height = overlay_image.height() / n_elements;
+		int y = 0;
+
+		for (int i=0; i<n_elements; ++i) {
+			const Vessel &art = model.artery(gen, i);
+			const Vessel &vein = model.vein(gen, i);
+
+			QRgb art_col = gradientColor((art.flow*n_elements - overlay_mean)/overlay_stddev).rgba();
+			QRgb vein_col = gradientColor((vein.flow*n_elements - overlay_mean)/overlay_stddev).rgba();
+
+			for (int j=y; j<y+paint_height; ++j) {
+				overlay_image.setPixel(gen-1, j, art_col);
+				overlay_image.setPixel(32-gen, j, vein_col);
+			}
+
+			y += paint_height;
+		}
+	}
+
+	for (int i=0; i<7; i++) {
+		overlay_text[i].clear();
+		QTextStream label(&overlay_text[i]);
+
+		label.setNumberFlags(QTextStream::ForceSign);
+		label.setRealNumberNotation(QTextStream::FixedNotation);
+		label.setRealNumberPrecision(1);
+
+		label << overlay_stddev*(i-3)*66.6666666666/overlay_mean << "%";
+	}
 }
 
 void LungView::calculateVolumeOverlay(const Model &model)
