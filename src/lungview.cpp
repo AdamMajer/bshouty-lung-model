@@ -440,7 +440,7 @@ void LungView::calculateFlowOverlay(const Model &model)
 		label.setRealNumberNotation(QTextStream::FixedNotation);
 		label.setRealNumberPrecision(1);
 
-		label << overlay_stddev*(i-3)*100.0/2.0/overlay_mean << "%";
+		label << overlay_stddev*(i-3)*66.66666666/overlay_mean << "%";
 	}
 	qDebug("flow stddev: %f - mean: %f", overlay_stddev, overlay_mean);
 }
@@ -568,7 +568,7 @@ void LungView::calculateVolumeOverlay(const Model &model)
 		label.setRealNumberNotation(QTextStream::FixedNotation);
 		label.setRealNumberPrecision(1);
 
-		label << stddev*(i-3)*100.0/2.0/mean_volume_per_gen << "%";
+		label << stddev*(i-3)*66.66666666/mean_volume_per_gen << "%";
 	}
 	qDebug("volume stddev: %f -- mean: %f", stddev, mean_volume_per_gen);
 }
