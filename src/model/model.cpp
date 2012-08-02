@@ -578,9 +578,9 @@ void Model::setVein(int gen, int index, const Vessel & v, bool override)
 		throw "Out of bounds";
 
 	const int idx = index + startIndex(gen);
-	const int o_idx = nElements() + o_idx;
+	const int o_idx = nElements() + idx;
 
-	arteries[idx] = v;
+	veins[idx] = v;
 	vessel_value_override[o_idx] = vessel_value_override[o_idx] || override;
 	modified_flag = true;
 }
