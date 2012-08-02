@@ -814,16 +814,16 @@ void MainWindow::modifyArtery(int gen, int idx)
 {
 	Vessel v(baseline->artery(gen, idx));
 
-	modifyVessel(VesselDlg::Artery, v);
-	baseline->setArtery(gen, idx, v);
+	if (modifyVessel(VesselDlg::Artery, v))
+		baseline->setArtery(gen, idx, v);
 }
 
 void MainWindow::modifyVein(int gen, int idx)
 {
 	Vessel v(baseline->vein(gen, idx));
 
-	modifyVessel(VesselDlg::Vein, v);
-	baseline->setVein(gen, idx, v);
+	if (modifyVessel(VesselDlg::Vein, v))
+		baseline->setVein(gen, idx, v);
 }
 
 void MainWindow::modifyCap(int idx)
