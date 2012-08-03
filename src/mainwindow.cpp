@@ -171,21 +171,21 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->patHt->setProperty(range_property, "20 to 250;1");
 	ui->patWt->setProperty(range_property, "1 to 200;0.1");
 	ui->lungHt->setProperty(range_property, "1 to 50;0.1");
-	ui->Vrv->setProperty(range_property, "10 to 100;1");
-	ui->Vfrc->setProperty(range_property, "10 to 100;1");
-	ui->Vtlc->setProperty(range_property, "10 to 100;1");
+	ui->Vrv->setProperty(range_property, "5 to 95;1");
+	ui->Vfrc->setProperty(range_property, "5 to 95;1");
+	ui->Vtlc->setProperty(range_property, "5 to 300;1");
 
-	ui->Pal->setProperty(range_property, "0 to 80;0.1");
-	ui->Ppl->setProperty(range_property, "-30 to 30;0.1");
+	ui->Pal->setProperty(range_property, "0 to 100;0.1");
+	ui->Ppl->setProperty(range_property, "-50 to 50;0.1");
 	ui->LAP->setProperty(range_property, "-10 to 50;0.1");
-	ui->CO->setProperty(range_property, "0 to 25;0.1");
-	ui->PAPm->setProperty(range_property, "0 to 120;0.1");
+	ui->CO->setProperty(range_property, "0.1 to 25;0.1");
+	ui->PAPm->setProperty(range_property, "0 to 150;0.1");
 
-	ui->Hct->setProperty(range_property, "0.05 to 0.95;0.01");
-	ui->PA_EVL->setProperty(range_property, "5 to 20;0.1");
-	ui->PA_Diameter->setProperty(range_property, "0.5 to 5;0.05");
-	ui->PV_EVL->setProperty(range_property, "5 to 20;0.1");
-	ui->PV_Diameter->setProperty(range_property, "0.5 to 5;0.05");
+	ui->Hct->setProperty(range_property, "5 to 95;0.1");
+	ui->PA_EVL->setProperty(range_property, "0.5 to 20;0.1");
+	ui->PA_Diameter->setProperty(range_property, "0.5 to 20;0.05");
+	ui->PV_EVL->setProperty(range_property, "0.5 to 20;0.1");
+	ui->PV_Diameter->setProperty(range_property, "0.5 to 20;0.05");
 
 	// on_actionModelWizard_triggered();
 	ui->diseaseView->hide();

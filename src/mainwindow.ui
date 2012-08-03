@@ -762,7 +762,7 @@ p, li { white-space: pre-wrap; }
              <item row="16" column="1">
               <widget class="ClickableLineEdit" name="Hct">
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hct stands for Hematocrit&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; 0.05 – 0.80&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hct stands for Hematocrit&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; 5 – 95&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -1134,7 +1134,7 @@ p, li { white-space: pre-wrap; }
               </widget>
              </item>
              <item row="12" column="1">
-              <widget class="QLineEdit" name="Vtlc">
+              <widget class="ClickableLineEdit" name="Vtlc">
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;TLC&lt;/span&gt; stands for Total Lung Capacity as percent of predicted TLC&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; 5 – 300%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>

@@ -664,14 +664,14 @@ double Model::getResult(DataType type) const
 		break;
 
 	case Vrv_value:
-		return Vrv;
+		return Vrv * 100.0;
 	case Vfrc_value:
-		return Vfrc;
+		return Vfrc * 100.0;
 	case Vtlc_value:
-		return Vtlc;
+		return Vtlc * 100.0;
 
 	case Hct_value:
-		return Hct;
+		return Hct * 100.0;
 	case PA_EVL_value:
 		return PA_EVL;
 	case PA_Diam_value:
@@ -747,6 +747,7 @@ bool Model::setData(DataType type, double val)
 		}
 		break;
 	case Vrv_value:
+		val /= 100.0;
 		if (significantChange(Vrv, val)) {
 			Vrv = val;
 			calculateBaselineCharacteristics();
@@ -755,14 +756,16 @@ bool Model::setData(DataType type, double val)
 		}
 		break;
 	case Vfrc_value:
+		val /= 100.0;
 		if (significantChange(Vfrc, val)) {
 			Vfrc = val;
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
 		}
-	case Vtlc_value:
 		break;
+	case Vtlc_value:
+		val /= 100.0;
 		if (significantChange(Vtlc, val)) {
 			Vtlc = val;
 			calculateBaselineCharacteristics();
@@ -771,6 +774,7 @@ bool Model::setData(DataType type, double val)
 		}
 		break;
 	case Hct_value:
+		val /= 100.0;
 		if (significantChange(Hct, val)) {
 			Hct = val;
 			modified_flag = true;
