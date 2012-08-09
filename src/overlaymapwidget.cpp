@@ -106,16 +106,24 @@ void OverlayMapWidget::mouseMoveEvent(QMouseEvent *ev)
 
 	if (pos.x() >= 0 && pos.y() >= 0 &&
 	    pos.x() < w && pos.y() < h) {
-		const QColor & color = original_map.pixel(pos.x() * original_map.width() / w,
+		int gen_no = pos.x() * original_map.width() / w;
+		const QColor & color = original_map.pixel(gen_no,
 		                                          pos.y() * original_map.height() / h);
 		const double mean_dist = LungView::gradientToDistanceFromMean(color);
 		const double value = mean + mean_dist*stddev;
 
-		QString text = QLatin1String("Value: %1\nMean: %2 %3%");
+		QString text = QLatin1String("Gen: %4\nVessel: %5 of %6\n\nValue: %1\nMean: %2 %3%");
+		// TODO: fix when model works again for other than 16 generations
+		if (gen_no > 15)
+			gen_no = 31 - gen_no;
 
-		info_widget->setText(text.arg(doubleToString(value),
-		                              doubleToString(mean),
-		                              (mean_dist>0?"+":"") + doubleToString(stddev*mean_dist*100.0/mean)));
+		const int n_elem = 1 << gen_no;
+		info_widget->setText(text.arg(doubleToString(value / n_elem),
+		                              doubleToString(mean / n_elem),
+		                              (mean_dist<0?"- ":"+ ") + doubleToString(stddev*fabs(mean_dist)*100.0/mean),
+		                              QString::number(gen_no+1),
+		                              QString::number(static_cast<int>(n_elem * pos.y() / h) + 1),
+		                              QString::number(n_elem)));
 		info_widget->resize(info_widget->sizeHint());
 
 		const QSize s = info_widget->size();
