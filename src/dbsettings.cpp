@@ -17,6 +17,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QMutex>
 #include <QRect>
 #include <QRegExp>
 #include <QSqlDatabase>
@@ -29,16 +30,19 @@ static const QLatin1String string_key("@String");
 static const QLatin1String rect_key("@Rect");
 
 static std::map<QString,QVariant> value_map;
+static QMutex value_lock;
 
 QVariant DbSettings::value(const QString &key, const QVariant &default_value)
 {
-	QSqlDatabase db = QSqlDatabase::database(settings_db);
-	if (!db.isOpen())
-		return default_value;
+	QMutexLocker lock(&value_lock);
 
 	std::map<QString,QVariant>::const_iterator cached_value = value_map.find(key);
 	if (cached_value != value_map.end())
 		return cached_value->second;
+
+	QSqlDatabase db = QSqlDatabase::database(settings_db);
+	if (!db.isOpen())
+		return default_value;
 
 	QSqlQuery q(db);
 	q.prepare("SELECT value FROM settings WHERE key=?");
@@ -49,22 +53,29 @@ QVariant DbSettings::value(const QString &key, const QVariant &default_value)
 		const int string_len = string_value.length();
 
 		if (string_len > 8 && string_value.startsWith(string_key)) {
-			return string_value.right(string_len - 8);
+			QVariant ret = string_value.right(string_len - 8);
+			value_map[key] = ret;
+			return ret;
 		}
 		else if (string_len > 6 && string_value.startsWith(rect_key)) {
 			const QRegExp rx("^" + rect_key + " (-?\\d+), (-?\\d+), (\\d+), (\\d+)$");
 			if (rx.exactMatch(string_value)) {
-				return QRect(rx.cap(1).toInt(), rx.cap(2).toInt(),
-				             rx.cap(3).toInt(), rx.cap(4).toInt());
+				QRect ret(rx.cap(1).toInt(), rx.cap(2).toInt(),
+				          rx.cap(3).toInt(), rx.cap(4).toInt());
+
+				value_map[key] = ret;
+				return ret;
 			}
 		}
 	}
 
+	value_map[key] = default_value;
 	return default_value;
 }
 
 void DbSettings::setValue(const QString &key, const QVariant &value)
 {
+	QMutexLocker lock(&value_lock);
 	QSqlDatabase db = QSqlDatabase::database(settings_db);
 	if (!db.isOpen())
 		return;

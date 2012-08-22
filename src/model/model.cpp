@@ -196,6 +196,8 @@ Model& Model::operator =(const Model &other)
 	PatHt = other.PatHt;
 	trans_pos = other.trans_pos;
 
+	BSA_ratio = other.BSA_ratio;
+
 	Hct = other.Hct;
 	PA_EVL = other.PA_EVL;
 	PA_diam = other.PA_diam;
@@ -1224,7 +1226,7 @@ double Model::deltaCapillaryResistance( int i )
 	const double FACC = y-x;
 	const double FACC1 = 25.0-x;
 	Capillary & cap = caps[i];
-	const double Rz = getKrc() * BSAz() / BSA(PatWt, PatHt) * nElements(n_generations) / nElements(16);
+	const double Rz = getKrc() * BSA_ratio * nElements(n_generations) / nElements(16);
 
 	if( x < 0 ){
 		if( y < 0 )
@@ -1345,7 +1347,8 @@ void Model::initVesselBaselineResistances()
 
 	// Initialize capillaries
 	const int nCapillaries = numCapillaries();
-	const double cKrc = getKrc() * BSAz() / BSA(PatHt, PatWt);
+	BSA_ratio = BSAz() / BSA(PatHt, PatWt);
+	const double cKrc = getKrc() * BSA_ratio;
 	for (int i=0; i<nCapillaries; i++) {
 		if (vessel_value_override[nElements()*2 + i])
 			continue;
@@ -1761,6 +1764,8 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(Vtlc);
 
 	SET_VALUE(Krc_factor);
+
+	BSA_ratio = BSAz() / BSA(PatWt, PatHt);
 
 	q.prepare("SELECT value FROM model_values WHERE key = ? AND offset = ?");
 
