@@ -23,6 +23,7 @@ SOURCES += \
 	$${SRC_DIR}/transducerview.cpp \
 	$${SRC_DIR}/vesseldlg.cpp \
 	$${SRC_DIR}/vesselview.cpp \
+	$${SRC_DIR}/vesselwidget.cpp \
 	$${SRC_DIR}/vesselconnectionview.cpp \
 	$${SRC_DIR}/wizard.cpp
 
@@ -50,6 +51,7 @@ HEADERS += \
 	$${SRC_DIR}/transducerview.h \
 	$${SRC_DIR}/vesseldlg.h \
 	$${SRC_DIR}/vesselview.h \
+	$${SRC_DIR}/vesselwidget.h \
 	$${SRC_DIR}/vesselconnectionview.h \
 	$${SRC_DIR}/wizard.h
 

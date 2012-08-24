@@ -27,9 +27,9 @@ namespace Ui {
 class VesselDlg : public QDialog
 {
 public:
-	enum VesselType { Artery, Vein };
-
-	VesselDlg(VesselType type, Vessel &v, bool readOnlyPtPGP, QWidget * parent = 0);
+	VesselDlg(Vessel::Type type, Vessel &v, const Vessel &calc_values,
+	          const std::vector<double> &vessel_dims,
+	          bool readOnlyPtPGP, QWidget * parent = 0);
 
 	virtual void accept();
 

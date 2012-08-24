@@ -23,7 +23,12 @@
 #include <QMap>
 #include <QRegExpValidator>
 
-VesselDlg::VesselDlg(VesselType type, Vessel &vessel, bool PtpGP_RO, QWidget *parent)
+VesselDlg::VesselDlg(Vessel::Type type,
+                     Vessel &vessel,
+                     const Vessel &calc_values,
+                     const std::vector<double> &vessel_dims,
+                     bool PtpGP_RO,
+                     QWidget *parent)
         :QDialog(parent), v(vessel)
 {
 	ui = new Ui::VesselDlg;
@@ -65,19 +70,42 @@ VesselDlg::VesselDlg(VesselType type, Vessel &vessel, bool PtpGP_RO, QWidget *pa
 //	ui->cl->setToolTip("<p>Patient lung compliance in L/cm H2O</p><p>Changing value here will override model-wide C<sub>L</sub> value.</p><p>Range: 0.0001 - 1.0</p>");
 
 	switch (type) {
-	case Artery:
-		ui->a->setToolTip("<p>Parameter that controls arterial vessels passive characteristics (intercept) based on a linear relationship between vessel cross-sectional area (Area) and transmural pressure (P<sub>tm</sub>) according to the following relationship:</p><p><center>Area=A+B&times;P<sub>tm</sub></p>");
-		ui->b->setToolTip("<p>Parameter that controls arterial (slope) vessels cross-sectional area passive characteristics as a function of transmural pressure (P<sub>tm</sub>) according to the following relationships:</p><p><center>Area=A+B&times;P<sub>tm</sub></center></p>");
-		ui->c->hide();
-		ui->c_label->hide();
-		break;
-	case Vein:
-		ui->b->setToolTip("<p>Parameter that controls venous vessels passive characteristics based on a curvilinear relationship between vessel cross-sectional area (Area) and transmural pressure (P<sub>tm</sub>) according to the following relationship:</p><p><center>Area=1/[1+B&times;e<sup>C&times;Ptm</sup>]</center></p>");
-		ui->c->setToolTip(ui->b->toolTip());
+	case Vessel::Artery:
+		//ui->a->setToolTip("<p>Parameter that controls arterial vessels passive characteristics (intercept) based on a linear relationship between vessel cross-sectional area (Area) and transmural pressure (P<sub>tm</sub>) according to the following relationship:</p><p><center>Area=A+B&times;P<sub>tm</sub></p>");
+		//ui->b->setToolTip("<p>Parameter that controls arterial (slope) vessels cross-sectional area passive characteristics as a function of transmural pressure (P<sub>tm</sub>) according to the following relationships:</p><p><center>Area=A+B&times;P<sub>tm</sub></center></p>");
+		//ui->c->hide();
+		//ui->c_label->hide();
+		//break;
+	case Vessel::Vein:
+		//ui->b->setToolTip("<p>Parameter that controls venous vessels passive characteristics based on a curvilinear relationship between vessel cross-sectional area (Area) and transmural pressure (P<sub>tm</sub>) according to the following relationship:</p><p><center>Area=1/[1+B&times;e<sup>C&times;Ptm</sup>]</center></p>");
+		//ui->c->setToolTip(ui->b->toolTip());
 		ui->a->hide();
 		ui->a_label->hide();
 		break;
 	}
+
+
+	// set read-only calculated values
+#define SET_DATA(val) ui->c##val->setText(doubleToString(calc_values.val))
+	SET_DATA(R);
+	SET_DATA(Dmin);
+	SET_DATA(D_calc);
+	SET_DATA(Dmax);
+	SET_DATA(volume);
+	SET_DATA(length);
+	SET_DATA(vessel_ratio);
+	SET_DATA(viscosity_factor);
+	SET_DATA(b);
+	SET_DATA(c);
+	SET_DATA(tone);
+	SET_DATA(perivascular_press_a);
+	SET_DATA(perivascular_press_b);
+	SET_DATA(perivascular_press_c);
+	SET_DATA(pressure);
+	SET_DATA(flow);
+#undef SET_DATA
+
+	ui->vessel->setDrawData(vessel_dims);
 }
 
 void VesselDlg::accept()

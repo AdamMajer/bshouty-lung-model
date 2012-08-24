@@ -34,6 +34,8 @@
 #include "overlaymapwidget.h"
 #include "wizard.h"
 
+#include "model/integrationhelper/cpuhelper.h"
+
 #include <QActionGroup>
 #include <QCheckBox>
 #include <QFileDialog>
@@ -812,18 +814,22 @@ void MainWindow::setOverlayType(QAction *ac)
 
 void MainWindow::modifyArtery(int gen, int idx)
 {
+	std::vector<double> dims;
+	CpuIntegrationHelper(model).integrateWithDimentions(Vessel::Artery, gen, idx, dims);
 	Vessel v(baseline->artery(gen, idx));
-
-	if (modifyVessel(VesselDlg::Artery, v))
+	VesselDlg dlg(Vessel::Artery, v, model->artery(gen,idx), dims, isVesselPtpReadOnly(), this);
+	if (dlg.exec() == QDialog::Accepted)
 		baseline->setArtery(gen, idx, v);
 }
 
 void MainWindow::modifyVein(int gen, int idx)
 {
+	std::vector<double> dims;
+	CpuIntegrationHelper(model).integrateWithDimentions(Vessel::Vein, gen, idx, dims);
 	Vessel v(baseline->vein(gen, idx));
-
-	if (modifyVessel(VesselDlg::Vein, v))
-		baseline->setVein(gen, idx, v);
+	VesselDlg dlg(Vessel::Vein, v, model->vein(gen,idx), dims, isVesselPtpReadOnly(), this);
+	if (dlg.exec() == QDialog::Accepted)
+		baseline->setArtery(gen, idx, v);
 }
 
 void MainWindow::modifyCap(int idx)
@@ -832,12 +838,6 @@ void MainWindow::modifyCap(int idx)
 	CapillaryDlg dlg(c, this);
 	if (dlg.exec() == QDialog::Accepted)
 		baseline->setCapillary(idx, c);
-}
-
-bool MainWindow::modifyVessel(VesselDlg::VesselType type, Vessel &v)
-{
-	VesselDlg dlg(type, v, isVesselPtpReadOnly(), this);
-	return dlg.exec() == QDialog::Accepted;
 }
 
 void MainWindow::transducerPositionChanged(Model::Transducer tr)

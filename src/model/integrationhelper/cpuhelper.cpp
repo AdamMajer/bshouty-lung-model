@@ -21,6 +21,7 @@
 #include "common.h"
 #include <limits>
 #include "cpuhelper.h"
+#include <vector>
 
 
 extern const double K1;
@@ -54,8 +55,8 @@ double CpuIntegrationHelper::integrate()
 	for (int i=0; i<n_elements; ++i) {
 		v[i] = i;
 
-		futures.push_back(QtConcurrent::run(this, &CpuIntegrationHelper::integrateArtery, v[i]));
-		futures.push_back(QtConcurrent::run(this, &CpuIntegrationHelper::integrateVein, v[i]));
+		futures.push_back(QtConcurrent::run(this, &CpuIntegrationHelper::integrateVessel, Vessel::Artery, v[i], (std::vector<double>*)0));
+		futures.push_back(QtConcurrent::run(this, &CpuIntegrationHelper::integrateVessel, Vessel::Vein, v[i], (std::vector<double>*)0));
 	}
 
 	double max_deviation = 0;
@@ -67,8 +68,21 @@ double CpuIntegrationHelper::integrate()
 	return max_deviation;
 }
 
+void CpuIntegrationHelper::integrateWithDimentions(Vessel::Type t,
+                                                   int gen,
+                                                   int idx,
+                                                   std::vector<double> &calc_dim)
+{
+	calc_dim.clear();
+	calc_dim.reserve(nSums);
+	integrateVessel(t, index(gen, idx), &calc_dim);
+}
+
 double CpuIntegrationHelper::integrateArtery(int vessel_index)
 {
+	return integrateVessel(Vessel::Artery, vessel_index, 0);
+
+
 	Vessel & art = arteries()[vessel_index];
 
 	const double hct = Hct();
@@ -130,7 +144,7 @@ double CpuIntegrationHelper::integrateArtery(int vessel_index)
 	P = P + art.flow * Rs;
 	Rtot += Rs;
 
-	double D;
+	double D=0.0;
 	for( int j=1; j<nSums; j++ ){
 
 		Ptm = 1.35951002636 * ( P - art.tone ) - art.GP;
@@ -166,7 +180,15 @@ double CpuIntegrationHelper::integrateArtery(int vessel_index)
 
 double CpuIntegrationHelper::integrateVein(int vessel_index)
 {
-	Vessel & vein = veins()[vessel_index];
+	return integrateVessel(Vessel::Vein, vessel_index, NULL);
+}
+
+double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
+                                             int vessel_index,
+                                             std::vector<double> *calc_dim)
+{
+	/* NOTE: calc_dim is assumed empty, if supplied */
+	Vessel & vein = (type == Vessel::Artery) ? arteries()[vessel_index] : veins()[vessel_index];
 
 	const double hct = Hct();
 	double Rtot = 0.0;
@@ -177,6 +199,7 @@ double CpuIntegrationHelper::integrateVein(int vessel_index)
 	if (isnan(P))
 		return 0.0;
 
+	double scaling_factor = (type == Vessel::Artery) ? 2.0 : 1.0;
 	double Ptm = 1.35951002636 * ( P - vein.tone ) - vein.GP;
 	double Rs;
 	double D_integral = 0.0;
@@ -188,6 +211,9 @@ double CpuIntegrationHelper::integrateVein(int vessel_index)
 	if (vein.D < 0.1) {
 		vein.D_calc = vein.D = 0.0;
 		vein.Dmax = vein.Dmin = vein.D;
+
+		if (calc_dim)
+			std::fill_n(calc_dim->begin(), nSums, 0.0);
 
 		vein.viscosity_factor = std::numeric_limits<double>::infinity();
 		vein.volume = 0;
@@ -212,19 +238,22 @@ double CpuIntegrationHelper::integrateVein(int vessel_index)
 		Rs = -Ptm/( 1.35951002636 * vein.flow ); // Starling Resistor
 	}
 	else {
-		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220;
+		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / scaling_factor;
 		vein.Dmin = vein.D / sqrt(inv_A);
 		const double vf = viscosityFactor(vein.Dmin, hct);
 		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(vein.Dmin)) * vein.vessel_ratio;
 		vein.viscosity_factor += vf;
 		vein.volume += M_PI/4.0 * sqr(vein.Dmin) * dL;
+
+		if (calc_dim)
+			calc_dim->push_back(vein.Dmin);
 	}
 
 	D_integral = vein.Dmin;
 	P = P + vein.flow * Rs;
 	Rtot = Rs;
 
-	double D;
+	double D=0.0;
 	for( int j=1; j<nSums; j++ ) {
 		Ptm = 1.35951002636 * ( P - vein.tone ) - vein.GP;
 
@@ -235,10 +264,13 @@ double CpuIntegrationHelper::integrateVein(int vessel_index)
 			                vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
 
 		// corrected to Ptp=0, Ptm=35 cmH2O
-		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220;
+		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / scaling_factor;
 		D = vein.D / sqrt(inv_A);
 		D_integral += D;
 		const double vf = viscosityFactor(D, hct);
+
+		if (calc_dim)
+			calc_dim->push_back(D);
 
 		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
 		vein.viscosity_factor += vf;

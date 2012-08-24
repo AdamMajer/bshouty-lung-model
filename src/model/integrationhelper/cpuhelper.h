@@ -26,7 +26,15 @@ public:
 	CpuIntegrationHelper(Model *model);
 
 	virtual double integrate();
+	void integrateWithDimentions(Vessel::Type t,
+	                             int gen, int idx,
+	                             std::vector<double> &calc_dim);
+
 protected:
 	double integrateArtery(int vessel_index);
 	double integrateVein(int vessel_index);
+
+	double integrateVessel(Vessel::Type type,
+	                       int vessel_index,
+	                       std::vector<double> *calc_dim);
 };

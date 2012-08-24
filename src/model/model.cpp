@@ -1058,12 +1058,12 @@ double Model::calibrationValue(DataType type)
 	case Model::PV_EVL_value:
 		return 5.0;
 	case Model::PA_Diam_value:
-		return 2.44701828402914;
+		return 3.115307890;
 	case Model::PV_Diam_value:
-		return 1.68227300704001;
+		return 1.681263294;
 
 	case Model::Krc:
-		return 3161.06957165224;
+		return 3179.855937396;
 
 	case Model::Ptp_value:
 	case Model::PAP_value:
@@ -1297,9 +1297,9 @@ void Model::initVesselBaselineCharacteristics()
 			continue;
 
 		// correcting area to Ptp=0, Ptm=35 cmH2O
-		arteries[i].a = 0.2419 / 1.2045;
-		arteries[i].b = 0.0275 / 1.2045;
-		arteries[i].c = 0;
+		//arteries[i].a = 0.2419 / 1.2045;
+		arteries[i].b = 8.95866; //0.0275 / 1.2045;
+		arteries[i].c = -0.060544062342;
 		arteries[i].tone = 0;
 
 		arteries[i].vessel_ratio = static_cast<double>(nElements(gen_no(i))) /

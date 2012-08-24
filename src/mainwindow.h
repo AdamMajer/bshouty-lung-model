@@ -85,7 +85,6 @@ public slots:
 	void modifyArtery(int gen, int idx);
 	void modifyVein(int gen, int idx);
 	void modifyCap(int idx);
-	bool modifyVessel(VesselDlg::VesselType, Vessel &);
 
 	void transducerPositionChanged(Model::Transducer tr);
 
