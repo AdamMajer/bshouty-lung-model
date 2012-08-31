@@ -1309,6 +1309,7 @@ void Model::initVesselBaselineCharacteristics()
 
 		// correcting area to Ptp=0, Ptm=35 cmH2O
 		//arteries[i].a = 0.2419 / 1.2045;
+		arteries[i].a = 2.0;
 		arteries[i].b = 8.95866; //0.0275 / 1.2045;
 		arteries[i].c = -0.060544062342;
 		arteries[i].tone = 0;
@@ -1332,7 +1333,7 @@ void Model::initVesselBaselineCharacteristics()
 			veins[i].b = 2.4307;
 			veins[i].c = -0.2355;
 		}
-		veins[i].a = 0;
+		veins[i].a = 1.0;
 		veins[i].tone = 0;
 
 		veins[i].vessel_ratio = static_cast<double>(nElements(gen_no(i))) /

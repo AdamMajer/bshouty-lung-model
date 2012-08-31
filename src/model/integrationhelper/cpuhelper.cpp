@@ -199,7 +199,6 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 	if (isnan(P))
 		return 0.0;
 
-	double scaling_factor = (type == Vessel::Artery) ? 2.0 : 1.0;
 	double Ptm = 1.35951002636 * ( P - vein.tone ) - vein.GP;
 	double Rs;
 	double D_integral = 0.0;
@@ -238,7 +237,7 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 		Rs = -Ptm/( 1.35951002636 * vein.flow ); // Starling Resistor
 	}
 	else {
-		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / scaling_factor;
+		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
 		vein.Dmin = vein.D / sqrt(inv_A);
 		const double vf = viscosityFactor(vein.Dmin, hct);
 		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(vein.Dmin)) * vein.vessel_ratio;
@@ -264,7 +263,7 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 			                vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
 
 		// corrected to Ptp=0, Ptm=35 cmH2O
-		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / scaling_factor;
+		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
 		D = vein.D / sqrt(inv_A);
 		D_integral += D;
 		const double vf = viscosityFactor(D, hct);
