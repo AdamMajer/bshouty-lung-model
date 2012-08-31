@@ -216,9 +216,10 @@ public:
 	double getKrc();
 
 	static QString calibrationPath(DataType type);
-	static double calibrationValue(DataType);
 
 protected:
+	static double calibrationValue(DataType);
+
 	void getParameters();
 	// void getKz();
 	void vascPress();

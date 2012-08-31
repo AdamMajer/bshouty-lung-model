@@ -1024,9 +1024,20 @@ double Model::calibrationValue(DataType type)
 		bool fOK;
 		double ret_value = ret.toDouble(&fOK);
 
-		if (fOK)
-			return ret_value;
+		if (fOK) {
+			/* NOTE: Stored calibration values are pre-scaled */
+			switch (type) {
+			case Model::Vrv_value:
+			case Model::Vfrc_value:
+			case Model::Vtlc_value:
+			case Model::Hct_value:
+				return ret_value / 100.0;
+			default:
+				return ret_value;
+			}
+		}
 	}
+
 
 	switch (type) {
 	case Model::Tlrns_value:
@@ -1053,7 +1064,7 @@ double Model::calibrationValue(DataType type)
 		return -5.0;
 
 	case Model::Hct_value:
-		return 0.45;
+		return 0.45 * 100.0;
 	case Model::PA_EVL_value:
 	case Model::PV_EVL_value:
 		return 5.0;
