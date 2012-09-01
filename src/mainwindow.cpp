@@ -1140,20 +1140,24 @@ void MainWindow::calculationCompleted()
 	activateWindow();
 
 	if (res.size() == 1) {
+		const Model *m = res.first().second;
 		modelSelected(res.first().second, res.first().first);
 
 		calc_thread->deleteLater();
 		calc_thread = 0;
 
 		/* Diagnostic messages for out of bounds calculations */
-		// the 0.01 is a hack :)
 		if (ui->actionDiseaseProgression->isChecked()) {
-			if (ui->PAPm->text().toDouble() < ui->PAPm2->text().toDouble()-0.01) {
+			const double targetPAP = ui->PAPm->text().toDouble();
+			const double calcPAP = ui->PAPm2->text().toDouble();
+			const double tlrns = m->getResult(Model::Tlrns_value);
+
+			if (calcPAP - targetPAP > tlrns * targetPAP) {
 				QMessageBox::information(this, "PAPm cannot be calculated",
 				          "The target PAPm is below the estimated PAPm \n"
 				          "for the minimum level of disease possible.");
 			}
-			else if (ui->PAPm->text().toDouble() > ui->PAPm2->text().toDouble()+0.01) {
+			else if (calcPAP - targetPAP < -tlrns * targetPAP) {
 				QMessageBox::information(this, "PAPm cannot be calculated",
 				          "The target PAPm is above the estimated PAPm \n"
 				          "for the maximum level of disease possible.");
