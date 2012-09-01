@@ -76,6 +76,7 @@ VesselDlg::VesselDlg(Vessel::Type type,
 	SET_DATA(length);
 	SET_DATA(vessel_ratio);
 	SET_DATA(viscosity_factor);
+	SET_DATA(a);
 	SET_DATA(b);
 	SET_DATA(c);
 	SET_DATA(tone);
