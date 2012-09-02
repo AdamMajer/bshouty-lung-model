@@ -270,7 +270,7 @@ void LungView::drawOverlay(QPainter *p, const QRectF &r)
 			p->drawPixmap(draw_art_rect, overlay_pixmap, src_pixmap_pos);
 		}
 		if (!draw_vein_rect.isEmpty()) {
-			QRectF src_pixmap_pos(i-1, (draw_vein_rect.top()+offset)*scaling_factor,
+			QRectF src_pixmap_pos(32-i, (draw_vein_rect.top()+offset)*scaling_factor,
 			                      1.0, draw_vein_rect.height()*scaling_factor);
 			p->drawPixmap(draw_vein_rect, overlay_pixmap, src_pixmap_pos);
 		}
@@ -288,7 +288,7 @@ void LungView::drawOverlay(QPainter *p, const QRectF &r)
 			p->drawPixmap(draw_art_rect, overlay_pixmap, src_pixmap_pos);
 		}
 		if (!draw_vein_rect.isEmpty()) {
-			QRectF src_pixmap_pos(i-1, (draw_vein_rect.top()-offset)*scaling_factor,
+			QRectF src_pixmap_pos(32-i, (draw_vein_rect.top()-offset)*scaling_factor,
 			                      1.0, draw_vein_rect.height()*scaling_factor);
 			p->drawPixmap(draw_vein_rect, overlay_pixmap, src_pixmap_pos);
 		}
