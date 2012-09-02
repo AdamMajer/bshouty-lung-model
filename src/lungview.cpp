@@ -492,64 +492,56 @@ void LungView::calculateFixedFlowOverlay(const Model &model)
 
 void LungView::calculateVolumeOverlay(const Model &model)
 {
-	// Assume each generation has the same "portion" of the volume of
-	// the entire lung - the mean. Standard deviation is then the real volume
-	// of a vessel group.
+	// Volume is as a fraction of maximal possible vessel dimention
+	// in the baseline vessel.
+	// mean is 50% of max volume
+	// stddev is 25% of max volume
+	//   -> scale is 0-100% of max volume
+
+	overlay_mean = 50;
+	overlay_stddev = 25;
 
 	const int n_gen = model.nGenerations();
-	double total_volume = 0.0;
-	double variance = 0.0;
+	std::vector<double> max_art_size, max_vein_size;
 
-	// clear areas that are outside lung - we don't use them in volume
-	// overlay as these areas do not behave themselves as vessels inside the lung
-	const QColor na_area_color(0x7f, 0x7f, 0x7f, 0x7f);
-	for (int i=0; i<model.nGenOutside(); ++i) {
-		for (int j=0; j<overlay_image.height(); ++j)
-			overlay_image.setPixel(i, j, na_area_color.rgba());
-	}
+	max_art_size.reserve(n_gen);
+	max_vein_size.reserve(n_gen);
 
-
-	for (int gen=model.nGenOutside(); gen<=n_gen; ++gen) {
+	for (int gen=1; gen<=n_gen; ++gen) {
 		const int n_elements = model.nElements(gen);
-
-		for (int i=0; i<n_elements; ++i) {
-			total_volume += model.artery(gen, i).volume;
-			total_volume += model.vein(gen, i).volume;
-		}
-	}
-
-	const double mean_volume_per_gen = total_volume / (2 * n_gen);
-	overlay_mean = mean_volume_per_gen;
-
-	for (int gen=model.nGenOutside(); gen<=n_gen; ++gen) {
-		const int n_elements = model.nElements(gen);
+		double art_size = 0;
+		double vein_size = 0;
 
 		for (int i=0; i<n_elements; ++i) {
 			const Vessel &art = model.artery(gen, i);
 			const Vessel &vein = model.vein(gen, i);
 
-			variance += sqr(art.volume*n_elements - mean_volume_per_gen);
-			variance += sqr(vein.volume*n_elements - mean_volume_per_gen);
+			art_size = std::max(art_size, sqrt(art.a)*art.D);
+			vein_size = std::max(vein_size, sqrt(vein.a)*vein.D);
 		}
+
+		// 1e-9 uL/um**3
+		double art_len = model.artery(gen, n_elements/2).length;
+		double vein_len = model.vein(gen, n_elements/2).length;
+		max_art_size.push_back(M_PI*art_len*art_size*art_size * 1e-9 / 4.0);
+		max_vein_size.push_back(M_PI*vein_len*vein_size*vein_size * 1e-9 / 4.0);
 	}
 
-	const double stddev = std::max(mean_volume_per_gen*0.01,
-	                               sqrt(variance / (model.nElements()*2)));
-	overlay_stddev = stddev;
-
-	// finally, draw the overlay based on stddev
-	for (int gen=model.nGenOutside()+1; gen<=n_gen; ++gen) {
+	for (int gen=1; gen<=n_gen; ++gen) {
 		const int n_elements = model.nElements(gen);
-
+		const double max_art = max_art_size.at(gen-1);
+		const double max_vein = max_vein_size.at(gen-1);
 		int paint_height = overlay_image.height() / n_elements;
 		int y = 0;
 
+		qDebug("gen: %d    art vol: %f\t\tvein vol: %f", gen, max_art, max_vein);
+
 		for (int i=0; i<n_elements; ++i) {
 			const Vessel &art = model.artery(gen, i);
 			const Vessel &vein = model.vein(gen, i);
 
-			QRgb art_col = gradientColor((art.volume*n_elements - mean_volume_per_gen)/stddev).rgba();
-			QRgb vein_col = gradientColor((vein.volume*n_elements - mean_volume_per_gen)/stddev).rgba();
+			QRgb art_col = gradientColor((art.volume*art.vessel_ratio - max_art/2.0)*2.0/(max_art/2.0)).rgba();
+			QRgb vein_col = gradientColor((vein.volume*vein.vessel_ratio - max_vein/2.0)*2.0/(max_vein/2.0)).rgba();
 
 			for (int j=y; j<y+paint_height; ++j) {
 				overlay_image.setPixel(gen-1, j, art_col);
@@ -568,9 +560,8 @@ void LungView::calculateVolumeOverlay(const Model &model)
 		label.setRealNumberNotation(QTextStream::FixedNotation);
 		label.setRealNumberPrecision(1);
 
-		label << stddev*(i-3)*66.66666666/mean_volume_per_gen << "%";
+		label << i*16.66666667 << "%";
 	}
-	qDebug("volume stddev: %f -- mean: %f", stddev, mean_volume_per_gen);
 }
 
 void LungView::init()
