@@ -1064,7 +1064,7 @@ double Model::calibrationValue(DataType type)
 		return -5.0;
 
 	case Model::Hct_value:
-		return 0.45 * 100.0;
+		return 0.45;
 	case Model::PA_EVL_value:
 	case Model::PV_EVL_value:
 		return 5.0;
