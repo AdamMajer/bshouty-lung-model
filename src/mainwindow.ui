@@ -173,7 +173,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Patient Height&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; and/or &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Weight&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; is set as a Range. &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;C&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600; vertical-align:sub;&quot;&gt;L&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; will be automatically set and hence is read-only&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Patient Height&lt;/span&gt; and/or &lt;span style=&quot; font-weight:600;&quot;&gt;Weight&lt;/span&gt; is set as a Range. &lt;span style=&quot; font-weight:600;&quot;&gt;C&lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; vertical-align:sub;&quot;&gt;L&lt;/span&gt; will be automatically set and hence is read-only&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="wordWrap">
                 <bool>true</bool>
@@ -183,7 +183,7 @@ p, li { white-space: pre-wrap; }
              <item row="43" column="0">
               <widget class="QLabel" name="label_4">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; vertical-align:sub;&quot;&gt;co&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;co&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>Pco</cstring>
@@ -200,7 +200,7 @@ p, li { white-space: pre-wrap; }
              <item row="25" column="0">
               <widget class="QLabel" name="label_12">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; vertical-align:sub;&quot;&gt;al&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;al&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>Pal</cstring>
@@ -224,7 +224,7 @@ p, li { white-space: pre-wrap; }
              <item row="42" column="0">
               <widget class="QLabel" name="label_3">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; vertical-align:sub;&quot;&gt;ci&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;ci&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>Pci</cstring>
@@ -234,7 +234,7 @@ p, li { white-space: pre-wrap; }
              <item row="40" column="0">
               <widget class="QLabel" name="label_8">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; vertical-align:sub;&quot;&gt;m&lt;/span&gt;/PVR&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;m&lt;/span&gt;/PVR&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>Rm_PVR</cstring>
@@ -280,11 +280,7 @@ p, li { white-space: pre-wrap; }
                 <number>1</number>
                </property>
                <property name="text">
-                <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Courier New'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600;&quot;&gt;P&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600; vertical-align:sub;&quot;&gt;al&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt;&quot;&gt; modifications will result in some vessel values to be recalculated, including vessel &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600;&quot;&gt;P&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600; vertical-align:sub;&quot;&gt;TP&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;P&lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; vertical-align:sub;&quot;&gt;al&lt;/span&gt; modifications will result in some vessel values to be recalculated, including vessel &lt;span style=&quot; font-weight:600;&quot;&gt;P&lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; vertical-align:sub;&quot;&gt;TP&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="wordWrap">
                 <bool>true</bool>
@@ -319,7 +315,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Vessel diameters &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;and&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt; resistances&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; are calculated as a function of &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Pulmonary Artery/Vein&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;diameter&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; and &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;vessel length&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;. Modifying these values will cause all baseline vessel parameters to be recalculated.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Vessel diameters &lt;/span&gt;and&lt;span style=&quot; font-weight:600;&quot;&gt; resistances&lt;/span&gt; are calculated as a function of &lt;span style=&quot; font-weight:600;&quot;&gt;Pulmonary Artery/Vein&lt;/span&gt; &lt;span style=&quot; font-weight:600;&quot;&gt;diameter&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;vessel length&lt;/span&gt;. Modifying these values will cause all baseline vessel parameters to be recalculated.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="wordWrap">
                 <bool>true</bool>
@@ -387,8 +383,8 @@ p, li { white-space: pre-wrap; }
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Courier New'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt;&quot;&gt;Height modifications will result in model baseline characteristics to be recalculated, including &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600;&quot;&gt;C&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600; vertical-align:sub;&quot;&gt;L&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt;&quot;&gt; and &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600;&quot;&gt;CO&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Height modifications will result in model baseline characteristics to be recalculated, including &lt;span style=&quot; font-weight:600;&quot;&gt;C&lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; vertical-align:sub;&quot;&gt;L&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; &lt;/span&gt;and &lt;span style=&quot; font-weight:600;&quot;&gt;CO&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="wordWrap">
                 <bool>true</bool>
@@ -405,7 +401,7 @@ p, li { white-space: pre-wrap; }
              <item row="11" column="0">
               <widget class="QLabel" name="label_16">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;FRC&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;FRC&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>Vfrc</cstring>
@@ -415,7 +411,7 @@ p, li { white-space: pre-wrap; }
              <item row="29" column="0">
               <widget class="QLabel" name="PAPm_label">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PAP&lt;span style=&quot; vertical-align:sub;&quot;&gt;m&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PAP&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;m&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>PAPm</cstring>
@@ -452,7 +448,7 @@ p, li { white-space: pre-wrap; }
              <item row="36" column="0">
               <widget class="QLabel" name="label_5">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; vertical-align:sub;&quot;&gt;us&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;us&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>Rus</cstring>
@@ -522,7 +518,7 @@ p, li { white-space: pre-wrap; }
              <item row="41" column="0">
               <widget class="QLabel" name="label_24">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; vertical-align:sub;&quot;&gt;ds&lt;/span&gt;/PVR&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;ds&lt;/span&gt;/PVR&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>Rds_PVR</cstring>
@@ -532,7 +528,7 @@ p, li { white-space: pre-wrap; }
              <item row="34" column="0">
               <widget class="QLabel" name="label">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PAP&lt;span style=&quot; vertical-align:sub;&quot;&gt;m&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PAP&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;m&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>PAPm2</cstring>
@@ -571,7 +567,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Patient Height&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; and/or &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Weight&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; is set as a Range. &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;CO&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; will be automatically set and hence is read-only&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Patient Height&lt;/span&gt; and/or &lt;span style=&quot; font-weight:600;&quot;&gt;Weight&lt;/span&gt; is set as a Range. &lt;span style=&quot; font-weight:600;&quot;&gt;CO&lt;/span&gt; will be automatically set and hence is read-only&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="wordWrap">
                 <bool>true</bool>
@@ -677,8 +673,8 @@ p, li { white-space: pre-wrap; }
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Courier New'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt;&quot;&gt;Weight modifications will result in model baseline characteristics to be recalculated, including &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600;&quot;&gt;C&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600; vertical-align:sub;&quot;&gt;L&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt;&quot;&gt; and &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600;&quot;&gt;CO&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Weight modifications will result in model baseline characteristics to be recalculated, including &lt;span style=&quot; font-weight:600;&quot;&gt;C&lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; vertical-align:sub;&quot;&gt;L&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;CO&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="wordWrap">
                 <bool>true</bool>
@@ -797,7 +793,7 @@ p, li { white-space: pre-wrap; }
              <item row="39" column="0">
               <widget class="QLabel" name="label_23">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; vertical-align:sub;&quot;&gt;us&lt;/span&gt;/PVR&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;us&lt;/span&gt;/PVR&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>Rus_PVR</cstring>
@@ -814,7 +810,7 @@ p, li { white-space: pre-wrap; }
              <item row="37" column="0">
               <widget class="QLabel" name="label_6">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; vertical-align:sub;&quot;&gt;m&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;m&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>Rm</cstring>
@@ -918,8 +914,8 @@ p, li { white-space: pre-wrap; }
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Courier New'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt;&quot;&gt;Changes will cause vessel &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600;&quot;&gt;Ptp&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt;&quot;&gt; and &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600;&quot;&gt;GP&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt;&quot;&gt; values to be modified&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Changes will cause vessel &lt;span style=&quot; font-weight:600;&quot;&gt;Ptp&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;GP&lt;/span&gt; values to be modified&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="wordWrap">
                 <bool>true</bool>
@@ -936,7 +932,7 @@ p, li { white-space: pre-wrap; }
              <item row="38" column="0">
               <widget class="QLabel" name="label_7">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; vertical-align:sub;&quot;&gt;ds&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;ds&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>Rds</cstring>
@@ -964,8 +960,8 @@ p, li { white-space: pre-wrap; }
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Courier New'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600;&quot;&gt;P&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt;&quot;&gt; modifications will result in some vessel values to be recalculated, including vessel &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600;&quot;&gt;P&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:8pt; font-weight:600; vertical-align:sub;&quot;&gt;TP&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;P&lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; vertical-align:sub;&quot;&gt;pl&lt;/span&gt; modifications will result in some vessel values to be recalculated, including vessel &lt;span style=&quot; font-weight:600;&quot;&gt;P&lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; vertical-align:sub;&quot;&gt;TP&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="wordWrap">
                 <bool>true</bool>
@@ -1042,7 +1038,7 @@ p, li { white-space: pre-wrap; }
              <item row="27" column="0">
               <widget class="QLabel" name="label_13">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>Ppl</cstring>
@@ -1119,7 +1115,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;RV&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;V&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;RV&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="buddy">
                 <cstring>Vrv</cstring>
@@ -1129,7 +1125,7 @@ p, li { white-space: pre-wrap; }
              <item row="12" column="0">
               <widget class="QLabel" name="label_40">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;TLC&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;TLC&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
