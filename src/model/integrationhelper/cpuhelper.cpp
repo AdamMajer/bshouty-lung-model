@@ -193,7 +193,19 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 	const double hct = Hct();
 	double Rtot = 0.0;
 	double Rin = vein.R;
-	double P = ((vessel_index == 0) ? LAP() : veins()[(vessel_index-1)/2].pressure);
+	double P; // pressure to the right (vein side) of the vessel
+
+	switch (type) {
+	case Vessel::Artery:
+		P = vein.pressure;
+		break;
+	case Vessel::Vein:
+		if (vessel_index == 0)
+			P = LAP();
+		else
+			P = veins()[(vessel_index-1)/2].pressure;
+		break;
+	}
 
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
 	if (isnan(P))
