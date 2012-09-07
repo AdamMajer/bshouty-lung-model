@@ -123,7 +123,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -147,7 +147,7 @@
               <x>0</x>
               <y>0</y>
               <width>258</width>
-              <height>1501</height>
+              <height>1591</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout">
@@ -1220,14 +1220,14 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QRadioButton" name="calculationTypeDiseaseParams">
               <property name="text">
-               <string>Disease Severity</string>
+               <string>Calculate Disease Severity</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QRadioButton" name="calculationTypePAPm">
               <property name="text">
-               <string>Mean PAP</string>
+               <string>Calculate Mean PAP</string>
               </property>
               <property name="checked">
                <bool>true</bool>
@@ -1418,7 +1418,7 @@ p, li { white-space: pre-wrap; }
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Disease Severity</string>
+    <string>Calculate Disease Severity</string>
    </property>
    <property name="statusTip">
     <string>Calculates disease severity based on hemodynamic parameters</string>
@@ -1432,7 +1432,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Mean PAP</string>
+    <string>Calculate Mean PAP</string>
    </property>
    <property name="statusTip">
     <string>Calculates PAPm based on a given disease severity (if any)</string>
