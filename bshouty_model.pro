@@ -1,8 +1,12 @@
 TEMPLATE = app
-TARGET =
+TARGET = bshouty_model
 DEPENDPATH += .
 
 QT += sql script
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+	QT += widgets concurrent
+}
 
 UI_DIR   = build/ui
 MOC_DIR  = build/moc

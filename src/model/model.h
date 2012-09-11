@@ -262,7 +262,7 @@ private:
 	int abort_calculation;
 	bool model_reset;
 
-	QAtomicInt prog; // progress is set 0-10000
+	int prog; // progress is set 0-10000
 	AbstractIntegrationHelper *integration_helper;
 
 	double BSA_ratio; // BSAz()/BSA()

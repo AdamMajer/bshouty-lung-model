@@ -18,6 +18,7 @@
  */
 
 #include <QtConcurrentRun>
+#include <QFuture>
 #include <QThread>
 #include <QTimerEvent>
 #include "asyncrangemodelhelper.h"
@@ -98,7 +99,7 @@ protected:
 			op.waitForFinished();
 
 			i->first = op.result();
-			completed_models.ref(); // inc completed models
+			++completed_models; // inc completed models
 
 			if (abort_flag)
 				break;
@@ -139,7 +140,7 @@ protected:
 	QMutex op_model_locker;
 	Model *op_model;
 
-	QAtomicInt completed_models, total_models;
+	int completed_models, total_models;
 	volatile int abort_flag;
 };
 

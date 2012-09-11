@@ -279,7 +279,7 @@ void OpenCL::addDevice(cl_platform_id platform_id, cl_device_id device_id)
 		if (len < 10240)
 			throw opencl_exception(QString::fromLocal8Bit(msg));
 		else
-			throw opencl_exception(QString::fromAscii("Compilation error"));
+			throw opencl_exception(QString::fromLatin1("Compilation error"));
 	}
 	errorCheck(err);
 

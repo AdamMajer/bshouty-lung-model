@@ -296,7 +296,8 @@ void ModelScene::drawBackground(QPainter *painter, const QRectF &)
 
 void ModelScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-	VesselView *item = dynamic_cast<VesselView*>(itemAt(event->scenePos()));
+	VesselView *item = dynamic_cast<VesselView*>(itemAt(event->scenePos(),
+	                                                    QTransform()));
 	if (item == 0)
 		return;
 

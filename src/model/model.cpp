@@ -19,6 +19,7 @@
 
 #include "../common.h"
 #include <QtConcurrentRun>
+#include <QFuture>
 #include <QCoreApplication>
 #include <QFutureSynchronizer>
 #include <QFile>

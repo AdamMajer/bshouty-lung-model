@@ -39,11 +39,11 @@ public:
 	void setCalculatedParameter(const Disease &d, int param_no);
 	int targetParameterNo() const { return param_no; }
 
-	virtual int progress() const { return com_prog; }
+	virtual int progress() const { return com_prog.fetchAndAddRelaxed(0); }
 
 private:
 	int slew_disease_idx;
 	double target_pap;
 	unsigned param_no;
-	QAtomicInt com_prog;
+	mutable QAtomicInt com_prog;
 };

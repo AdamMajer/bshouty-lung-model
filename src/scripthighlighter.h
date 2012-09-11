@@ -18,6 +18,7 @@
  */
 
 #include <QSyntaxHighlighter>
+#include <QTextEdit>
 
 struct TextFormat {
 	QTextCharFormat fmt;
