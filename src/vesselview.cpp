@@ -202,9 +202,9 @@ QString VesselView::headers(double lod) const
 
 	switch (type()) {
 	case Artery:
-		return QString::fromUtf8("\nR\nA\nB\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow (μL/s)\nPin\n\nLength (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)");
+		return QString::fromUtf8("\nR\nA\nB\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow (μL/s)\nPin\nPout\n\nLength (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)");
 	case Vein:
-		return QString::fromUtf8("\nR\nB\nC\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow (μL/s)\nPin\n\nLength (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)");
+		return QString::fromUtf8("\nR\nB\nC\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow (μL/s)\nPin\nPout\n\nLength (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)");
 	case Capillary:
 		return QLatin1String("\nR\nAlpha\nHo");
 	}
@@ -235,6 +235,7 @@ QString VesselView::baselineValuesText(double lod) const
 		value_list << doubleToString(baseline_vessel->GP);
 		value_list << doubleToString(baseline_vessel->Ptp);
 		value_list << doubleToString(baseline_vessel->tone);
+		value_list << QString::null;
 		value_list << QString::null;
 		value_list << QString::null;
 		value_list << QString::null;
@@ -279,7 +280,8 @@ QString VesselView::calculatedValuesText(double lod) const
 		value_list << doubleToString(vessel->Ptp);
 		value_list << doubleToString(vessel->tone);
 		value_list << doubleToString(vessel->flow * 1e6/60); // L/min => uL/s
-		value_list << doubleToString(vessel->pressure);
+		value_list << doubleToString(vessel->pressure_in);
+		value_list << doubleToString(vessel->pressure_out);
 		value_list << QString::null;
 		value_list << doubleToString(vessel->length);
 		value_list << doubleToString(vessel->D_calc);

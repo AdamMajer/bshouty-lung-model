@@ -2,7 +2,8 @@
 
 struct Vessel {
 	float R;
-	float pressure;
+	float pressure_in;
+	float pressure_out;
 	float GP;
 	float tone;
 	float flow;
@@ -21,7 +22,7 @@ struct Vessel {
 
 	float vessel_ratio;
 
-	float pad[1]; // pad to 64 bytes
+	// float pad[1]; // pad to 64 bytes
 };
 
 struct Result {

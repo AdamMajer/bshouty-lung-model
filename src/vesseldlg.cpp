@@ -83,7 +83,8 @@ VesselDlg::VesselDlg(Vessel::Type type,
 	SET_DATA(perivascular_press_a);
 	SET_DATA(perivascular_press_b);
 	SET_DATA(perivascular_press_c);
-	SET_DATA(pressure);
+	SET_DATA(pressure_in);
+	SET_DATA(pressure_out);
 	SET_DATA(flow);
 #undef SET_DATA
 

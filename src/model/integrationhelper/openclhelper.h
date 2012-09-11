@@ -55,5 +55,4 @@ private:
 	int art_index, vein_index;
 
 	int n_elements;
-	float *inside_vein_pressure;
 };

@@ -45,15 +45,15 @@ struct Vessel
 	double a,b,c;
 	double tone;
 
-	double GP; // gravity factor corrected for transducer position
+	double GP; // cmH2O, gravity factor corrected for transducer position
 	double GPz; // gravity factor, without correcting for transducer position
-	double Ppl, Ptp;
+	double Ppl, Ptp; // cmH2O
 
 	// calclated in GetParameters()
 	double perivascular_press_a, perivascular_press_b, perivascular_press_c;
 
 	double total_R; // mmHg*min/l
-	double pressure; // mmHg
+	double pressure_in, pressure_out; // mmHg - corrected for GP
 	double flow; // l/min
 
 	double vessel_ratio; // n_model_vessels / real vessels

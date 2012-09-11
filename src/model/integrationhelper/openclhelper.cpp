@@ -28,12 +28,11 @@ struct WorkGroup {
 	int n_elements;
 	cl_kernel kernel;
 	Vessel *vessels;
-	bool uses_vein_pressures;
 
 	int *vessel_idx;
 
-	WorkGroup(int ne, cl_kernel k, Vessel *v, bool b, int *i)
-	        :n_elements(ne), kernel(k), vessels(v), uses_vein_pressures(b), vessel_idx(i) {}
+	WorkGroup(int ne, cl_kernel k, Vessel *v, int *i)
+	        :n_elements(ne), kernel(k), vessels(v), vessel_idx(i) {}
 };
 
 OpenCLIntegrationHelper::OpenCLIntegrationHelper(Model *model)
@@ -41,9 +40,6 @@ OpenCLIntegrationHelper::OpenCLIntegrationHelper(Model *model)
 {
 	has_errors = false;
 	is_available = cl->isAvailable();
-	inside_vein_pressure = new float[nElements()];
-	if (inside_vein_pressure == 0)
-		throw std::bad_alloc();
 
 	if (!is_available)
 		return;
@@ -65,8 +61,7 @@ OpenCLIntegrationHelper::OpenCLIntegrationHelper(Model *model)
 
 OpenCLIntegrationHelper::~OpenCLIntegrationHelper()
 {
-	if (inside_vein_pressure)
-		delete[] inside_vein_pressure;
+
 }
 
 double OpenCLIntegrationHelper::integrate()
@@ -77,10 +72,6 @@ double OpenCLIntegrationHelper::integrate()
 	QFutureSynchronizer<float> futures;
 
 	n_elements = nElements();
-	inside_vein_pressure[0] = LAP();
-	for (int i=1; i<n_elements; ++i)
-		inside_vein_pressure[i] = veins()[(i-1)/2].pressure;
-
 	art_index = 0;
 	vein_index = 0;
 
@@ -114,10 +105,10 @@ float OpenCLIntegrationHelper::integrateByDevice(OpenCL_device &dev)
 	 */
 
 	const struct WorkGroup group[4] = {
-	        WorkGroup(n_outside_elements, dev.intOutsideArtery, arteries(), false, &art_index),
-	        WorkGroup(n_elements,         dev.intInsideArtery,  arteries(), false, &art_index),
-	        WorkGroup(n_outside_elements, dev.intOutsideVein,   veins(),    true,  &vein_index),
-	        WorkGroup(n_elements,         dev.intInsideVein,    veins(),    true,  &vein_index),
+	        WorkGroup(n_outside_elements, dev.intOutsideArtery, arteries(), &art_index),
+	        WorkGroup(n_elements,         dev.intInsideArtery,  arteries(), &art_index),
+	        WorkGroup(n_outside_elements, dev.intOutsideVein,   veins(),    &vein_index),
+	        WorkGroup(n_elements,         dev.intInsideVein,    veins(),    &vein_index),
 	};
 
 	try {
@@ -166,15 +157,7 @@ float OpenCLIntegrationHelper::processWorkGroup(
 
 		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(cl_mem), &dev.mem_vein_buffer);
 		cl->errorCheck(err);
-		if (w.uses_vein_pressures) {
-			err = f.clEnqueueWriteBuffer(dev.queue, dev.mem_pressures, CL_FALSE,
-			                             0, sizeof(float)*n,
-			                             inside_vein_pressure+idx,
-			                             0, NULL, NULL);
-			cl->errorCheck(err);
-			err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(cl_mem), &dev.mem_pressures);
-			cl->errorCheck(err);
-		}
+
 		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(cl_mem), &dev.mem_results);
 		cl->errorCheck(err);
 
@@ -220,7 +203,8 @@ void OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
 		c.peri_b = v.perivascular_press_b;
 		c.peri_c = v.perivascular_press_c;
 		c.Ppl = v.Ppl;
-		c.pressure = v.pressure;
+		c.pressure_in = v.pressure_in;
+		c.pressure_out = v.pressure_out;
 		c.R = v.R;
 		c.tone = v.tone;
 

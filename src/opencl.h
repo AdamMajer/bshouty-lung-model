@@ -147,7 +147,8 @@ typedef std::list<OpenCL_device> OpenCLDeviceList;
 
 struct CL_Vessel {
 	cl_float R;
-	cl_float pressure;
+	cl_float pressure_in;
+	cl_float pressure_out;
 	cl_float GP;
 	cl_float tone;
 	cl_float flow;
@@ -166,7 +167,7 @@ struct CL_Vessel {
 
 	cl_float vessel_ratio;
 
-	cl_float pad[1]; // pad to 64 bytes
+	// cl_float pad[0]; // pad to 64 bytes
 };
 
 struct CL_Result {

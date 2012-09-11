@@ -76,7 +76,8 @@ bool operator==(const struct Vessel &a, const struct Vessel &b)
 	      significantChange(a.perivascular_press_c, b.perivascular_press_c) ||
 	      significantChange(a.length_factor, b.length_factor) ||
 	      significantChange(a.total_R, b.total_R) ||
-	      significantChange(a.pressure, b.pressure) ||
+	      significantChange(a.pressure_in, b.pressure_in) ||
+	      significantChange(a.pressure_out, b.pressure_out) ||
 	      significantChange(a.flow, b.flow));
 }
 
@@ -631,10 +632,10 @@ double Model::getResult(DataType type) const
 			int start = startIndex( n_generations );
 			int end = start + n;
 			while( start < end ){
-				if (isnan(arteries[start].pressure))
+				if (isnan(arteries[start].pressure_out))
 					n--;
 				else
-					ret += arteries[start].pressure;
+					ret += arteries[start].pressure_out;
 				start++;
 			}
 
@@ -646,10 +647,10 @@ double Model::getResult(DataType type) const
 			int start = startIndex( n_generations );
 			int end = start + n;
 			while( start < end ){
-				if (isnan(veins[start].pressure))
+				if (isnan(veins[start].pressure_in))
 					n--;
 				else
-					ret += veins[start].pressure;
+					ret += veins[start].pressure_in;
 				start++;
 			}
 
@@ -1129,8 +1130,10 @@ void Model::vascPress()
 	arteries[0].flow = CO;
 
 	double PAP = LAP + arteries[0].flow * arteries[0].total_R;
-	arteries[0].pressure = PAP - arteries[0].flow * arteries[0].R;
-	veins[0].pressure = LAP + veins[0].flow * veins[0].R;
+	arteries[0].pressure_in = PAP;
+	arteries[0].pressure_out = PAP - arteries[0].flow * arteries[0].R;
+	veins[0].pressure_in = LAP + veins[0].flow * veins[0].R;
+	veins[0].pressure_out = LAP;
 
 	calculateChildrenFlowPress( 0 );
 }
@@ -1188,27 +1191,32 @@ void Model::calculateChildrenFlowPress( int i )
 
 	int connection_first = ( i - current_gen_start ) * 2 + next_gen_start;
 
-	// Calculate flows in children based on pressure of parent
-	for( int con=connection_first; con<=connection_first+1; con++ ) {
-		if (isnan(arteries[i].pressure) || isnan(veins[i].pressure))
-			veins[con].flow = arteries[con].flow = 0.0;
-		else
-			veins[ con ].flow = arteries[ con ].flow =
-			                ( arteries[i].pressure - veins[i].pressure ) /
-			                arteries[con].total_R;
-	}
-
-	// Calculate pressure in children vessels based on the calculated flow and their resistances
+	// Calculate flow and pressure in children vessels based on the calculated flow and their resistances
 	for( int con=connection_first; con<=connection_first+1; con++ ){
 		if (isinf(arteries[con].R) || isinf(veins[con].R)) {
 			// all vessels inside have no flow, so pressure is undefined
-			arteries[con].pressure = std::numeric_limits<double>::quiet_NaN();
-			veins[con].pressure = std::numeric_limits<double>::quiet_NaN();
+			arteries[con].pressure_in = arteries[i].pressure_out - (arteries[con].GP - arteries[i].GP)/1.35951002636;
+			veins[con].pressure_out = veins[i].pressure_in - (veins[con].GP - veins[i].GP)/1.35951002636;
+
+			arteries[con].flow = 0.0;
+			veins[con].flow = 0.0;
+
+			arteries[con].pressure_out = std::numeric_limits<double>::quiet_NaN();
+			veins[con].pressure_in = std::numeric_limits<double>::quiet_NaN();
+			veins[con].pressure_out = veins[i].pressure_in + (veins[con].GP - veins[i].GP)/1.35951002636;
 		}
 
 		else {
-			arteries[ con ].pressure = arteries[i].pressure - arteries[ con ].flow * arteries[ con ].R;
-			veins[ con ].pressure = veins[i].pressure + veins[ con ].flow * veins[ con ].R;
+			arteries[con].pressure_in = arteries[i].pressure_out - (arteries[con].GP - arteries[i].GP)/1.35951002636;
+			veins[con].pressure_out = veins[i].pressure_in - (veins[con].GP - veins[i].GP)/1.35951002636;
+
+			const double flow =  (arteries[con].pressure_in - veins[con].pressure_out) /
+			                     arteries[con].total_R;
+			veins[con].flow = flow;
+			arteries[con].flow = flow;
+
+			arteries[con].pressure_out = arteries[con].pressure_in - arteries[con].flow * arteries[con].R;
+			veins[con].pressure_in = veins[con].pressure_out + veins[con].flow * veins[con].R;
 		}
 	}
 
@@ -1224,14 +1232,14 @@ double Model::deltaCapillaryResistance( int i )
 	const Vessel & con_artery = arteries[gen_start+i];
 	const Vessel & con_vein = veins[gen_start+i];
 
-	if (isnan(con_artery.pressure) || isnan(con_vein.pressure)) {
+	if (isnan(con_artery.pressure_out) || isnan(con_vein.pressure_in)) {
 		// pressure is undefined, no flow
 		return 0;
 	}
 
 	const double Ri = caps[i].R;
-	const double Pin = 1.35951002636 * con_artery.pressure - con_artery.GP; // convert pressures from mmHg => cmH20
-	const double Pout = 1.35951002636 * con_vein.pressure - con_vein.GP;
+	const double Pin = 1.35951002636 * con_artery.pressure_out; // convert pressures from mmHg => cmH20
+	const double Pout = 1.35951002636 * con_vein.pressure_in;
 
 	const double x = Pout - Pal;
 	const double y = Pin - Pal;
@@ -1479,6 +1487,7 @@ void Model::calculateBaselineCharacteristics()
 			break;
 		}
 
+		// for every 1 cmH2O GP, Ppl changes by 0.55
 		art.Ppl = Ppl - 0.55*art.GP;
 		art.Ptp = Pal - art.Ppl;
 		vein.Ppl = Ppl - 0.55*vein.GP;
@@ -1658,7 +1667,8 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			SET_VALUE(v.length_factor);
 
 			SET_VALUE(v.total_R);
-			SET_VALUE(v.pressure);
+			SET_VALUE(v.pressure_in);
+			SET_VALUE(v.pressure_out);
 			SET_VALUE(v.flow);
 
 			SET_VALUE(v.vessel_ratio);
@@ -1900,7 +1910,8 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			SET_VALUE(v.length_factor);
 
 			SET_VALUE(v.total_R);
-			SET_VALUE(v.pressure);
+			SET_VALUE(v.pressure_in);
+			SET_VALUE(v.pressure_out);
 			SET_VALUE(v.flow);
 
 			SET_VALUE(v.vessel_ratio);
@@ -1946,7 +1957,8 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			GET_VALUE(v.length_factor);
 
 			GET_VALUE(v.total_R);
-			GET_VALUE(v.pressure);
+			GET_VALUE(v.pressure_in);
+			GET_VALUE(v.pressure_out);
 			GET_VALUE(v.flow);
 
 			GET_VALUE(v.vessel_ratio);

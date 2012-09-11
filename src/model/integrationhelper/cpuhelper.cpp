@@ -81,101 +81,6 @@ void CpuIntegrationHelper::integrateWithDimentions(Vessel::Type t,
 double CpuIntegrationHelper::integrateArtery(int vessel_index)
 {
 	return integrateVessel(Vessel::Artery, vessel_index, 0);
-
-
-	Vessel & art = arteries()[vessel_index];
-
-	const double hct = Hct();
-	double Rtot = 0.0;
-	double Rin = art.R;
-	double P = art.pressure;
-
-	// undefined pressure signals no flow (closed vessel(s) somewhere)
-	if (isnan(P))
-		return 0.0;
-
-	double Ptm_i = 1.35951002636 * ( P - art.tone ) - art.GP;
-	double Ptm = Ptm_i;
-	double Rs;
-	double D_integral = 0.0;
-
-	/* First segment is slightly different from others, so we pull it out */
-	/* First 1/5th of generations is outside the lung - use different equation */
-
-	// check if vessel is closed
-	if (art.D < 0.1) {
-		art.D_calc = art.D = 0.0;
-		art.Dmax = art.Dmin = art.D;
-
-		art.viscosity_factor = std::numeric_limits<double>::infinity();
-		art.volume = 0;
-		art.R = std::numeric_limits<double>::infinity();
-		return Rin > 1e100 ? 0 : 10.0;
-	}
-
-	const bool is_outside_lung = isOutsideLung(vessel_index);
-	if (is_outside_lung)
-		Ptm = Ptm - art.Ppl;
-	else
-		Ptm = Ptm - art.Ppl - art.perivascular_press_a -
-		                art.perivascular_press_b * exp( art.perivascular_press_c * ( Ptm - art.Ppl ));
-
-	const double dL = art.length * art.length_factor / nSums;
-
-	// min diameter is always first segment
-	art.viscosity_factor = 0.0;
-	art.volume = 0.0;
-
-	if( Ptm < 0 ) {
-		art.Dmin = 0.0;
-		Rs = -Ptm/( 1.35951002636 * art.flow ); // Starling Resistor
-	}
-	else {
-		const double A = art.a + art.b*Ptm;
-		art.Dmin = art.D * sqrt(A);
-		const double vf = viscosityFactor(art.Dmin, hct);
-
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(art.Dmin)) * art.vessel_ratio;
-		art.viscosity_factor += vf;
-		art.volume += M_PI/4.0 * sqr(art.Dmin) * dL;
-	}
-
-	D_integral = art.Dmin;
-	P = P + art.flow * Rs;
-	Rtot += Rs;
-
-	double D=0.0;
-	for( int j=1; j<nSums; j++ ){
-
-		Ptm = 1.35951002636 * ( P - art.tone ) - art.GP;
-
-		if (is_outside_lung)
-			Ptm = Ptm - art.Ppl;
-		else
-			Ptm = Ptm - art.Ppl - art.perivascular_press_a -
-			                art.perivascular_press_b * exp( art.perivascular_press_c * ( Ptm - art.Ppl ));
-
-		const double A = art.a + art.b * Ptm;
-		D = art.D * sqrt(A);
-		D_integral += D;
-		const double vf = viscosityFactor(D, hct);
-
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * art.vessel_ratio;
-		art.viscosity_factor += vf;
-		art.volume += M_PI/4.0 * sqr(D) * dL;
-
-		P = P + art.flow * Rs;
-		Rtot += Rs;
-	}
-	art.viscosity_factor /= nSums;
-	art.Dmax = D; // max diameter is always last segment
-	art.D_calc = D_integral / nSums;
-
-	art.volume = art.volume / (1e9*art.vessel_ratio); // um**3 => uL, and correct for real number of vessels
-	art.R = Rtot;
-	// art.R = K1 * art.R + K2 * Rin;
-
-	return fabs(Rin-art.R)/Rin;
 }
 
 double CpuIntegrationHelper::integrateVein(int vessel_index)
@@ -193,25 +98,13 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 	const double hct = Hct();
 	double Rtot = 0.0;
 	double Rin = vein.R;
-	double P; // pressure to the right (vein side) of the vessel
-
-	switch (type) {
-	case Vessel::Artery:
-		P = vein.pressure;
-		break;
-	case Vessel::Vein:
-		if (vessel_index == 0)
-			P = LAP();
-		else
-			P = veins()[(vessel_index-1)/2].pressure;
-		break;
-	}
+	double P = vein.pressure_out; // pressure to the right (LAP) of the vessel
 
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
 	if (isnan(P))
 		return 0.0;
 
-	double Ptm = 1.35951002636 * ( P - vein.tone ) - vein.GP;
+	double Ptm = 1.35951002636 * ( P - vein.tone );
 	double Rs;
 	double D_integral = 0.0;
 
@@ -266,7 +159,7 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 
 	double D=0.0;
 	for( int j=1; j<nSums; j++ ) {
-		Ptm = 1.35951002636 * ( P - vein.tone ) - vein.GP;
+		Ptm = 1.35951002636 * ( P - vein.tone );
 
 		if (is_outside_lung)
 			Ptm = Ptm - vein.Ppl;
