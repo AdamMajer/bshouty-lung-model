@@ -677,6 +677,21 @@ void MainWindow::on_actionSaveAs_triggered()
 	updateTitleFilename();
 }
 
+void MainWindow::on_actionZoomIn_triggered()
+{
+	ui->view->zoomIn();
+}
+
+void MainWindow::on_actionZoomOut_triggered()
+{
+	ui->view->zoomOut();
+}
+
+void MainWindow::on_actionZoomReset_triggered()
+{
+	ui->view->resetZoom();
+}
+
 void MainWindow::on_actionConfigureDisease_triggered()
 {
 	DiseaseListDlg dlg(this);

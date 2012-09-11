@@ -64,6 +64,10 @@ public slots:
 	void on_actionSave_triggered();
 	void on_actionSaveAs_triggered();
 
+	void on_actionZoomIn_triggered();
+	void on_actionZoomOut_triggered();
+	void on_actionZoomReset_triggered();
+
 	void on_actionConfigureDisease_triggered();
 	void on_actionOpenCL_triggered();
 

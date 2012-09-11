@@ -94,7 +94,17 @@
     <addaction name="separator"/>
     <addaction name="actionOverlayMap"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="actionZoomIn"/>
+    <addaction name="actionZoomOut"/>
+    <addaction name="separator"/>
+    <addaction name="actionZoomReset"/>
+   </widget>
    <addaction name="menuData"/>
+   <addaction name="menuView"/>
    <addaction name="menuDisease"/>
    <addaction name="menuModel"/>
    <addaction name="menuOverlays"/>
@@ -1546,6 +1556,24 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Fixed Flow</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+  </action>
+  <action name="actionZoomReset">
+   <property name="text">
+    <string>Reset</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
    </property>
   </action>
  </widget>

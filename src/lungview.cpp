@@ -42,6 +42,13 @@ LungView::~LungView()
 
 }
 
+void LungView::resetZoom()
+{
+	double zoom = std::min(width() / scene()->width(),
+	                       height() / scene()->height());
+	setTransform(QTransform().scale(zoom, zoom));
+}
+
 void LungView::setOverlayType(OverlayType type)
 {
 	overlay_type = type;
@@ -175,12 +182,12 @@ void LungView::keyPressEvent(QKeyEvent *event)
 		break;
 	case Qt::Key_Plus:
 	case Qt::Key_Equal:
-		zoom(1.15, mapToScene(rect().center()));
+		zoomIn();
 		event->accept();
 		return;
 	case Qt::Key_Minus:
 	case Qt::Key_Underscore:
-		zoom(0.85, mapToScene(rect().center()));
+		zoomOut();
 		event->accept();
 		return;
 	}

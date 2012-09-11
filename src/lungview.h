@@ -34,6 +34,10 @@ public:
 	LungView(QGraphicsScene* scene, QWidget * parent = 0);
 	~LungView();
 
+	void zoomIn() { zoom(1.15, mapToScene(rect().center())); }
+	void zoomOut() { zoom(0.85, mapToScene(rect().center())); }
+	void resetZoom();
+
 	void setOverlayType(OverlayType type);
 	OverlayType overlayType() const { return overlay_type; }
 	void clearOverlay();
