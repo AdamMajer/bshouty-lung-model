@@ -88,6 +88,9 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 			art->setTransform(scale * art_offset);
 			vein->setTransform(scale * vein_offset * vein_mirror);
 
+			art->setZValue(100.0);
+			vein->setZValue(100.0);
+
 			addItem(art);
 			addItem(vein);
 
@@ -102,6 +105,7 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 				                                     i);
 
 				c->setTransform(scale * art_offset);
+				c->setZValue(100.0);
 
 				addItem(c);
 
@@ -125,6 +129,9 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 
 				art_con->setTransform(shear_transform * scale * art_offset);
 				vein_con->setTransform(shear_transform * scale * vein_offset * vein_mirror);
+
+				art_con->setZValue(50.0);
+				vein_con->setZValue(50.0);
 
 				addItem(art_con);
 				addItem(vein_con);
