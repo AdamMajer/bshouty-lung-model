@@ -86,20 +86,16 @@ void LungView::clearOverlay()
 
 QColor LungView::gradientColor(double stddev_from_mean)
 {
-	// 3 standard deviations is maximum
-	// blue => transparent => red
+	// gradient from transparent black => 50% red
+	// over 4 standard deviations
 
-	if (stddev_from_mean <= -2.0)
-		return QColor::fromRgbF(0, 0, 1.0, 0.5);
-	if (stddev_from_mean >= 2.0)
+	stddev_from_mean += 2.0;
+	if (stddev_from_mean <= 0)
+		return QColor::fromRgbF(0, 0, 0.0, 0.5);
+	if (stddev_from_mean >= 4.0)
 		return QColor::fromRgbF(1.0, 0, 0, 0.5);
 
-	const double scale = stddev_from_mean / 2.0;
-	if (stddev_from_mean < 0) {
-		return QColor::fromRgbF(0, 0, -scale, -scale/2.0);
-	}
-
-	return QColor::fromRgbF(scale, 0, 0, scale/2.0);
+	return QColor::fromRgbF(stddev_from_mean/4.0, 0, 0, 0.5*stddev_from_mean/4.0);
 }
 
 double LungView::gradientToDistanceFromMean(QColor c)
@@ -108,10 +104,7 @@ double LungView::gradientToDistanceFromMean(QColor c)
 
 	c.getRgbF(&r, &g, &b, 0);
 	if (r > 0)
-		return r*2.0;
-
-	if (b > 0)
-		return -b*2.0;
+		return 4.0*r - 2.0;
 
 	return 0.0;
 }
@@ -339,8 +332,7 @@ void LungView::drawOverlayLegend(QPainter *p, const QRectF &r)
 
 	const int scale_w = scale_rect.width()/6;
 	QLinearGradient scale_gradient(scale_rect.topLeft(), scale_rect.topRight());
-	scale_gradient.setColorAt(0, Qt::blue);
-	scale_gradient.setColorAt(0.5, Qt::white);
+	scale_gradient.setColorAt(0, Qt::transparent);
 	scale_gradient.setColorAt(1, Qt::red);
 
 	p->fillRect(scale_rect, scale_gradient);
@@ -443,13 +435,12 @@ void LungView::calculateFlowOverlay(const Model &model)
 		overlay_text[i].clear();
 		QTextStream label(&overlay_text[i]);
 
-		label.setNumberFlags(QTextStream::ForceSign);
+		label.setNumberFlags(QTextStream::ForcePoint);
 		label.setRealNumberNotation(QTextStream::FixedNotation);
 		label.setRealNumberPrecision(1);
 
-		label << overlay_stddev*(i-3)*66.66666666/overlay_mean << "%";
+		label << overlay_stddev*(i-3)*0.6666666666+overlay_mean << "L/min";
 	}
-	qDebug("flow stddev: %f - mean: %f", overlay_stddev, overlay_mean);
 }
 
 void LungView::calculateFixedFlowOverlay(const Model &model)
