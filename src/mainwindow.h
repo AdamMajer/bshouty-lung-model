@@ -85,6 +85,7 @@ public slots:
 	void setCalculationType(QAction*);
 	void adjustVisibleModelInputs(ModelCalculationType calc_type);
 	void setOverlayType(QAction*);
+	void setIntegralType(QAction*);
 
 	void modifyArtery(int gen, int idx);
 	void modifyVein(int gen, int idx);

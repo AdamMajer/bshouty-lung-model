@@ -36,7 +36,8 @@ struct WorkGroup {
 };
 
 OpenCLIntegrationHelper::OpenCLIntegrationHelper(Model *model)
-        : AbstractIntegrationHelper(model), n_devices(cl->nDevices())
+        : AbstractIntegrationHelper(model, Model::BshoutyIntegral),
+          n_devices(cl->nDevices())
 {
 	has_errors = false;
 	is_available = cl->isAvailable();

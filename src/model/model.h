@@ -58,7 +58,10 @@ struct Vessel
 
 	double vessel_ratio; // n_model_vessels / real vessels
 
-	// double cacheline_padding[1]; // padding to 64-byte caching boundary
+	char vessel_outside_lung;
+	char padding[7];
+
+	double cacheline_padding[5]; // padding to 64-byte caching boundary
 };
 
 struct Capillary
@@ -67,7 +70,7 @@ struct Capillary
 	double Ho;
 	double Alpha;
 
-	char cacheline_padding[40];
+	double cacheline_padding[5];
 };
 
 extern bool operator==(const struct Vessel &a, const struct Vessel &b);
@@ -101,12 +104,17 @@ public:
 
 	enum ModelType { SingleLung=0, DoubleLung };
 
+	enum IntegralType { BshoutyIntegral, LaminalFlow, NavierStoker };
+
 	Model( Transducer, ModelType, int n_generations );
 	Model(const Model &other);
 	virtual ~Model();
 
 	virtual Model& operator=(const Model&);
 	virtual Model* clone() const;
+
+	void setIntegralType(IntegralType);
+	IntegralType integralType() const { return integral_type; }
 
 	// Number of generations in the model
 	int nGenerations() const { return n_generations; }
@@ -270,6 +278,8 @@ private:
 
 	/* Calibration constants */
 	double Krc_factor;
+
+	IntegralType integral_type;
 };
 
 typedef QList<QPair<int, Model*> > ModelCalcList;

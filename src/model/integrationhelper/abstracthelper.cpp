@@ -20,13 +20,25 @@
 #include "abstracthelper.h"
 
 
-AbstractIntegrationHelper::AbstractIntegrationHelper(Model *m)
+AbstractIntegrationHelper::AbstractIntegrationHelper(Model *m, Model::IntegralType t)
         : model(m)
 {
-
+	solver_type = t;
 }
 
 AbstractIntegrationHelper::~AbstractIntegrationHelper()
 {
 
+}
+
+double AbstractIntegrationHelper::integrate()
+{
+	switch (solver_type) {
+	case Model::BshoutyIntegral:
+		return integrateBshoutyModel();
+	case Model::LaminalFlow:
+		return laminalFlow();
+	}
+
+	return 0.0;
 }

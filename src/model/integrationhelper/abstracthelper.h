@@ -24,15 +24,18 @@
 
 class AbstractIntegrationHelper
 {
-
 public:
-	AbstractIntegrationHelper(Model *model);
+	enum SolverType { BshoutyModel, LaminalFlow, NavierStokes };
+
+	AbstractIntegrationHelper(Model *model, Model::IntegralType solver);
 	virtual ~AbstractIntegrationHelper();
 
 	/* Integrate resistances across all arteries and veins and returns
 	 * the maximum deviation from the pre-integration resistance value.
 	 */
-	virtual double integrate() = 0;
+	double integrate();
+	virtual double integrateBshoutyModel() = 0;
+	virtual double laminalFlow() = 0;
 
 	virtual bool isAvailable() const { return true; }
 	virtual bool hasErrors() const { return false; }
@@ -46,6 +49,7 @@ protected:
 	int index(int gen, int idx) const { return model->startIndex(gen)+idx; }
 	double LAP() const { return model->LAP; }
 	double Hct() const { return model->Hct; }
+	double Tlrns() const { return model->Tlrns; }
 
 	double arteryRatio(int idx) const {
 		const int gen = model->gen_no(idx);
@@ -58,6 +62,7 @@ protected:
 
 private:
 	Model *model;
+	Model::IntegralType solver_type;
 };
 
 #endif // ABSTRACT_INTEGRATION_HELPER_H

@@ -118,6 +118,14 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(overlay_type, SIGNAL(triggered(QAction*)),
 	        SLOT(setOverlayType(QAction*)));
 
+	QActionGroup *integral_type = new QActionGroup(this);
+	integral_type->addAction(ui->actionBshoutyIntegral);
+	integral_type->addAction(ui->actionLaminalFlow);
+	integral_type->addAction(ui->actionNavierStokes);
+	integral_type->setExclusive(true);
+	connect(integral_type, SIGNAL(triggered(QAction*)),
+	        SLOT(setIntegralType(QAction*)));
+
 	QButtonGroup *bg = new QButtonGroup(this);
 	bg->addButton(ui->oneLungModel, 1);
 	bg->addButton(ui->twoLungModel, 2);
@@ -827,10 +835,20 @@ void MainWindow::setOverlayType(QAction *ac)
 		ui->view->setOverlayType(LungView::VolumeOverlay);
 }
 
+void MainWindow::setIntegralType(QAction *ac)
+{
+	if (ac == ui->actionBshoutyIntegral)
+		baseline->setIntegralType(Model::BshoutyIntegral);
+	else if (ac == ui->actionLaminalFlow)
+		baseline->setIntegralType(Model::LaminalFlow);
+	else if (ac == ui->actionNavierStokes)
+		baseline->setIntegralType(Model::NavierStoker);
+}
+
 void MainWindow::modifyArtery(int gen, int idx)
 {
 	std::vector<double> dims;
-	CpuIntegrationHelper(model).integrateWithDimentions(Vessel::Artery, gen, idx, dims);
+	CpuIntegrationHelper(model, model->integralType()).integrateWithDimentions(Vessel::Artery, gen, idx, dims);
 	Vessel v(baseline->artery(gen, idx));
 	VesselDlg dlg(Vessel::Artery, v, model->artery(gen,idx), dims, isVesselPtpReadOnly(), this);
 	if (dlg.exec() == QDialog::Accepted)
@@ -840,7 +858,7 @@ void MainWindow::modifyArtery(int gen, int idx)
 void MainWindow::modifyVein(int gen, int idx)
 {
 	std::vector<double> dims;
-	CpuIntegrationHelper(model).integrateWithDimentions(Vessel::Vein, gen, idx, dims);
+	CpuIntegrationHelper(model, model->integralType()).integrateWithDimentions(Vessel::Vein, gen, idx, dims);
 	Vessel v(baseline->vein(gen, idx));
 	VesselDlg dlg(Vessel::Vein, v, model->vein(gen,idx), dims, isVesselPtpReadOnly(), this);
 	if (dlg.exec() == QDialog::Accepted)

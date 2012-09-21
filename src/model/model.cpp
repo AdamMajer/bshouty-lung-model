@@ -140,6 +140,7 @@ Model::Model(Transducer transducer_pos, ModelType type, int n_gen)
 	PV_diam = calibrationValue(PV_Diam_value);
 
 	CI = CO/BSAz();
+	integral_type = BshoutyIntegral;
 
 	// to have a default PAP value of 15
 	arteries[0].flow = CO;
@@ -151,10 +152,14 @@ Model::Model(Transducer transducer_pos, ModelType type, int n_gen)
 
 	bool opencl_helper = cl->isAvailable() &&
 	                DbSettings::value(settings_opencl_enabled, true).toBool();
+/*
 	if (opencl_helper)
 		integration_helper = new OpenCLIntegrationHelper(this);
 	else
-		integration_helper = new CpuIntegrationHelper(this);
+*/
+		integration_helper = new CpuIntegrationHelper(
+		                             this,
+		                             integral_type);
 
 	if (integration_helper == 0)
 		throw std::bad_alloc();
@@ -210,6 +215,8 @@ Model& Model::operator =(const Model &other)
 	model_reset = other.model_reset;
 	abort_calculation = other.abort_calculation;
 
+	integral_type = other.integral_type;
+
 	dis = other.dis;
 	model_type = other.model_type;
 
@@ -247,10 +254,14 @@ Model& Model::operator =(const Model &other)
 
 	bool opencl_helper = cl->isAvailable() &&
 	                DbSettings::value(settings_opencl_enabled, true).toBool();
+	/*
 	if (opencl_helper)
 		integration_helper = new OpenCLIntegrationHelper(this);
 	else
-		integration_helper = new CpuIntegrationHelper(this);
+	*/
+		integration_helper = new CpuIntegrationHelper(
+		                             this,
+		                             integral_type);
 
 	if (integration_helper == 0)
 		throw std::bad_alloc();
@@ -261,6 +272,10 @@ Model& Model::operator =(const Model &other)
 Model* Model::clone() const
 {
 	return new Model(*this);
+}
+
+void Model::setIntegralType(IntegralType t) {
+	integral_type = t;
 }
 
 int Model::nVessels(Vessel::Type vessel_type,
@@ -1318,6 +1333,7 @@ void Model::initVesselBaselineCharacteristics()
 
 		// correcting area to Ptp=0, Ptm=35 cmH2O
 		//arteries[i].a = 0.2419 / 1.2045;
+		arteries[i].vessel_outside_lung = isOutsideLung(i);
 		arteries[i].a = 2.0;
 		arteries[i].b = 8.95866; //0.0275 / 1.2045;
 		arteries[i].c = -0.060544062342;
@@ -1334,11 +1350,13 @@ void Model::initVesselBaselineCharacteristics()
 
 		if (isOutsideLung(i)) {
 			// correct for vessels outside the lung
+			veins[i].vessel_outside_lung = 1;
 			veins[i].b = 10.0;
 			veins[i].c = -10.0;
 		}
 		else {
 			// correcting area to Ptp=0, Ptm=35 cmH2O
+			veins[i].vessel_outside_lung = 0;
 			veins[i].b = 2.4307;
 			veins[i].c = -0.2355;
 		}

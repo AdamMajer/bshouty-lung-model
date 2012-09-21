@@ -57,6 +57,10 @@
     <addaction name="actionDiseaseProgression"/>
     <addaction name="actionPAP"/>
     <addaction name="separator"/>
+    <addaction name="actionBshoutyIntegral"/>
+    <addaction name="actionLaminalFlow"/>
+    <addaction name="actionNavierStokes"/>
+    <addaction name="separator"/>
     <addaction name="actionOpenCL"/>
    </widget>
    <widget class="QMenu" name="menu_Window">
@@ -1574,6 +1578,33 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut">
     <string>Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionBshoutyIntegral">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Bshouty Integral</string>
+   </property>
+  </action>
+  <action name="actionLaminalFlow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Laminal Flow</string>
+   </property>
+  </action>
+  <action name="actionNavierStokes">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Navier-Stokes</string>
    </property>
   </action>
  </widget>

@@ -23,14 +23,17 @@
 class CpuIntegrationHelper : public AbstractIntegrationHelper
 {
 public:
-	CpuIntegrationHelper(Model *model);
+	CpuIntegrationHelper(Model *model, Model::IntegralType type);
 
-	virtual double integrate();
+	virtual double integrateBshoutyModel();
+	virtual double laminalFlow();
 	void integrateWithDimentions(Vessel::Type t,
 	                             int gen, int idx,
 	                             std::vector<double> &calc_dim);
 
 protected:
+	double laminalFlowVessel(Vessel &vessel);
+
 	double integrateArtery(int vessel_index);
 	double integrateVein(int vessel_index);
 

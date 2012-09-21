@@ -18,6 +18,7 @@
  */
 
 #include <QtConcurrentRun>
+#include <QtConcurrentMap>
 #include "common.h"
 #include <limits>
 #include "cpuhelper.h"
@@ -37,13 +38,13 @@ static inline double viscosityFactor(double D, double Hct)
 	return (1.0 + (Mi45-1.0)*(pow(1-Hct, C)-1)/(pow(1.0-0.45, C)-1)) / 3.2;
 }
 
-CpuIntegrationHelper::CpuIntegrationHelper(Model *model)
-        : AbstractIntegrationHelper(model)
+CpuIntegrationHelper::CpuIntegrationHelper(Model *model, Model::IntegralType type)
+        : AbstractIntegrationHelper(model, type)
 {
 
 }
 
-double CpuIntegrationHelper::integrate()
+double CpuIntegrationHelper::integrateBshoutyModel()
 {
 	const int n_elements = nElements();
 	std::vector<QFuture<double> > futures;
@@ -68,6 +69,22 @@ double CpuIntegrationHelper::integrate()
 	return max_deviation;
 }
 
+double CpuIntegrationHelper::laminalFlow()
+{
+	// TODO: parallelize
+	const int n_elements = nElements();
+	double ret = 0.0;
+
+	for (int i=0; i<n_elements; ++i) {
+		ret = std::max(ret,
+		               laminalFlowVessel(arteries()[i]));
+		ret = std::max(ret,
+		               laminalFlowVessel(veins()[i]));
+	}
+
+	return ret;
+}
+
 void CpuIntegrationHelper::integrateWithDimentions(Vessel::Type t,
                                                    int gen,
                                                    int idx,
@@ -76,6 +93,96 @@ void CpuIntegrationHelper::integrateWithDimentions(Vessel::Type t,
 	calc_dim.clear();
 	calc_dim.reserve(nSums);
 	integrateVessel(t, index(gen, idx), &calc_dim);
+}
+
+double CpuIntegrationHelper::laminalFlowVessel(Vessel &vein)
+{
+	/* NOTE: calc_dim is assumed empty, if supplied */
+	const double hct = Hct();
+	double Rin = vein.R;
+	double Pin = vein.pressure_in;
+	const double Pout = vein.pressure_out;
+	double P = Pin - Pout; // pressure to the right (LAP) of the vessel
+
+
+	// undefined pressure signals no flow (closed vessel(s) somewhere)
+	if (isnan(P))
+		return 0.0;
+
+	double Ptm = 1.35951002636 * ( P - vein.tone );
+	double Rs;
+
+	/* First segment is slightly different from others, so we pull it out */
+	/* First 1/5th of generations is outside the lung - use different equation */
+
+	// check if vessel is closed
+	if (vein.D < 0.1) {
+		vein.D_calc = vein.D = 0.0;
+		vein.Dmax = vein.Dmin = vein.D;
+
+		//			if (calc_dim)
+		//				std::fill_n(calc_dim->begin(), nSums, 0.0);
+
+		vein.viscosity_factor = std::numeric_limits<double>::infinity();
+		vein.volume = 0;
+		vein.R = std::numeric_limits<double>::infinity();
+		return Rin > 1e100 ? 0 : 10.0;
+	}
+
+	if (vein.vessel_outside_lung)
+		Ptm = Ptm - vein.Ppl;
+	else
+		Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
+		      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
+
+	const double dL =  vein.length * vein.length_factor;
+
+	// min diameter is always first segment
+	vein.viscosity_factor = 0.0;
+	vein.volume = 0.0;
+	double D = 0.0;
+	if( Ptm < 0 ) {
+		vein.Dmin = 0.0;
+		Rs = -Ptm/( 1.35951002636 * vein.flow ); // Starling Resistor
+	}
+	else {
+		double new_Pin = Pin;
+		double old_Pin;
+		do {
+			old_Pin = new_Pin;
+			double avg_P = new_Pin + (new_Pin - Pout) / 2.0;
+			Ptm = 1.35951002636 * ( avg_P - vein.tone );
+			if (vein.vessel_outside_lung)
+				Ptm = Ptm - vein.Ppl;
+			else
+				Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
+				      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
+
+			const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
+			D = vein.D / sqrt(inv_A);
+			const double vf = viscosityFactor(D, hct);
+			Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
+			vein.viscosity_factor = vf;
+
+			new_Pin = Pout + vein.flow * Rs;
+		} while (fabs(new_Pin - old_Pin)/old_Pin > Tlrns());
+	}
+
+	//		if (calc_dim) {
+	//			calc_dim->push_back(vein.Dmin);
+	//			calc_dim->push_back(vein.Dmin);
+	//		}
+
+	vein.volume = M_PI/4.0 * sqr(D) * dL;
+	vein.Dmax = D; // max diameter is always last segment
+	vein.Dmin = D;
+	vein.D_calc = D;
+
+	vein.volume = vein.volume / (1e9*vein.vessel_ratio); // um**3 => uL, and correct for real number of vessels
+	vein.R = Rs;
+	// vein.R = K1 * vein.R + K2 * Rin;
+
+	return fabs(Rin-vein.R)/Rin;
 }
 
 double CpuIntegrationHelper::integrateArtery(int vessel_index)
