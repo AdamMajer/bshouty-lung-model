@@ -88,9 +88,6 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 			art->setTransform(scale * art_offset);
 			vein->setTransform(scale * vein_offset * vein_mirror);
 
-			art->setZValue(100.0);
-			vein->setZValue(100.0);
-
 			addItem(art);
 			addItem(vein);
 
@@ -130,9 +127,6 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 				art_con->setTransform(shear_transform * scale * art_offset);
 				vein_con->setTransform(shear_transform * scale * vein_offset * vein_mirror);
 
-				art_con->setZValue(50.0);
-				vein_con->setZValue(50.0);
-
 				addItem(art_con);
 				addItem(vein_con);
 
@@ -158,6 +152,7 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 		QTransform t = transducer[i]->transform();
 
 		transducer[i]->setTransform(transducer_scale * t);
+		//transducer[i]->setZValue(-100);
 		addItem(transducer[i]);
 	}
 
@@ -170,12 +165,14 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 	item->setPos(-2*pa_w/5, 50-h);
 	item->setScale(0.4);
 	item->setFont(font);
+	//item->setZValue(-100);
 	addItem(item);
 
 	item = new QGraphicsTextItem("Left\nAtrium");
 	item->setFont(font);
 	item->setScale(0.4);
 	item->setPos(190, 50-h);
+	//item->setZValue(-100);
 	addItem(item);
 
 	if (base.modelType() == Model::DoubleLung) {
@@ -183,16 +180,19 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 		item->setFont(font);
 		item->setScale(0.3);
 		item->setPos(91, 37);
+		//item->setZValue(-100);
 		addItem(item);
 
 		item = new QGraphicsTextItem("Right Lung");
 		item->setFont(font);
 		item->setScale(0.3);
 		item->setPos(90, 52);
+		//item->setZValue(-100);
 		addItem(item);
 
 		QGraphicsLineItem *line = new QGraphicsLineItem(QLineF(75, 49, 125, 49));
 		line->setPen(QPen(QColor(128, 200, 128, 128), 0.25, Qt::DotLine));
+		//line->setZValue(-100);
 		addItem(line);
 	}
 
