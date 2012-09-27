@@ -93,10 +93,11 @@
     </property>
     <addaction name="actionNoOverlay"/>
     <addaction name="actionFlowOverlay"/>
-    <addaction name="actionFixedFlowOverlay"/>
     <addaction name="actionVolumeOverlay"/>
     <addaction name="separator"/>
     <addaction name="actionOverlayMap"/>
+    <addaction name="separator"/>
+    <addaction name="actionOverlaySettings"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -1531,6 +1532,9 @@ p, li { white-space: pre-wrap; }
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Volume</string>
    </property>
@@ -1551,15 +1555,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionOverlayMap">
    <property name="text">
-    <string>Overlay map...</string>
-   </property>
-  </action>
-  <action name="actionFixedFlowOverlay">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Fixed Flow</string>
+    <string>Overlay map ...</string>
    </property>
   </action>
   <action name="actionZoomIn">
@@ -1605,6 +1601,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Navier-Stokes</string>
+   </property>
+  </action>
+  <action name="actionOverlaySettings">
+   <property name="text">
+    <string>Settings ...</string>
    </property>
   </action>
  </widget>

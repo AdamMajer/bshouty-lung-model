@@ -17,7 +17,11 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef LUNGVIEW_H
+#define LUNGVIEW_H
+
 #include <QGraphicsView>
+#include "overlaysettingsdlg.h"
 
 class Model;
 class ModelScene;
@@ -26,7 +30,6 @@ class LungView : public QGraphicsView
 public:
 	enum OverlayType { NoOverlay,
 		           FlowOverlay,
-		           FixedFlowOverlay,
 		           VolumeOverlay
 	};
 
@@ -42,12 +45,12 @@ public:
 	OverlayType overlayType() const { return overlay_type; }
 	void clearOverlay();
 
+	void setOverlaySettings(const OverlaySettings &settings);
+	const OverlaySettings& overlaySettings() const { return overlay_settings; }
 	const QImage& overlayMap() const { return overlay_image; }
-	double overlayStddev() const { return overlay_stddev; }
-	double overlayMean() const { return overlay_mean; }
 
-	static QColor gradientColor(double stddev_from_mean);
-	static double gradientToDistanceFromMean(QColor color);
+	static QColor gradientColor(double distance_from_min_to_max);
+	static double gradientToDistanceFromMin(QColor color);
 
 protected:
 	virtual void drawForeground(QPainter *painter, const QRectF &rect);
@@ -64,7 +67,6 @@ protected:
 	void zoom(double scale, QPointF scene_point);
 
 	void calculateFlowOverlay(const Model &model);
-	void calculateFixedFlowOverlay(const Model &model);
 	void calculateVolumeOverlay(const Model &model);
 
 private:
@@ -75,7 +77,9 @@ private:
 	OverlayType overlay_type;
 	QString overlay_text[7];
 
+	OverlaySettings overlay_settings;
 	QImage overlay_image; // (32x32768), or (gen*2,max_vessel_count_in_gen)
-	double overlay_stddev, overlay_mean;
 	QPixmap overlay_pixmap;
 };
+
+#endif // LUNGVIEW_H

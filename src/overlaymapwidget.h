@@ -1,5 +1,9 @@
+#ifndef OVERLAYMAPWIDGET_H
+#define OVERLAYMAPWIDGET_H
+
 #include <QPixmap>
 #include <QWidget>
+#include "overlaysettingsdlg.h"
 
 class QLabel;
 class OverlayMapWidget : public QWidget
@@ -7,7 +11,7 @@ class OverlayMapWidget : public QWidget
 	Q_OBJECT
 
 public:
-	OverlayMapWidget(const QImage &map, double mean_value, double stddev, QWidget *parent=0);
+	OverlayMapWidget(const QImage &map, const OverlaySettings &settings, QWidget *parent=0);
 	virtual ~OverlayMapWidget();
 
 public slots:
@@ -29,5 +33,7 @@ private:
 	const QImage & original_map;
 	QLabel *info_widget;
 
-	const double mean, stddev;
+	OverlaySettings settings;
 };
+
+#endif // OVERLAYMAPWIDGET_H

@@ -8,13 +8,12 @@
 #include "lungview.h"
 
 OverlayMapWidget::OverlayMapWidget(const QImage &map,
-                                   double mean_value,
-                                   double std_dev,
+                                   const OverlaySettings &s,
                                    QWidget *parent)
         : QWidget(parent),
 //          map(QPixmap::fromImage(map)),
           original_map(map),
-          mean(mean_value), stddev(std_dev)
+          settings(s)
 {
 	grid_visible = false;
 
@@ -109,8 +108,8 @@ void OverlayMapWidget::mouseMoveEvent(QMouseEvent *ev)
 		int gen_no = pos.x() * original_map.width() / w;
 		const QColor & color = original_map.pixel(gen_no,
 		                                          pos.y() * original_map.height() / h);
-		const double mean_dist = LungView::gradientToDistanceFromMean(color);
-		const double value = mean + mean_dist*stddev;
+		const double min_max_dist = LungView::gradientToDistanceFromMin(color);
+		const double value = settings.min + (settings.max-settings.min)*min_max_dist;
 
 		QString text = QLatin1String("Gen: %4\nVessel: %5 of %6\n\nValue: %1\nMean: %2 %3%");
 		// TODO: fix when model works again for other than 16 generations
@@ -119,8 +118,8 @@ void OverlayMapWidget::mouseMoveEvent(QMouseEvent *ev)
 
 		const int n_elem = 1 << gen_no;
 		info_widget->setText(text.arg(doubleToString(value / n_elem),
-		                              doubleToString(mean / n_elem),
-		                              (mean_dist<0?"- ":"+ ") + doubleToString(stddev*fabs(mean_dist)*100.0/mean),
+		                              doubleToString((settings.min+(settings.max-settings.min)/2) / n_elem),
+		                              doubleToString(min_max_dist*100.0),
 		                              QString::number(gen_no+1),
 		                              QString::number(static_cast<int>(n_elem * pos.y() / h) + 1),
 		                              QString::number(n_elem)));

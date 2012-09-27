@@ -112,7 +112,6 @@ MainWindow::MainWindow(QWidget *parent)
 	QActionGroup *overlay_type = new QActionGroup(this);
 	overlay_type->addAction(ui->actionNoOverlay);
 	overlay_type->addAction(ui->actionFlowOverlay);
-	overlay_type->addAction(ui->actionFixedFlowOverlay);
 	overlay_type->addAction(ui->actionVolumeOverlay);
 	overlay_type->setExclusive(true);
 	connect(overlay_type, SIGNAL(triggered(QAction*)),
@@ -763,8 +762,7 @@ void MainWindow::on_actionOverlayMap_triggered()
 	QDialog dlg(this);
 	QGridLayout *layout = new QGridLayout(&dlg);
 	OverlayMapWidget *widget = new OverlayMapWidget(ui->view->overlayMap(),
-	                                                ui->view->overlayMean(),
-	                                                ui->view->overlayStddev(),
+	                                                ui->view->overlaySettings(),
 	                                                &dlg);
 	QSizePolicy expanding_policy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	expanding_policy.setHorizontalStretch(10);
@@ -789,6 +787,13 @@ void MainWindow::on_actionOverlayMap_triggered()
 
 	dlg.setWindowTitle("Overlay Map");
 	dlg.exec();
+}
+
+void MainWindow::on_actionOverlaySettings_triggered()
+{
+	OverlaySettingsDlg dlg(ui->view->overlaySettings());
+	if (dlg.exec())
+		ui->view->setOverlaySettings(dlg.overlaySettings());
 }
 
 void MainWindow::setNumLungs(QAction *)
@@ -829,8 +834,6 @@ void MainWindow::setOverlayType(QAction *ac)
 
 	if (ac == ui->actionFlowOverlay)
 		ui->view->setOverlayType(LungView::FlowOverlay);
-	else if (ac == ui->actionFixedFlowOverlay)
-		ui->view->setOverlayType(LungView::FixedFlowOverlay);
 	else if(ac == ui->actionVolumeOverlay)
 		ui->view->setOverlayType(LungView::VolumeOverlay);
 }

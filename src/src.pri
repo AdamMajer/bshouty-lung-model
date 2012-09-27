@@ -17,6 +17,7 @@ SOURCES += \
 	$${SRC_DIR}/opencldlg.cpp \
 	$${SRC_DIR}/opencl.cpp \
 	$${SRC_DIR}/overlaymapwidget.cpp \
+	$${SRC_DIR}/overlaysettingsdlg.cpp \
 	$${SRC_DIR}/rangestepdlg.cpp \
 	$${SRC_DIR}/scripteditdlg.cpp \
 	$${SRC_DIR}/scripthighlighter.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
 	$${SRC_DIR}/opencldlg.h \
 	$${SRC_DIR}/opencl.h \
 	$${SRC_DIR}/overlaymapwidget.h \
+	$${SRC_DIR}/overlaysettingsdlg.h \
 	$${SRC_DIR}/rangestepdlg.h \
 	$${SRC_DIR}/scripteditdlg.h \
 	$${SRC_DIR}/scripthighlighter.h \
@@ -63,6 +65,7 @@ FORMS += \
 	$${SRC_DIR}/mainwindow.ui \
 	$${SRC_DIR}/multimodeloutput.ui \
 	$${SRC_DIR}/opencldlg.ui \
+	$${SRC_DIR}/overlaysettingsdlg.ui \
 	$${SRC_DIR}/rangestepdlg.ui \
 	$${SRC_DIR}/scripteditdlg.ui \
 	$${SRC_DIR}/vesseldlg.ui

@@ -62,9 +62,6 @@ void LungView::setOverlayType(OverlayType type)
 	case FlowOverlay:
 		calculateFlowOverlay(s->model());
 		break;
-	case FixedFlowOverlay:
-		calculateFixedFlowOverlay(s->model());
-		break;
 	case VolumeOverlay:
 		calculateVolumeOverlay(s->model());
 		break;
@@ -84,27 +81,32 @@ void LungView::clearOverlay()
 	setOverlayType(NoOverlay);
 }
 
-QColor LungView::gradientColor(double stddev_from_mean)
+void LungView::setOverlaySettings(const OverlaySettings &settings)
 {
-	// gradient from transparent black => 50% red
-	// over 4 standard deviations
-
-	stddev_from_mean += 2.0;
-	if (stddev_from_mean <= 0)
-		return QColor::fromRgbF(0, 0, 0.0, 0.5);
-	if (stddev_from_mean >= 4.0)
-		return QColor::fromRgbF(1.0, 0, 0, 0.5);
-
-	return QColor::fromRgbF(stddev_from_mean/4.0, 0, 0, 0.5*stddev_from_mean/4.0);
+	overlay_settings = settings;
+	setOverlayType(overlay_type);
 }
 
-double LungView::gradientToDistanceFromMean(QColor c)
+QColor LungView::gradientColor(double distance_from_min_to_max)
+{
+	// gradient from transparent black => 50% red
+	// input range [0..1]
+
+	if (distance_from_min_to_max <= 0)
+		return QColor::fromRgbF(0, 0, 0.0, 0.0);
+	if (distance_from_min_to_max >= 1.0)
+		return QColor::fromRgbF(1.0, 0, 0, 0.5);
+
+	return QColor::fromRgbF(distance_from_min_to_max, 0, 0, 0.5*distance_from_min_to_max);
+}
+
+double LungView::gradientToDistanceFromMin(QColor c)
 {
 	double b, g, r;
 
 	c.getRgbF(&r, &g, &b, 0);
 	if (r > 0)
-		return 4.0*r - 2.0;
+		return r;
 
 	return 0.0;
 }
@@ -391,7 +393,7 @@ void LungView::calculateFlowOverlay(const Model &model)
 	const int n_gen = model.nGenerations();
 	double variance = 0.0;
 
-	overlay_mean = model.getResult(Model::Flow_value);
+	double overlay_mean = model.getResult(Model::Flow_value);
 	for (int gen=1; gen<=n_gen; ++gen) {
 		const int n_elements = model.nElements(gen);
 
@@ -405,7 +407,23 @@ void LungView::calculateFlowOverlay(const Model &model)
 	}
 
 	// stddev used is no smaller than 1%
-	overlay_stddev = std::max(overlay_mean*0.01, sqrt(variance / (model.nElements()*2)));
+	double overlay_stddev = std::max(overlay_mean*0.01, sqrt(variance / (model.nElements()*2)));
+
+	switch (overlay_settings.type) {
+	case OverlaySettings::Absolute:
+		if (overlay_settings.auto_min)
+			overlay_settings.min = overlay_mean - overlay_stddev*2.0;
+		if (overlay_settings.auto_max)
+			overlay_settings.max = overlay_mean + overlay_stddev*2.0;
+		break;
+	case OverlaySettings::Relative:
+		if (overlay_settings.auto_mean)
+			overlay_settings.mean = overlay_mean;
+		if (overlay_settings.auto_range)
+			overlay_settings.range = 100.0 * 2.0 * overlay_stddev / overlay_mean;
+		break;
+	}
+
 
 	// QPainter paint(&overlay_image);
 	for (int gen=1; gen<=n_gen; ++gen) {
@@ -419,8 +437,22 @@ void LungView::calculateFlowOverlay(const Model &model)
 			const Vessel &art = model.artery(gen, i);
 			const Vessel &vein = model.vein(gen, i);
 
-			QRgb art_col = gradientColor((art.flow*n_elements - overlay_mean)/overlay_stddev).rgba();
-			QRgb vein_col = gradientColor((vein.flow*n_elements - overlay_mean)/overlay_stddev).rgba();
+			QRgb art_col, vein_col;
+			switch (overlay_settings.type) {
+			case OverlaySettings::Absolute: {
+				const double range = overlay_settings.max - overlay_settings.min;
+				art_col = gradientColor((art.flow*n_elements - overlay_settings.min)/range).rgba();
+				vein_col = gradientColor((vein.flow*n_elements - overlay_settings.min)/range).rgba();
+				break;
+			}
+			case OverlaySettings::Relative: {
+				const double range = overlay_settings.mean * overlay_settings.range * 2.0 / 100.0;
+				const double min = overlay_settings.mean * (1-overlay_settings.range/100.0);
+				art_col = gradientColor((art.flow*n_elements - min)/range).rgba();
+				vein_col = gradientColor((vein.flow*n_elements - min)/range).rgba();
+				break;
+			}
+			}
 
 			for (int j=y; j<y+paint_height; ++j) {
 				overlay_image.setPixel(gen-1, j, art_col);
@@ -439,52 +471,19 @@ void LungView::calculateFlowOverlay(const Model &model)
 		label.setRealNumberNotation(QTextStream::FixedNotation);
 		label.setRealNumberPrecision(1);
 
-		label << overlay_stddev*(i-3)*0.6666666666+overlay_mean << "L/min";
-	}
-}
-
-void LungView::calculateFixedFlowOverlay(const Model &model)
-{
-	// The gradient should spans +- 100% from the mean
-	const double flow_conversion = 1e6 / 60.0; // flow L/min => uL/s
-	const int n_gen = model.nGenerations();
-
-	overlay_mean = model.getResult(Model::Flow_value);
-	overlay_stddev = overlay_mean/2.0;
-
-	// QPainter paint(&overlay_image);
-	for (int gen=1; gen<=n_gen; ++gen) {
-		const int n_elements = model.nElements(gen);
-
-		// We can use `int` as height() is always a multiple of n_elements
-		int paint_height = overlay_image.height() / n_elements;
-		int y = 0;
-
-		for (int i=0; i<n_elements; ++i) {
-			const Vessel &art = model.artery(gen, i);
-			const Vessel &vein = model.vein(gen, i);
-
-			QRgb art_col = gradientColor((art.flow*n_elements - overlay_mean)/overlay_stddev).rgba();
-			QRgb vein_col = gradientColor((vein.flow*n_elements - overlay_mean)/overlay_stddev).rgba();
-
-			for (int j=y; j<y+paint_height; ++j) {
-				overlay_image.setPixel(gen-1, j, art_col);
-				overlay_image.setPixel(32-gen, j, vein_col);
-			}
-
-			y += paint_height;
+		switch (overlay_settings.type) {
+		case OverlaySettings::Absolute: {
+			double range = overlay_settings.max - overlay_settings.min;
+			label << overlay_settings.min + range*i/6.0 << "L/min";
+			break;
 		}
-	}
-
-	for (int i=0; i<7; i++) {
-		overlay_text[i].clear();
-		QTextStream label(&overlay_text[i]);
-
-		label.setNumberFlags(QTextStream::ForceSign);
-		label.setRealNumberNotation(QTextStream::FixedNotation);
-		label.setRealNumberPrecision(1);
-
-		label << overlay_stddev*(i-3)*66.6666666666/overlay_mean << "%";
+		case OverlaySettings::Relative:
+			if (i==3)
+				label << doubleToString(overlay_settings.mean) << "L/min";
+			else
+				label << (i-3)*0.33333333333*overlay_settings.range << "%";
+			break;
+		}
 	}
 }
 
@@ -495,9 +494,6 @@ void LungView::calculateVolumeOverlay(const Model &model)
 	// mean is 50% of max volume
 	// stddev is 25% of max volume
 	//   -> scale is 0-100% of max volume
-
-	overlay_mean = 50;
-	overlay_stddev = 25;
 
 	const int n_gen = model.nGenerations();
 	std::vector<double> max_art_size, max_vein_size;
