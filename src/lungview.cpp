@@ -332,7 +332,7 @@ void LungView::drawOverlayLegend(QPainter *p, const QRectF &r)
 	f.setPixelSize(dpy / 10);
 	p->setFont(f);
 
-	const int scale_w = scale_rect.width()/6;
+	const double scale_w = scale_rect.width()/20.0;
 	QLinearGradient scale_gradient(scale_rect.topLeft(), scale_rect.topRight());
 	scale_gradient.setColorAt(0, Qt::transparent);
 	scale_gradient.setColorAt(1, Qt::red);
@@ -340,21 +340,22 @@ void LungView::drawOverlayLegend(QPainter *p, const QRectF &r)
 	p->fillRect(scale_rect, scale_gradient);
 	p->fillRect(scale_rect, QColor(255, 255, 255, 0x7f));
 
-	for (int i=0; i<7; ++i) {
-		const int x = scale_rect.left() + i*scale_w;
-		if (i>0 && i<6)
-			p->drawLine(QPoint(x, scale_rect.top()),
-			            QPoint(x, scale_rect.bottom()));
+	for (int i=0; i<21; ++i) {
+		const double x = scale_rect.left() + i*scale_w;
+		if (i>0 && i<20)
+			p->drawLine(QPointF(x, scale_rect.top()),
+			            QPointF(x, scale_rect.bottom()));
 
 		const QString &text = overlay_text[i];
-		const QRect text_rect(QPoint(x-scale_w/2, legend_rect.top()),
-		                      QSize(scale_w, legend_rect.height()/2));
-		if (!text.isEmpty())
+		if (!text.isEmpty() && i%5==0) {
+			const QRect text_rect(QPoint(x-5*scale_w/2, legend_rect.top()),
+			                      QSize(5*scale_w, legend_rect.height()/2));
 			p->drawText(text_rect,
 			            Qt::AlignBottom |
 			            Qt::AlignHCenter |
 			            Qt::TextSingleLine,
 			            text);
+		}
 	}
 
 	p->restore();
@@ -463,7 +464,7 @@ void LungView::calculateFlowOverlay(const Model &model)
 		}
 	}
 
-	for (int i=0; i<7; i++) {
+	for (int i=0; i<21; i++) {
 		overlay_text[i].clear();
 		QTextStream label(&overlay_text[i]);
 
@@ -473,15 +474,18 @@ void LungView::calculateFlowOverlay(const Model &model)
 
 		switch (overlay_settings.type) {
 		case OverlaySettings::Absolute: {
-			double range = overlay_settings.max - overlay_settings.min;
-			label << overlay_settings.min + range*i/6.0 << "L/min";
+			double value = overlay_settings.min + (overlay_settings.max - overlay_settings.min)*i/20.0;
+			if (overlay_settings.percent_absolute_scale)
+				label << value*100.0/overlay_settings.max << "%";
+			else
+				label << value << "L/min";
 			break;
 		}
 		case OverlaySettings::Relative:
-			if (i==3)
+			if (i==10)
 				label << doubleToString(overlay_settings.mean) << "L/min";
 			else
-				label << (i-3)*0.33333333333*overlay_settings.range << "%";
+				label << (i-10)*overlay_settings.range/10.0 << "%";
 			break;
 		}
 	}

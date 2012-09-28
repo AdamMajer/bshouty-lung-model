@@ -135,6 +135,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="percent_absolute_scale_checkbox">
+         <property name="text">
+          <string>Legend is % of Maximum value</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

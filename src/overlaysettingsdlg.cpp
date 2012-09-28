@@ -84,6 +84,8 @@ void OverlaySettingsDlg::setDialogState()
 		}
 		break;
 	}
+
+	ui->percent_absolute_scale_checkbox->setChecked(s.percent_absolute_scale);
 }
 
 void OverlaySettingsDlg::getDialogState()
@@ -106,4 +108,6 @@ void OverlaySettingsDlg::getDialogState()
 		s.range = ui->manualRange->value();
 		break;
 	}
+
+	s.percent_absolute_scale = ui->percent_absolute_scale_checkbox->isChecked();
 }

@@ -7,6 +7,11 @@ struct OverlaySettings {
 	enum OverlayType { Absolute, Relative };
 	OverlayType type;
 
+	/* When set true, Absolute type is listed as percent of `max` field
+	 * instead of in absolute values
+	 */
+	bool percent_absolute_scale;
+
 	union { bool auto_min; bool auto_mean; };
 	union { bool auto_max; bool auto_range; };
 
@@ -17,6 +22,7 @@ struct OverlaySettings {
 		type = Absolute;
 		auto_min = true;
 		auto_max = true;
+		percent_absolute_scale = false;
 	}
 };
 

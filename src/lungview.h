@@ -75,7 +75,7 @@ private:
 
 	bool fControlButtonDown;
 	OverlayType overlay_type;
-	QString overlay_text[7];
+	QString overlay_text[21];
 
 	OverlaySettings overlay_settings;
 	QImage overlay_image; // (32x32768), or (gen*2,max_vessel_count_in_gen)
