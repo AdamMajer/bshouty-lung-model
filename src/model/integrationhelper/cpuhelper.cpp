@@ -109,7 +109,7 @@ double CpuIntegrationHelper::laminalFlowVessel(Vessel &vein)
 	if (isnan(P))
 		return 0.0;
 
-	double Ptm = 1.35951002636 * ( P - vein.tone );
+	double Ptm = 1.35951002636 * ( Pin - P/2 - vein.tone );
 	double Rs;
 
 	/* First segment is slightly different from others, so we pull it out */
@@ -150,7 +150,7 @@ double CpuIntegrationHelper::laminalFlowVessel(Vessel &vein)
 		double old_Pin;
 		do {
 			old_Pin = new_Pin;
-			double avg_P = new_Pin + (new_Pin - Pout) / 2.0;
+			double avg_P = new_Pin - (new_Pin - Pout) / 2.0;
 			Ptm = 1.35951002636 * ( avg_P - vein.tone );
 			if (vein.vessel_outside_lung)
 				Ptm = Ptm - vein.Ppl;
@@ -158,6 +158,7 @@ double CpuIntegrationHelper::laminalFlowVessel(Vessel &vein)
 				Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
 				      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
 
+			// const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
 			const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
 			D = vein.D / sqrt(inv_A);
 			const double vf = viscosityFactor(D, hct);
@@ -250,7 +251,17 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 	}
 	else {
 		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
-		vein.Dmin = vein.D / sqrt(inv_A);
+
+		if (type == Vessel::Artery) {
+			double area = vein.a / 2.0;
+			double A = ((1/inv_A - 1.0) * area + 1.0)*area;
+			vein.Dmin = vein.D * sqrt(A);
+		}
+		else
+			vein.Dmin = vein.D / sqrt(inv_A);
+
+
+		//vein.Dmin = vein.D / sqrt(inv_A);
 		const double vf = viscosityFactor(vein.Dmin, hct);
 		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(vein.Dmin)) * vein.vessel_ratio;
 		vein.viscosity_factor += vf;
@@ -276,7 +287,15 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 
 		// corrected to Ptp=0, Ptm=35 cmH2O
 		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
-		D = vein.D / sqrt(inv_A);
+
+		if (type == Vessel::Artery) {
+			double area = vein.a / 2.0;
+			double A = ((1/inv_A - 1.0) * area + 1.0)*area;
+			D = vein.D * sqrt(A);
+		}
+		else
+			D = vein.D / sqrt(inv_A);
+
 		D_integral += D;
 		const double vf = viscosityFactor(D, hct);
 
