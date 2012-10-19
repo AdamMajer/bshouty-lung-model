@@ -49,8 +49,8 @@ public:
 	const OverlaySettings& overlaySettings() const { return overlay_settings; }
 	const QImage& overlayMap() const { return overlay_image; }
 
-	static QColor gradientColor(double distance_from_min_to_max);
-	static double gradientToDistanceFromMin(QColor color);
+	static QColor gradientColor(double distance_from_mean);
+	static double gradientToDistanceFromMean(QColor color);
 
 protected:
 	virtual void drawForeground(QPainter *painter, const QRectF &rect);

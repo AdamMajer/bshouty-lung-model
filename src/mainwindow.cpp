@@ -32,6 +32,7 @@
 #include "opencldlg.h"
 #include "opencl.h"
 #include "overlaymapwidget.h"
+#include "specialfixedflowwidget.h"
 #include "wizard.h"
 
 #include "model/integrationhelper/cpuhelper.h"
@@ -794,6 +795,36 @@ void MainWindow::on_actionOverlaySettings_triggered()
 	OverlaySettingsDlg dlg(ui->view->overlaySettings());
 	if (dlg.exec())
 		ui->view->setOverlaySettings(dlg.overlaySettings());
+}
+
+void MainWindow::on_actionFixedFlow_triggered()
+{
+	QDialog dlg(this);
+	QGridLayout *layout = new QGridLayout(&dlg);
+	SpecialFixedFlowWidget *widget = new SpecialFixedFlowWidget(*model,
+	                                                            this);
+	QSizePolicy expanding_policy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	expanding_policy.setHorizontalStretch(10);
+	expanding_policy.setVerticalStretch(10);
+	widget->setSizePolicy(expanding_policy);
+	widget->setStyleSheet("background: white");
+
+	QCheckBox *visible_check = new QCheckBox("Show Grid", &dlg);
+	visible_check->setChecked(false);
+
+	layout->addWidget(new QLabel("<center>Arteries", &dlg), 0, 1);
+	layout->addWidget(new QLabel("<center>Veins", &dlg), 0, 2);
+	layout->addWidget(new QLabel("Lt", &dlg), 1, 0);
+	layout->addWidget(new QLabel("Rt", &dlg), 2, 0);
+
+	layout->addWidget(widget, 1, 1, 2, 2);
+	layout->addWidget(visible_check, 3, 0, 1, 3);
+
+	connect(visible_check, SIGNAL(toggled(bool)),
+	        widget, SLOT(setGrid(bool)));
+
+	dlg.setWindowTitle("Overlay Map");
+	dlg.exec();
 }
 
 void MainWindow::setNumLungs(QAction *)

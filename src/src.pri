@@ -21,6 +21,7 @@ SOURCES += \
 	$${SRC_DIR}/rangestepdlg.cpp \
 	$${SRC_DIR}/scripteditdlg.cpp \
 	$${SRC_DIR}/scripthighlighter.cpp \
+	$${SRC_DIR}/specialfixedflowwidget.cpp \
 	$${SRC_DIR}/transducerview.cpp \
 	$${SRC_DIR}/vesseldlg.cpp \
 	$${SRC_DIR}/vesselview.cpp \
@@ -50,6 +51,7 @@ HEADERS += \
 	$${SRC_DIR}/rangestepdlg.h \
 	$${SRC_DIR}/scripteditdlg.h \
 	$${SRC_DIR}/scripthighlighter.h \
+	$${SRC_DIR}/specialfixedflowwidget.h \
 	$${SRC_DIR}/transducerview.h \
 	$${SRC_DIR}/vesseldlg.h \
 	$${SRC_DIR}/vesselview.h \

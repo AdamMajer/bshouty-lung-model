@@ -87,26 +87,32 @@ void LungView::setOverlaySettings(const OverlaySettings &settings)
 	setOverlayType(overlay_type);
 }
 
-QColor LungView::gradientColor(double distance_from_min_to_max)
+QColor LungView::gradientColor(double distance_from_mean)
 {
 	// gradient from transparent black => 50% red
-	// input range [0..1]
+	// input range [-1..1]
 
-	if (distance_from_min_to_max <= 0)
-		return QColor::fromRgbF(0, 0, 0.0, 0.0);
-	if (distance_from_min_to_max >= 1.0)
+	if (distance_from_mean <= -1.0)
+		return QColor::fromRgbF(0, 0, 1.0, 0.5);
+
+	if (distance_from_mean >= 1.0)
 		return QColor::fromRgbF(1.0, 0, 0, 0.5);
 
-	return QColor::fromRgbF(distance_from_min_to_max, 0, 0, 0.5*distance_from_min_to_max);
+	if (distance_from_mean < 0)
+		return QColor::fromRgbF(0, 0, -distance_from_mean, -0.5*distance_from_mean);
+
+	return QColor::fromRgbF(distance_from_mean, 0, 0, 0.5*distance_from_mean);
 }
 
-double LungView::gradientToDistanceFromMin(QColor c)
+double LungView::gradientToDistanceFromMean(QColor c)
 {
 	double b, g, r;
 
 	c.getRgbF(&r, &g, &b, 0);
 	if (r > 0)
 		return r;
+	if (b > 0)
+		return -b;
 
 	return 0.0;
 }
@@ -334,7 +340,8 @@ void LungView::drawOverlayLegend(QPainter *p, const QRectF &r)
 
 	const double scale_w = scale_rect.width()/20.0;
 	QLinearGradient scale_gradient(scale_rect.topLeft(), scale_rect.topRight());
-	scale_gradient.setColorAt(0, Qt::transparent);
+	scale_gradient.setColorAt(0, Qt::blue);
+	scale_gradient.setColorAt(0.5, Qt::transparent);
 	scale_gradient.setColorAt(1, Qt::red);
 
 	p->fillRect(scale_rect, scale_gradient);
@@ -402,8 +409,10 @@ void LungView::calculateFlowOverlay(const Model &model)
 			const Vessel &art = model.artery(gen, i);
 			const Vessel &vein = model.vein(gen, i);
 
-			variance += sqr(art.flow*n_elements - overlay_mean);
-			variance += sqr(vein.flow*n_elements - overlay_mean);
+			if (!isnan(art.flow))
+				variance += sqr(art.flow*n_elements - overlay_mean);
+			if (!isnan(vein.flow))
+				variance += sqr(vein.flow*n_elements - overlay_mean);
 		}
 	}
 
@@ -438,19 +447,23 @@ void LungView::calculateFlowOverlay(const Model &model)
 			const Vessel &art = model.artery(gen, i);
 			const Vessel &vein = model.vein(gen, i);
 
+			double vein_flow = isnan(vein.flow) ? 0.0 : vein.flow;
+			double art_flow = isnan(art.flow) ? 0.0 : art.flow;
+
 			QRgb art_col, vein_col;
 			switch (overlay_settings.type) {
 			case OverlaySettings::Absolute: {
 				const double range = overlay_settings.max - overlay_settings.min;
-				art_col = gradientColor((art.flow*n_elements - overlay_settings.min)/range).rgba();
-				vein_col = gradientColor((vein.flow*n_elements - overlay_settings.min)/range).rgba();
+				const double mean = overlay_settings.min + range / 2.0;
+				art_col = gradientColor(2.0*(art_flow*n_elements - mean)/range).rgba();
+				vein_col = gradientColor(2.0*(vein_flow*n_elements - mean)/range).rgba();
 				break;
 			}
 			case OverlaySettings::Relative: {
 				const double range = overlay_settings.mean * overlay_settings.range * 2.0 / 100.0;
 				const double min = overlay_settings.mean * (1-overlay_settings.range/100.0);
-				art_col = gradientColor((art.flow*n_elements - min)/range).rgba();
-				vein_col = gradientColor((vein.flow*n_elements - min)/range).rgba();
+				art_col = gradientColor(2.0*(art_flow*n_elements - overlay_mean)/range).rgba();
+				vein_col = gradientColor(2.0*(vein_flow*n_elements - overlay_mean)/range).rgba();
 				break;
 			}
 			}

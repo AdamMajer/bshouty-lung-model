@@ -91,11 +91,19 @@
     <property name="title">
      <string>O&amp;verlays</string>
     </property>
+    <widget class="QMenu" name="menuSpecial">
+     <property name="title">
+      <string>Special</string>
+     </property>
+     <addaction name="actionFixedFlow"/>
+    </widget>
     <addaction name="actionNoOverlay"/>
     <addaction name="actionFlowOverlay"/>
     <addaction name="actionVolumeOverlay"/>
     <addaction name="separator"/>
     <addaction name="actionOverlayMap"/>
+    <addaction name="separator"/>
+    <addaction name="menuSpecial"/>
     <addaction name="separator"/>
     <addaction name="actionOverlaySettings"/>
    </widget>
@@ -1606,6 +1614,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionOverlaySettings">
    <property name="text">
     <string>Settings ...</string>
+   </property>
+  </action>
+  <action name="actionFixedFlow">
+   <property name="text">
+    <string>Fixed Flow...</string>
    </property>
   </action>
  </widget>

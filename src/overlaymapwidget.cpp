@@ -108,7 +108,8 @@ void OverlayMapWidget::mouseMoveEvent(QMouseEvent *ev)
 		int gen_no = pos.x() * original_map.width() / w;
 		const QColor & color = original_map.pixel(gen_no,
 		                                          pos.y() * original_map.height() / h);
-		const double min_max_dist = LungView::gradientToDistanceFromMin(color);
+		const double mean_dist = LungView::gradientToDistanceFromMean(color);
+		const double min_max_dist = (mean_dist+1.0)/2.0;
 		const double value = settings.min + (settings.max-settings.min)*min_max_dist;
 
 		QString text = QLatin1String("Gen: %4\nVessel: %5 of %6\n\nValue: %1\nMean: %2 %3%");

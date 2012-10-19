@@ -25,12 +25,12 @@
     <widget class="QComboBox" name="overlayType">
      <item>
       <property name="text">
-       <string>Absolute</string>
+       <string>Absolute Values (Scaled)</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Relative</string>
+       <string>Relative (% of mean - Scaled)</string>
       </property>
      </item>
     </widget>
@@ -50,6 +50,9 @@
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0">
            <widget class="QRadioButton" name="autoMinimumButton">
+            <property name="toolTip">
+             <string>When both are set to Auto, range is +- 2 SD</string>
+            </property>
             <property name="text">
              <string>Auto</string>
             </property>
@@ -96,6 +99,9 @@
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
            <widget class="QRadioButton" name="autoMaximumButton">
+            <property name="toolTip">
+             <string>When both are set to Auto, range is +- 2 SD</string>
+            </property>
             <property name="text">
              <string>Auto</string>
             </property>
@@ -136,6 +142,9 @@
        </item>
        <item>
         <widget class="QCheckBox" name="percent_absolute_scale_checkbox">
+         <property name="toolTip">
+          <string>Maximum values is assumed to be 100%. All other values are represented as a fraction of the maximum.</string>
+         </property>
          <property name="text">
           <string>Legend is % of Maximum value</string>
          </property>

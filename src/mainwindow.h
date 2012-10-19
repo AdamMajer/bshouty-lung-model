@@ -80,6 +80,8 @@ public slots:
 	void on_actionOverlayMap_triggered();
 	void on_actionOverlaySettings_triggered();
 
+	void on_actionFixedFlow_triggered();
+
 	void setNumLungs(QAction*);
 	// switch between 5/15 generation model
 	void setNumGenerations(QAction*);

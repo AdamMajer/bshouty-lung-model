@@ -32,6 +32,11 @@ long int lrint(double x);
 #define fmax(a,b) (a<b?b:a)
 #endif
 
+#if defined(__GNUC__) && defined(WIN32)
+using namespace std;
+#endif
+
+
 #define PAH_ID  -20
 #define PVOD_ID -10
 
