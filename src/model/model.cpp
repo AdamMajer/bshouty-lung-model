@@ -41,7 +41,9 @@
 */
 const double K1 = 0.5;
 const double K2 = 0.5;
-const int nSums = 16; // number of divisions in the integral
+
+/* No accuracy benefit above 128. Speed is not compromised at 128 (on 16 core machine!) */
+const int nSums = 128; // number of divisions in the integral
 
 #if defined(Q_OS_WIN32) && !defined(__GNUC__)
 inline double cbrt(double x) {
