@@ -11,7 +11,9 @@ class OverlayMapWidget : public QWidget
 	Q_OBJECT
 
 public:
-	OverlayMapWidget(const QImage &map, const OverlaySettings &settings, QWidget *parent=0);
+	OverlayMapWidget(const QImage &map,
+	                 const OverlaySettings &settings,
+	                 QWidget *parent=0);
 	virtual ~OverlayMapWidget();
 
 public slots:
@@ -20,11 +22,19 @@ public slots:
 protected:
 	virtual void paintEvent(QPaintEvent *ev);
 
-	virtual void enterEvent(QEvent *);
 	virtual void leaveEvent(QEvent *);
 	virtual void mouseMoveEvent(QMouseEvent *ev);
 
+	virtual void resizeEvent(QResizeEvent *ev);
+	void scaleMapToSize(const QSize &s);
+
 	virtual void showEvent(QShowEvent *ev);
+
+	QRect mapRect() const;
+	virtual bool containsMap(const QPoint &) const;
+	virtual double mapValue(const QPoint &) const;
+	virtual int nGenerations() const { return 16; }
+	virtual int genNo(const QPoint &) const;
 
 private:
 	bool grid_visible;
