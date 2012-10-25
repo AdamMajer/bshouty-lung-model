@@ -769,7 +769,7 @@ void MainWindow::on_actionOverlayMap_triggered()
 	expanding_policy.setHorizontalStretch(10);
 	expanding_policy.setVerticalStretch(10);
 	widget->setSizePolicy(expanding_policy);
-	widget->setMinimumSize(400,300);
+	widget->setMinimumSize(450,450);
 	widget->setStyleSheet("background: white");
 
 	QCheckBox *visible_check = new QCheckBox("Show Grid", &dlg);
