@@ -397,7 +397,6 @@ void LungView::calculateFlowOverlay(const Model &model)
 	// Flow in each generation is the same, so generate a
 	// standard deviation from the expected flow for all vessels
 	// The gradient should span 2 standard deviations
-	const double flow_conversion = 1e6 / 60.0; // flow L/min => uL/s
 	const int n_gen = model.nGenerations();
 	double variance = 0.0;
 
@@ -461,9 +460,9 @@ void LungView::calculateFlowOverlay(const Model &model)
 			}
 			case OverlaySettings::Relative: {
 				const double range = overlay_settings.mean * overlay_settings.range * 2.0 / 100.0;
-				const double min = overlay_settings.mean * (1-overlay_settings.range/100.0);
-				art_col = gradientColor(2.0*(art_flow*n_elements - overlay_mean)/range).rgba();
-				vein_col = gradientColor(2.0*(vein_flow*n_elements - overlay_mean)/range).rgba();
+				const double mean = overlay_settings.mean;
+				art_col = gradientColor(2.0*(art_flow*n_elements - mean)/range).rgba();
+				vein_col = gradientColor(2.0*(vein_flow*n_elements - mean)/range).rgba();
 				break;
 			}
 			}
