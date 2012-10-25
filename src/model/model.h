@@ -104,7 +104,7 @@ public:
 
 	enum ModelType { SingleLung=0, DoubleLung };
 
-	enum IntegralType { BshoutyIntegral, LaminalFlow, NavierStoker };
+	enum IntegralType { BshoutyIntegral, LaminarFlow, NavierStoker };
 
 	Model( Transducer, ModelType, int n_generations );
 	Model(const Model &other);

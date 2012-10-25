@@ -69,7 +69,7 @@ double CpuIntegrationHelper::integrateBshoutyModel()
 	return max_deviation;
 }
 
-double CpuIntegrationHelper::laminalFlow()
+double CpuIntegrationHelper::laminarFlow()
 {
 	// TODO: parallelize
 	const int n_elements = nElements();
@@ -77,9 +77,9 @@ double CpuIntegrationHelper::laminalFlow()
 
 	for (int i=0; i<n_elements; ++i) {
 		ret = std::max(ret,
-		               laminalFlowVessel(arteries()[i]));
+		               laminarFlowVessel(arteries()[i]));
 		ret = std::max(ret,
-		               laminalFlowVessel(veins()[i]));
+		               laminarFlowVessel(veins()[i]));
 	}
 
 	return ret;
@@ -95,7 +95,7 @@ void CpuIntegrationHelper::integrateWithDimentions(Vessel::Type t,
 	integrateVessel(t, index(gen, idx), &calc_dim);
 }
 
-double CpuIntegrationHelper::laminalFlowVessel(Vessel &vein)
+double CpuIntegrationHelper::laminarFlowVessel(Vessel &vein)
 {
 	/* NOTE: calc_dim is assumed empty, if supplied */
 	const double hct = Hct();

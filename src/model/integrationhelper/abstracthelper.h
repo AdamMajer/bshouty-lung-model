@@ -25,7 +25,7 @@
 class AbstractIntegrationHelper
 {
 public:
-	enum SolverType { BshoutyModel, LaminalFlow, NavierStokes };
+	enum SolverType { BshoutyModel, LaminarFlow, NavierStokes };
 
 	AbstractIntegrationHelper(Model *model, Model::IntegralType solver);
 	virtual ~AbstractIntegrationHelper();
@@ -35,7 +35,7 @@ public:
 	 */
 	double integrate();
 	virtual double integrateBshoutyModel() = 0;
-	virtual double laminalFlow() = 0;
+	virtual double laminarFlow() = 0;
 
 	virtual bool isAvailable() const { return true; }
 	virtual bool hasErrors() const { return false; }

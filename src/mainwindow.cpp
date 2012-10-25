@@ -120,7 +120,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 	QActionGroup *integral_type = new QActionGroup(this);
 	integral_type->addAction(ui->actionBshoutyIntegral);
-	integral_type->addAction(ui->actionLaminalFlow);
+	integral_type->addAction(ui->actionLaminarFlow);
 	integral_type->addAction(ui->actionNavierStokes);
 	integral_type->setExclusive(true);
 	connect(integral_type, SIGNAL(triggered(QAction*)),
@@ -873,8 +873,8 @@ void MainWindow::setIntegralType(QAction *ac)
 {
 	if (ac == ui->actionBshoutyIntegral)
 		baseline->setIntegralType(Model::BshoutyIntegral);
-	else if (ac == ui->actionLaminalFlow)
-		baseline->setIntegralType(Model::LaminalFlow);
+	else if (ac == ui->actionLaminarFlow)
+		baseline->setIntegralType(Model::LaminarFlow);
 	else if (ac == ui->actionNavierStokes)
 		baseline->setIntegralType(Model::NavierStoker);
 }

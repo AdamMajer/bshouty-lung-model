@@ -36,8 +36,8 @@ double AbstractIntegrationHelper::integrate()
 	switch (solver_type) {
 	case Model::BshoutyIntegral:
 		return integrateBshoutyModel();
-	case Model::LaminalFlow:
-		return laminalFlow();
+	case Model::LaminarFlow:
+		return laminarFlow();
 	}
 
 	return 0.0;

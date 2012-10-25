@@ -58,7 +58,7 @@
     <addaction name="actionPAP"/>
     <addaction name="separator"/>
     <addaction name="actionBshoutyIntegral"/>
-    <addaction name="actionLaminalFlow"/>
+    <addaction name="actionLaminarFlow"/>
     <addaction name="actionNavierStokes"/>
     <addaction name="separator"/>
     <addaction name="actionOpenCL"/>
@@ -1595,12 +1595,12 @@ p, li { white-space: pre-wrap; }
     <string>Bshouty Integral</string>
    </property>
   </action>
-  <action name="actionLaminalFlow">
+  <action name="actionLaminarFlow">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Laminal Flow</string>
+    <string>Laminar Flow</string>
    </property>
   </action>
   <action name="actionNavierStokes">
