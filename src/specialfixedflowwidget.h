@@ -21,17 +21,16 @@ public slots:
 protected:
 	virtual void paintEvent(QPaintEvent *ev);
 
-	virtual void enterEvent(QEvent *);
 	virtual void leaveEvent(QEvent *);
 	virtual void mouseMoveEvent(QMouseEvent *ev);
-
-	virtual void showEvent(QShowEvent *ev);
 
 private:
 	bool grid_visible;
 	QPixmap map;
 	QLabel *info_widget;
 	QImage original_map;
+
+	double mean_flow;
 };
 
 #endif // SpecialFixedFlowWidget_H

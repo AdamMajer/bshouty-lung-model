@@ -19,15 +19,16 @@ SpecialFixedFlowWidget::SpecialFixedFlowWidget(const Model &model, QWidget *pare
 	info_widget = new QLabel(this);
 	info_widget->setFrameStyle(QFrame::Box | QFrame::Plain);
 	info_widget->setStyleSheet("background: yellow;");
+	info_widget->hide();
 
 	setMouseTracking(true);
 	setCursor(Qt::CrossCursor);
 
-	double flow = model.getResult(Model::Flow_value);
+	mean_flow = model.getResult(Model::Flow_value);
 
 	for (int gen=1; gen<=6; ++gen) {
 		int n_elements = model.nElements(gen);
-		double av_flow = flow / n_elements;
+		double av_flow = mean_flow / n_elements;
 		int c = 32/n_elements;
 
 		for (int vessel=0; vessel<n_elements; ++vessel) {
@@ -62,7 +63,7 @@ SpecialFixedFlowWidget::~SpecialFixedFlowWidget()
 
 void SpecialFixedFlowWidget::setGrid(bool is_visible)
 {
-	/* 32 x 32 grid */
+	/* 12 x 32 grid */
 	if (grid_visible == is_visible)
 		return;
 
@@ -86,7 +87,7 @@ void SpecialFixedFlowWidget::paintEvent(QPaintEvent *ev)
 	p.drawPixmap(pix_rect, map, QRect(QPoint(0,0), map.size()));
 
 	if (grid_visible) {
-		/* 10 x 32 grid, with border */
+		/* 12 x 32 grid, with border */
 		QVector<QLineF> grid;
 		const int h = pix_rect.height()-1;
 		const int w = pix_rect.width()-1;
@@ -152,13 +153,6 @@ void SpecialFixedFlowWidget::paintEvent(QPaintEvent *ev)
 	ev->accept();
 }
 
-void SpecialFixedFlowWidget::enterEvent(QEvent *ev)
-{
-	QWidget::enterEvent(ev);
-
-	info_widget->show();
-}
-
 void SpecialFixedFlowWidget::leaveEvent(QEvent *ev)
 {
 	QWidget::leaveEvent(ev);
@@ -178,20 +172,20 @@ void SpecialFixedFlowWidget::mouseMoveEvent(QMouseEvent *ev)
 	const int w = r.width();
 
 	if (r.contains(pos)) {
-		int gen_no = pos.x() * original_map.width() / w;
-		const QColor & color = original_map.pixel(gen_no,
+		int gen_no = pos.x() * original_map.width() / w + 1;
+		const QColor & color = original_map.pixel(gen_no-1,
 		                                          pos.y() * original_map.height() / h);
 		const double mean_dist = LungView::gradientToDistanceFromMean(color);
 
 		QString text = QLatin1String("Gen: %2\nVessel: %3 of %4\n\nValue: %1\nPercent of Max: %5%");
 		// TODO: fix when model works again for other than 16 generations
-		if (gen_no >= 6)
-			gen_no = 11 - gen_no;
-		const int n_elem = 1 << gen_no;
-		const double value = (mean_dist<0.0) ? mean_dist+1.0 : mean_dist*(n_elem-1.0) + 1.0;
+		if (gen_no > 6)
+			gen_no = 12 - gen_no;
+		const int n_elem = 1 << (gen_no-1);
+		const double value = exp(mean_dist*log(static_cast<double>(n_elem)))*mean_flow/n_elem;
 
 		info_widget->setText(text.arg(doubleToString(value),
-		                              QString::number(gen_no+1),
+		                              QString::number(gen_no),
 		                              QString::number(static_cast<int>(n_elem * pos.y() / h) + 1),
 		                              QString::number(n_elem),
 		                              QString::number((mean_dist+1.0)/2.0 * 100.0)));
@@ -208,20 +202,13 @@ void SpecialFixedFlowWidget::mouseMoveEvent(QMouseEvent *ev)
 			widget_pos.setX(std::max(0, pos.x() - min_dist - s.width()));
 		}
 
-		widget_pos.setY(std::max(0, std::min(pos.y(), h-min_dist)));
+		widget_pos.setY(std::max(0, std::min(pos.y(), rect().height()-min_dist)));
+		info_widget->show();
 		info_widget->move(widget_pos);
+	}
+	else {
+		info_widget->hide();
 	}
 
 	ev->accept();
-}
-
-void SpecialFixedFlowWidget::showEvent(QShowEvent *ev)
-{
-	QWidget::showEvent(ev);
-
-	const QPoint mouse_pos = info_widget->mapFromGlobal(QCursor::pos());
-	if (info_widget->rect().contains(mouse_pos))
-		info_widget->show();
-	else
-		info_widget->hide();
 }
