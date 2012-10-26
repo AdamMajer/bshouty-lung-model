@@ -150,7 +150,7 @@ double CpuIntegrationHelper::laminarFlowVessel(Vessel &vein)
 		double old_Pin;
 		do {
 			old_Pin = new_Pin;
-			double avg_P = new_Pin - (new_Pin - Pout) / 2.0;
+			double avg_P = (new_Pin + Pout) / 2.0;
 			Ptm = 1.35951002636 * ( avg_P - vein.tone );
 			if (vein.vessel_outside_lung)
 				Ptm = Ptm - vein.Ppl;
@@ -166,6 +166,7 @@ double CpuIntegrationHelper::laminarFlowVessel(Vessel &vein)
 			vein.viscosity_factor = vf;
 
 			new_Pin = Pout + vein.flow * Rs;
+			new_Pin = (new_Pin + old_Pin) / 2.0;
 		} while (fabs(new_Pin - old_Pin)/old_Pin > Tlrns());
 	}
 
