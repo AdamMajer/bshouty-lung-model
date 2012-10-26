@@ -57,7 +57,7 @@ OpenCL::OpenCL()
 	 */
 	n_devices = 0;
 
-#if (QT_POINTER_SIZE == 8)
+#if (QT_POINTER_SIZE == 88) // FIXME: fix opencl implementation when calculations are finalized
 	resolveFunctions();
 #else
 	memset(&opencl, 0, sizeof(opencl));
