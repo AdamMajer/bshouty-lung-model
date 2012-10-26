@@ -21,7 +21,7 @@ win32 {
 	INCLUDEPATH += "C:/Program Files (x86)/AMD APP/include"
 
 	# Visual Studio compiler flags so we get debugging symbols files in release mode
-	contains(QMAKE_COMPILER_DEFINES, _MSC_VER) {
+	!contains(QMAKE_COMPILER_DEFINES, __GNUC__) {
 		QMAKE_CXXFLAGS_RELEASE += /Zi
 		QMAKE_LFLAGS_RELEASE += /DEBUG
 	}

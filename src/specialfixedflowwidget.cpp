@@ -41,7 +41,7 @@ SpecialFixedFlowWidget::SpecialFixedFlowWidget(const Model &model, QWidget *pare
 			*/
 
 			double log_flow = log(flow_fraction);
-			double max_flow = log(n_elements);
+			double max_flow = log((double)n_elements);
 			quint32 pixel = LungView::gradientColor(std::max(-max_flow, std::min(max_flow, log_flow)) / max_flow).rgba();
 
 			for (int y=vessel*c; y<(vessel+1)*c; ++y) {

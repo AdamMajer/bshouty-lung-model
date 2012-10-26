@@ -24,6 +24,7 @@
 
 #ifdef _MSC_VER
 #define _USE_MATH_DEFINES
+#include <float.h>
 long int lrint(double x);
 
 #define isnan(x) _isnan(x)
