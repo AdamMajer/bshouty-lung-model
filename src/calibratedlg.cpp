@@ -31,7 +31,7 @@ const int CalibrateDlg::n_gen_progression[] = {/*5, 6, 15,*/ 16, 0};
 CalibrateDlg::CalibrateDlg(QWidget *parent)
         : QDialog(parent),
           gen_pos(0),
-          base_model(Model::Middle, Model::DoubleLung, 15)
+          base_model(Model::Middle, Model::DoubleLung, 15, Model::BshoutyIntegral)
 {
 	ui = new Ui::CalibrateDlg;
 	ui->setupUi(this);
@@ -420,13 +420,15 @@ void CalibrateDlg::resetBaseModel()
 	case 15:
 		base_model = Model(Model::Middle,
 		                   Model::SingleLung,
-		                   n_gen_progression[gen_pos]);
+		                   n_gen_progression[gen_pos],
+		                   Model::BshoutyIntegral);
 		break;
 	case 6:
 	case 16:
 		base_model = Model(Model::Middle,
 		                   Model::DoubleLung,
-		                   n_gen_progression[gen_pos]-1);
+		                   n_gen_progression[gen_pos]-1,
+		                   Model::BshoutyIntegral);
 		break;
 	}
 

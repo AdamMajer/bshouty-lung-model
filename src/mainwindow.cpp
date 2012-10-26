@@ -80,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
 	calc_thread = 0;
 	mres = 0;
 
-	baseline = new Model(Model::Middle, Model::DoubleLung, 15);
+	baseline = new Model(Model::Middle, Model::DoubleLung, 15, Model::BshoutyIntegral);
 	model = baseline->clone();
 	ui = new Ui::MainWindow;
 	ui->setupUi(this);
@@ -876,7 +876,7 @@ void MainWindow::setIntegralType(QAction *ac)
 	else if (ac == ui->actionLaminarFlow)
 		baseline->setIntegralType(Model::LaminarFlow);
 	else if (ac == ui->actionNavierStokes)
-		baseline->setIntegralType(Model::NavierStoker);
+		baseline->setIntegralType(Model::NavierStokes);
 }
 
 void MainWindow::modifyArtery(int gen, int idx)
@@ -1351,6 +1351,7 @@ void MainWindow::allocateNewModel(bool propagate_diseases_to_new_model)
 	ModelCalculationType calculation_type = PAPmCalculation;
 	int n_generations = 5;
 	Model::Transducer trans_pos = model->transducerPos();
+	Model::IntegralType type = Model::BshoutyIntegral;
 
 	if (ui->actionDiseaseProgression->isChecked())
 		calculation_type = DiseaseProgressCalculation;
@@ -1361,12 +1362,19 @@ void MainWindow::allocateNewModel(bool propagate_diseases_to_new_model)
 	if (ui->actionTwoLungModel->isChecked())
 		model_type = Model::DoubleLung;
 
+	if (ui->actionBshoutyIntegral->isChecked())
+		type = Model::BshoutyIntegral;
+	else if(ui->actionLaminarFlow->isChecked())
+		type = Model::LaminarFlow;
+	else if(ui->actionNavierStokes->isChecked())
+		type = Model::NavierStokes;
+
 	switch (calculation_type) {
 	case DiseaseProgressCalculation:
-		model = new CompromiseModel(trans_pos, model_type, n_generations);
+		model = new CompromiseModel(trans_pos, model_type, n_generations, type);
 		break;
 	case PAPmCalculation:
-		model = new Model(trans_pos, model_type, n_generations);
+		model = new Model(trans_pos, model_type, n_generations, type);
 		break;
 	}
 

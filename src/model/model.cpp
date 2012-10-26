@@ -93,7 +93,7 @@ bool operator==(const struct Capillary &a, const struct Capillary &b)
 
 
 // CONSTRUCTOR - always called - initializes everything
-Model::Model(Transducer transducer_pos, ModelType type, int n_gen)
+Model::Model(Transducer transducer_pos, ModelType type, int n_gen, IntegralType int_type)
 {
 	model_type = type;
 	n_generations = n_gen;
@@ -142,7 +142,7 @@ Model::Model(Transducer transducer_pos, ModelType type, int n_gen)
 	PV_diam = calibrationValue(PV_Diam_value);
 
 	CI = CO/BSAz();
-	integral_type = BshoutyIntegral;
+	integral_type = int_type;
 
 	// to have a default PAP value of 15
 	arteries[0].flow = CO;
@@ -1640,6 +1640,11 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	q.addBindValue(n_generations);
 	q.exec();
 
+	q.addBindValue("integral_type");
+	q.addBindValue(offset);
+	q.addBindValue((int)integral_type);
+	q.exec();
+
 	if (progress)
 		progress->setValue(progress->value()+1);
 
@@ -1830,6 +1835,13 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	else
 		model_type = (ModelType)q.value(0).toInt();
 
+	q.addBindValue("integral_type");
+	q.addBindValue(offset);
+	if (!q.exec() || !q.next())
+		integral_type = BshoutyIntegral;
+	else
+		integral_type = (IntegralType)q.value(0).toInt();
+
 	q.addBindValue("ngen");
 	q.addBindValue(offset);
 	if (!q.exec() || !q.next())
@@ -1840,7 +1852,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	if (new_gen != nGenerations()) {
 		if (model_type == DoubleLung)
 			new_gen--;
-		*this = Model(trans_pos, model_type, new_gen);
+		*this = Model(trans_pos, model_type, new_gen, integral_type);
 	}
 
 	// Load all values

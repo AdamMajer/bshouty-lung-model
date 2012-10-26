@@ -22,8 +22,9 @@
 
 CompromiseModel::CompromiseModel(Model::Transducer trans,
                                  ModelType type,
-                                 int n_generations)
-        : Model(trans, type, n_generations)
+                                 int n_generations,
+                                 Model::IntegralType integral_type)
+        : Model(trans, type, n_generations, integral_type)
 {
 	target_pap = 25;
 	slew_disease_idx = -1;

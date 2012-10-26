@@ -104,9 +104,9 @@ public:
 
 	enum ModelType { SingleLung=0, DoubleLung };
 
-	enum IntegralType { BshoutyIntegral, LaminarFlow, NavierStoker };
+	enum IntegralType { BshoutyIntegral, LaminarFlow, NavierStokes };
 
-	Model( Transducer, ModelType, int n_generations );
+	Model( Transducer, ModelType, int n_generations, IntegralType type );
 	Model(const Model &other);
 	virtual ~Model();
 
