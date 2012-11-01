@@ -102,14 +102,12 @@ double CpuIntegrationHelper::laminarFlowVessel(Vessel &vein)
 	double Rin = vein.R;
 	double Pin = vein.pressure_in;
 	const double Pout = vein.pressure_out;
-	double P = Pin - Pout; // pressure to the right (LAP) of the vessel
-
 
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
-	if (isnan(P))
+	if (isnan(Pout) || isnan(Pin))
 		return 0.0;
 
-	double Ptm = 1.35951002636 * ( Pin - P/2 - vein.tone );
+	double Ptm = 1.35951002636 * ((Pin+Pout)/2.0 - vein.tone);
 	double Rs;
 
 	/* First segment is slightly different from others, so we pull it out */
@@ -117,8 +115,10 @@ double CpuIntegrationHelper::laminarFlowVessel(Vessel &vein)
 
 	// check if vessel is closed
 	if (vein.D < 0.1) {
-		vein.D_calc = vein.D = 0.0;
-		vein.Dmax = vein.Dmin = vein.D;
+		vein.D_calc = 0.0;
+		vein.D = 0.0;
+		vein.Dmin = 0.0;
+		vein.Dmax = 0.0;
 
 		//			if (calc_dim)
 		//				std::fill_n(calc_dim->begin(), nSums, 0.0);
@@ -142,7 +142,6 @@ double CpuIntegrationHelper::laminarFlowVessel(Vessel &vein)
 	vein.volume = 0.0;
 	double D = 0.0;
 	if( Ptm < 0 ) {
-		vein.Dmin = 0.0;
 		Rs = -Ptm/( 1.35951002636 * vein.flow ); // Starling Resistor
 	}
 	else {

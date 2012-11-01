@@ -1267,7 +1267,7 @@ double Model::deltaCapillaryResistance( int i )
 
 	if( x < 0 ){
 		if( y < 0 )
-			cap.R = FACC / con_artery.flow;
+			cap.R = y/con_artery.flow - x/con_artery.flow;
 		else if( y < 25 )
 			cap.R = FACC * Rz /( 0.001229*( exp( 4*log(cap.Ho + cap.Alpha*y ))-exp( 4*log( cap.Ho ))));
 		else // y >= 25
@@ -1312,7 +1312,7 @@ bool Model::deltaR()
 
 	const QList<QFuture<double> > &result_futures = results.futures();
 	foreach (const QFuture<double> &i, result_futures)
-		max_deviation = qMax(i.result(), max_deviation);
+		max_deviation = std::max(i.result(), max_deviation);
 
 	int estimated_progression = 10000;
 	for (double md=max_deviation; md>Tlrns && estimated_progression>0;) {
