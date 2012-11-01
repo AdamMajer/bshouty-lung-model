@@ -26,8 +26,6 @@
 /* Defined in model.cpp, used by integration helper. OpenCL code assuses
  * these values too
  */
-extern const double K1;
-extern const double K2;
 extern const int nSums; // number of divisions in the integral
 
 struct Vessel

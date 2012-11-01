@@ -37,11 +37,6 @@
 #include "model.h"
 #include <limits>
 
-/* NOTE: Changing these will require changing these values in OpenCL sources!!
-*/
-const double K1 = 0.5;
-const double K2 = 0.5;
-
 /* No accuracy benefit above 128. Speed is not compromised at 128 (on 16 core machine!) */
 const int nSums = 128; // number of divisions in the integral
 
@@ -1257,12 +1252,17 @@ double Model::deltaCapillaryResistance( int i )
 	const double Ri = caps[i].R;
 	const double Pin = 1.35951002636 * con_artery.pressure_out; // convert pressures from mmHg => cmH20
 	const double Pout = 1.35951002636 * con_vein.pressure_in;
+	Capillary & cap = caps[i];
+
+	if (Pin-Pout < Pin*1e6) {
+		cap.R = 0.0;
+		return Ri==0.0 ? 0.0 : 1.0;
+	}
 
 	const double x = Pout - Pal;
 	const double y = Pin - Pal;
 	const double FACC = y-x;
 	const double FACC1 = 25.0-x;
-	Capillary & cap = caps[i];
 	const double Rz = getKrc() * BSA_ratio * nElements(n_generations) / nElements(16);
 
 	if( x < 0 ){
@@ -1288,7 +1288,10 @@ double Model::deltaCapillaryResistance( int i )
 			throw "Internal capillary resistance error 2";
 	}
 
-	cap.R = K1 * cap.R + K2 * Ri;
+
+	if (Ri == 0.0) // avoid dividing by 0 and return pressure gradient instead
+		return FACC;
+
 	return fabs(cap.R-Ri)/Ri; // return different from target tolerance
 }
 
