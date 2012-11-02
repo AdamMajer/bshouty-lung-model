@@ -1254,10 +1254,12 @@ double Model::deltaCapillaryResistance( int i )
 	const double Pout = 1.35951002636 * con_vein.pressure_in;
 	Capillary & cap = caps[i];
 
+/*
 	if (Pin-Pout < Pin*1e6) {
 		cap.R = 0.0;
 		return Ri==0.0 ? 0.0 : 1.0;
 	}
+*/
 
 	const double x = Pout - Pal;
 	const double y = Pin - Pal;
@@ -1370,16 +1372,6 @@ void Model::initVesselBaselineCharacteristics()
 
 		veins[i].vessel_ratio = static_cast<double>(nElements(gen_no(i))) /
 		                        nVessels(Vessel::Vein, gen_no(i));
-	}
-
-	// Initialize capillaries
-	const int nCapillaries = numCapillaries();
-	for (int i=0; i<nCapillaries; i++) {
-		if (vessel_value_override[num_arteries + num_veins + i])
-			continue;
-
-		caps[i].Alpha = 0.219;
-		caps[i].Ho = 4.28;
 	}
 }
 
@@ -1529,6 +1521,22 @@ void Model::calculateBaselineCharacteristics()
 			art.length_factor = lengthFactor(art);
 			vein.length_factor = lengthFactor(vein);
 		}
+	}
+
+	// Initialize capillaries
+	const int num_capillaries = numCapillaries();
+	const int num_arteries = numArteries();
+	const int num_veins = numVeins();
+	const int start_offset = startIndex(n_generations);
+	for (int i=0; i<num_capillaries; i++) {
+		const Vessel &connected_vessel = arteries[i+start_offset];
+		if (vessel_value_override[num_arteries + num_veins + i])
+			continue;
+
+		double cap_ppl = Ppl - 0.55*connected_vessel.GP;
+		double cap_ptp = Pal - cap_ppl;
+		caps[i].Alpha = 0.073+0.2*exp(-0.141*cap_ptp);
+		caps[i].Ho = 2.5;
 	}
 }
 
