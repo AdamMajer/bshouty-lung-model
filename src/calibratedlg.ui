@@ -14,26 +14,28 @@
    <string>Kr Constant Calibration</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>Tolerance</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="tolerance"/>
-   </item>
    <item row="1" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="title">
       <string>Patient/Lung Characteristics</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
        <widget class="QLabel" name="label_17">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Patient Height (cm)</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Patient Height (cm)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -59,6 +61,12 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_18">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Patient Weight (cm)</string>
         </property>
@@ -86,6 +94,12 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_10">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Lung Height (cm)</string>
         </property>
@@ -113,6 +127,12 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="label_15">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -141,6 +161,12 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="label_16">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -167,27 +193,62 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="Vtlc"/>
+      </item>
       <item row="5" column="0">
        <widget class="QLabel" name="label_30">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;TLC&lt;/span&gt;&lt;span style=&quot; vertical-align:sub;&quot;/&gt;(% predicted)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
-       <widget class="QLineEdit" name="Vtlc"/>
-      </item>
      </layout>
     </widget>
    </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_9">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tolerance&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="tolerance"/>
+   </item>
    <item row="1" column="2">
     <widget class="QGroupBox" name="groupBox_2">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="title">
       <string>Lung / Hemodynamic Parameters</string>
      </property>
      <layout class="QFormLayout" name="formLayout_2">
       <item row="0" column="0">
        <widget class="QLabel" name="label_27">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Hct</string>
         </property>
@@ -202,6 +263,12 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_28">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>PA EVL (cm)</string>
         </property>
@@ -216,6 +283,12 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_29">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>PV EVL (cm)</string>
         </property>
@@ -230,6 +303,12 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="label_11">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>CO (l/min)</string>
         </property>
@@ -254,6 +333,12 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="label_12">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>LAP (mmHg)</string>
         </property>
@@ -279,7 +364,7 @@ p, li { white-space: pre-wrap; }
       <item row="5" column="0">
        <widget class="QLabel" name="label_14">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;al&lt;/span&gt; (cmH&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;2&lt;/span&gt;0)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;P&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;al&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt; (cmH&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;2&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;0)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="buddy">
          <cstring>Pal</cstring>
@@ -303,7 +388,7 @@ p, li { white-space: pre-wrap; }
       <item row="6" column="0">
        <widget class="QLabel" name="label_13">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;/&gt;(cmH&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;2&lt;/span&gt;0)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;P&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;(cmH&lt;/span&gt;&lt;span style=&quot; font-weight:400; vertical-align:sub;&quot;&gt;2&lt;/span&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;0)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="buddy">
          <cstring>Ppl</cstring>
@@ -330,8 +415,8 @@ p, li { white-space: pre-wrap; }
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Target PAP&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:12pt; vertical-align:sub;&quot;&gt;m&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; (mmHg)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Target PAP&lt;span style=&quot; vertical-align:sub;&quot;&gt;m&lt;/span&gt; (mmHg)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="buddy">
          <cstring>target_PAPm</cstring>
@@ -357,12 +442,24 @@ p, li { white-space: pre-wrap; }
    </item>
    <item row="2" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox_3">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="title">
       <string>Target Resistance Distribution</string>
      </property>
      <layout class="QFormLayout" name="formLayout_3">
       <item row="0" column="0">
        <widget class="QLabel" name="label_19">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Rus/PVR (%)</string>
         </property>
@@ -373,6 +470,12 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_21">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Rm/PVR (%)</string>
         </property>
@@ -383,6 +486,12 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_20">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Rds/PVR (%)</string>
         </property>
@@ -390,127 +499,6 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="2" column="1">
        <widget class="QLineEdit" name="target_rds"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="3">
-    <widget class="QGroupBox" name="groupBox_4">
-     <property name="title">
-      <string>Calculation Results</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>PAPm (mmHg)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="pap">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string># gen</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QLineEdit" name="n_gen">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Rus/PVR (%)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="rus">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>PA Diameter (cm)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QLineEdit" name="pa_diameter">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Rm/PVR (%)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="rm">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Krc</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLineEdit" name="krc">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Rds/PVR (%)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="rds">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>PV Diameter (cm)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="QLineEdit" name="pv_diameter">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>
@@ -597,6 +585,181 @@ p, li { white-space: pre-wrap; }
      <property name="text">
       <string>TextLabel</string>
      </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="3">
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="title">
+      <string>Calculation Results</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>PAPm (mmHg)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="pap">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_8">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string># of Generations</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLineEdit" name="n_gen">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Rus/PVR (%)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="rus">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_5">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>PA Diameter (cm)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLineEdit" name="pa_diameter">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Rm/PVR (%)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="rm">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="label_6">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Krc</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLineEdit" name="krc">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Rds/PVR (%)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="rds">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLabel" name="label_7">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>PV Diameter (cm)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QLineEdit" name="pv_diameter">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
