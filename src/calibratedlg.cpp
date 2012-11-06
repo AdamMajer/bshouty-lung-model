@@ -201,6 +201,7 @@ void CalibrateDlg::on_resetButton_clicked()
 	if (!fReset)
 		return;
 
+	DbSettings::clearCache();
 	QSqlQuery q(QSqlDatabase::database(settings_db));
 	q.exec("DELETE FROM settings WHERE key LIKE '/settings/calibration/%'");
 	reject();

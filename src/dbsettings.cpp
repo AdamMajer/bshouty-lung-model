@@ -32,6 +32,11 @@ static const QLatin1String rect_key("@Rect");
 static std::map<QString,QVariant> value_map;
 static QMutex value_lock;
 
+void DbSettings::clearCache()
+{
+	value_map.clear();
+}
+
 QVariant DbSettings::value(const QString &key, const QVariant &default_value)
 {
 	QMutexLocker lock(&value_lock);

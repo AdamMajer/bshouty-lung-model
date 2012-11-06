@@ -23,6 +23,7 @@
 class DbSettings
 {
 public:
+	static void clearCache();
 	static QVariant value(const QString &key, const QVariant &default_value=QVariant());
 	static void setValue(const QString &key, const QVariant &value);
 };
