@@ -71,9 +71,12 @@ private:
 	AsyncRangeModelHelper_p *p;
 	int timer_id;
 
+	QString label;
+
 signals:
 	void calculationComplete();
 	void completionAmount(int value); // value is [0,10000]
+	void updateLabel(QString label);
 };
 
 #endif // ASYNCRANGEHELPER_H

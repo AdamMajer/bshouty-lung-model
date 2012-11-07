@@ -17,6 +17,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QBasicTimer>
 #include <QDialog>
 #include <QLineEdit>
 #include "model/asyncrangemodelhelper.h"
@@ -51,6 +52,7 @@ protected slots:
 protected:
 	struct CalibrationValue correctVariable(const struct CalibrationValue & value) const;
 	void resetBaseModel();
+	virtual void timerEvent(QTimerEvent *ev);
 
 private:
 	Ui::CalibrateDlg *ui;
@@ -66,6 +68,7 @@ private:
 
 	// setup values - <control, <settings_path, default_value>>
 	ConfigValuesMap config_values;
+	QBasicTimer activity_indication_timer;
 };
 
 struct CalibrationValue {

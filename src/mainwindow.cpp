@@ -528,6 +528,7 @@ void MainWindow::updateResults()
 	connect(calc_thread, SIGNAL(completionAmount(int)), progress, SLOT(setValue(int)));
 	connect(calc_thread, SIGNAL(calculationComplete()), progress, SLOT(close()));
 	connect(calc_thread, SIGNAL(calculationComplete()), SLOT(calculationCompleted()));
+	connect(calc_thread, SIGNAL(updateLabel(QString)), progress, SLOT(setLabelText(const QString&)));
 	calc_thread->beginCalculation();
 }
 

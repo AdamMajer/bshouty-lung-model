@@ -20,6 +20,7 @@
 #include <QList>
 #include <QMessageBox>
 #include <QSqlQuery>
+#include <QTimerEvent>
 #include "calibratedlg.h"
 #include "common.h"
 #include "dbsettings.h"
@@ -190,6 +191,8 @@ void CalibrateDlg::on_calculateButton_clicked()
 	model_runner = new AsyncRangeModelHelper(base_model, this);
 	connect(model_runner, SIGNAL(calculationComplete()), SLOT(calculationComplete()));
 	model_runner->beginCalculation();
+
+	activity_indication_timer.start(1000, this);
 }
 
 void CalibrateDlg::on_resetButton_clicked()
@@ -210,7 +213,7 @@ void CalibrateDlg::on_resetButton_clicked()
 void CalibrateDlg::calculationComplete()
 {
 	// calibration loop
-	const QString status_msg = QLatin1String("Calculating....  [ last iteration count: %1 ]");
+	const QString status_msg = QLatin1String("Calculating ....  [ last iteration count: %1 ]");
 	ModelCalcList results = model_runner->output();
 	const int n_iter = results.first().first;
 
@@ -316,6 +319,8 @@ void CalibrateDlg::calculationComplete()
 				ui->calculateButton->setDisabled(false);
 				ui->saveButton->setDisabled(false);
 				ui->status->setText(QLatin1String("Calibration complete."));
+				activity_indication_timer.stop();
+
 				QApplication::beep();
 				gen_pos=0;
 
@@ -455,4 +460,10 @@ void CalibrateDlg::resetBaseModel()
 	for (QMap<Model::DataType,QLineEdit*>::const_iterator i=v.begin(); i!=v.end(); ++i) {
 		base_model.setData(i.key(), i.value()->text().toDouble());
 	}
+}
+
+void CalibrateDlg::timerEvent(QTimerEvent *ev)
+{
+	if (ev->timerId() == activity_indication_timer.timerId())
+		ui->status->setText(animateDots(ui->status->text()));
 }

@@ -78,6 +78,8 @@ inline double sqr( double n )
 	return n*n;
 }
 
+QString animateDots(QString in);
+
 /* Globals */
 class OpenCL;
 

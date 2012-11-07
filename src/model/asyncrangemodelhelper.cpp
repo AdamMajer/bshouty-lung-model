@@ -152,6 +152,7 @@ AsyncRangeModelHelper::AsyncRangeModelHelper(const Model &bm, QObject *parent)
 {
 	p = 0;
 	timer_id = -1;
+	label = QString::fromLatin1("Calculating ...");
 }
 
 AsyncRangeModelHelper::~AsyncRangeModelHelper()
@@ -241,7 +242,10 @@ void AsyncRangeModelHelper::timerEvent(QTimerEvent *e)
 		return;
 
 	// qDebug() << "completed amount" << p->completedAmount();
+	label = animateDots(label);
+
 	emit completionAmount(p->completedAmount());
+	emit updateLabel(label);
 	e->accept();
 }
 

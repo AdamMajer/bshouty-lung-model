@@ -116,3 +116,50 @@ void freeAligned(void *mem)
 	free(mem);
 #endif
 }
+
+QString animateDots(QString s)
+{
+	/*
+	 * Animates dots in a QString
+	 *   .... => *... => .*.. => ..*. => ...* => *...
+	 */
+
+	// NOTE: This is simple algorithm that *assues* that first dots
+	//       are to be animated. If the first . found is not preceeded
+	//       by a '*' and not followed by another . we return unmodified string.
+	int len = s.length();
+	QChar dot = QChar::fromAscii('.');
+	QChar o = QChar::fromAscii('*');
+
+	int pos = s.indexOf(dot);
+	if (pos <= 0)
+		return s;
+
+	if (s.at(pos-1) == o) {
+		s[pos-1] = dot;
+		s[pos] = o;
+	}
+	else {
+		// find 'o' and move it forward
+		int o_pos = pos+1;
+		while (o_pos<len && s[o_pos]==dot)
+			o_pos++;
+
+		if (o_pos == len || s[o_pos] != o) {
+			// o not found, set first char as o
+			s[pos] = o;
+		}
+		else if (o_pos+1==len || s[o_pos+1] != dot) {
+			// last position, cycle back to beginning
+			s[pos] = o;
+			s[o_pos] = dot;
+		}
+		else {
+			// move it forward by one
+			s[o_pos] = dot;
+			s[++o_pos] = o;
+		}
+	}
+
+	return s;
+}
