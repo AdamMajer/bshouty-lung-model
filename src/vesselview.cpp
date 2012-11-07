@@ -262,6 +262,7 @@ QString VesselView::calculatedValuesText(double lod) const
 
 	switch (type()) {
 	case Artery:
+	case Vein:
 		value_list << doubleToString(vessel->R);
 		value_list << doubleToString(vessel->a);
 		value_list << doubleToString(vessel->b);
