@@ -157,9 +157,9 @@ void VesselView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 		to.setWrapMode(QTextOption::NoWrap);
 
-		// scale the font to allow a minimum of 22 (3 for title) lines of text to be displayed
+		// scale the font to allow a minimum of 23 (+4 for title) lines of text to be displayed
 		double line_height = painter->fontMetrics().lineSpacing();
-		double scale_factor = draw_area.height() / (25.0 * line_height);
+		double scale_factor = draw_area.height() / (27.0 * line_height);
 
 		if (font.pointSizeF() < 0)
 			font.setPixelSize(font.pixelSize() * scale_factor);
@@ -202,9 +202,10 @@ QString VesselView::headers(double lod) const
 
 	switch (type()) {
 	case Artery:
-		return QString::fromUtf8("\nR\nA\nB\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow (μL/s)\nPin\nPout\n\nLength (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)");
 	case Vein:
-		return QString::fromUtf8("\nR\nB\nC\nPeri. a\nPeri. b\nPeri. c\n\nGP\nPTP\nTone\nFlow (μL/s)\nPin\nPout\n\nLength (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)");
+		return QString::fromUtf8("\nR\nA\nB\nC\nPeri. a\nPeri. b\nPeri. c\n\n"
+		                         "GP\nPTP\nTone\nFlow (μL/s)\nPin\nPout\n\n"
+		                         "Length (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)");
 	case Capillary:
 		return QLatin1String("\nR\nAlpha\nHo");
 	}
@@ -220,14 +221,11 @@ QString VesselView::baselineValuesText(double lod) const
 
 	switch (type()) {
 	case Artery:
+	case Vein:
 		value_list << doubleToString(baseline_vessel->R);
 		value_list << doubleToString(baseline_vessel->a);
-	case Vein:
-		if (type() == Vein)
-			value_list << doubleToString(baseline_vessel->R);
 		value_list << doubleToString(baseline_vessel->b);
-		if (type() == Vein)
-			value_list << doubleToString(baseline_vessel->c);
+		value_list << doubleToString(baseline_vessel->c);
 		value_list << QString::null;
 		value_list << QString::null;
 		value_list << QString::null;
@@ -266,12 +264,8 @@ QString VesselView::calculatedValuesText(double lod) const
 	case Artery:
 		value_list << doubleToString(vessel->R);
 		value_list << doubleToString(vessel->a);
-	case Vein:
-		if (type() == Vein)
-			value_list << doubleToString(vessel->R);
 		value_list << doubleToString(vessel->b);
-		if (type() == Vein)
-			value_list << doubleToString(vessel->c);
+		value_list << doubleToString(vessel->c);
 		value_list << doubleToString(vessel->perivascular_press_a);
 		value_list << doubleToString(vessel->perivascular_press_b);
 		value_list << doubleToString(vessel->perivascular_press_c);
