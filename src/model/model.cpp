@@ -1205,7 +1205,7 @@ void Model::calculateChildrenFlowPress( int i )
 
 	// Calculate flow and pressure in children vessels based on the calculated flow and their resistances
 	for( int con=connection_first; con<=connection_first+1; con++ ){
-		if (isinf(arteries[con].R) || isinf(veins[con].R)) {
+		if (isinf(arteries[con].R) || isinf(veins[con].R) || isinf(arteries[con].total_R)) {
 			// all vessels inside have no flow, so pressure is undefined
 			arteries[con].pressure_in = arteries[i].pressure_out - (arteries[con].GP - arteries[i].GP)/1.35951002636;
 			veins[con].pressure_out = veins[i].pressure_in - (veins[con].GP - veins[i].GP)/1.35951002636;
@@ -1259,20 +1259,24 @@ double Model::deltaCapillaryResistance( int i )
 	const double deltaP = Pin - Pout;
 	const double Rz = getKrc() * BSA_ratio * nElements(n_generations) / nElements(16);
 
-	// constant so the function is continuous and equal to Rz at x=25, t>=25
+	// constant so the function is continuous and equal to Rz at x=25, y>=25
 	const double K = 4.0*cap.Alpha*(sqr(cap.Ho) +
 	                                3*75*cap.Alpha*(25.0*25.0/3.0*sqr(cap.Alpha) +
 	                                                cap.Ho*(25.0+cap.Ho)));
 
+	// capillary closed if x<0 && y<0. This gets reset to different value
+	// for other conditions. Old formula was not continuous
+	//   cap.R = y/con_artery.flow - x/con_artery.flow;
+	cap.R = std::numeric_limits<double>::infinity();
+
+
 	if( x < 0 ){
-		if( y < 0 )
-			cap.R = y/con_artery.flow - x/con_artery.flow;
-		else if( y < 25 )
-			cap.R = deltaP*Rz*K/(sqr(sqr(cap.Ho + cap.Alpha*y)) -
-			                     sqr(sqr(cap.Ho)));
-		else // y >= 25
-			cap.R = deltaP*Rz*K*25/y/(sqr(sqr(cap.Ho+cap.Alpha*25)) -
-			                          sqr(sqr(cap.Ho)));
+		if( y > 0 ) {
+			double scaling = 25.0 / std::max(25.0, y);
+			y = std::min(25.0, y);
+			cap.R = deltaP*Rz*K*scaling/(sqr(sqr(cap.Ho+cap.Alpha*y)) -
+			                             sqr(sqr(cap.Ho)));
+		}
 	}
 	else if( x < 25 ){
 		if( y < 0 )
