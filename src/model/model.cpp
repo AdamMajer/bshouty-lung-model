@@ -1083,12 +1083,12 @@ double Model::calibrationValue(DataType type)
 	case Model::PV_EVL_value:
 		return 5.0;
 	case Model::PA_Diam_value:
-		return 2.656307658;
+		return 2.662993463;
 	case Model::PV_Diam_value:
-		return 1.676005599;
+		return 1.680458252;
 
 	case Model::Krc:
-		return 642.209079237;
+		return 314.478906424;
 
 	case Model::Ptp_value:
 	case Model::PAP_value:
@@ -1254,34 +1254,33 @@ double Model::deltaCapillaryResistance( int i )
 	const double Pout = 1.35951002636 * con_vein.pressure_in;
 	Capillary & cap = caps[i];
 
-/*
-	if (Pin-Pout < Pin*1e6) {
-		cap.R = 0.0;
-		return Ri==0.0 ? 0.0 : 1.0;
-	}
-*/
-
-	const double x = Pout - Pal;
-	const double y = Pin - Pal;
-	const double FACC = y-x;
-	const double FACC1 = 25.0-x;
+	double x = Pout - Pal;
+	double y = Pin - Pal;
+	const double deltaP = Pin - Pout;
 	const double Rz = getKrc() * BSA_ratio * nElements(n_generations) / nElements(16);
+
+	// constant so the function is continuous and equal to Rz at x=25, t>=25
+	const double K = 4.0*cap.Alpha*(sqr(cap.Ho) +
+	                                3*75*cap.Alpha*(25.0*25.0/3.0*sqr(cap.Alpha) +
+	                                                cap.Ho*(25.0+cap.Ho)));
 
 	if( x < 0 ){
 		if( y < 0 )
 			cap.R = y/con_artery.flow - x/con_artery.flow;
 		else if( y < 25 )
-			cap.R = FACC * Rz /( 0.001229*( exp( 4*log(cap.Ho + cap.Alpha*y ))-exp( 4*log( cap.Ho ))));
+			cap.R = deltaP*Rz*K/(sqr(sqr(cap.Ho + cap.Alpha*y)) -
+			                     sqr(sqr(cap.Ho)));
 		else // y >= 25
-			cap.R = (1-x/y) * 25*Rz/(0.001229*(exp(4*log(cap.Ho+cap.Alpha*25))-exp(4*log(cap.Ho))));
+			cap.R = deltaP*Rz*K*25/y/(sqr(sqr(cap.Ho+cap.Alpha*25)) -
+			                          sqr(sqr(cap.Ho)));
 	}
 	else if( x < 25 ){
 		if( y < 0 )
 			throw "Internal capillary resistance error 1";
-		else if( y < 25 )
-			cap.R = FACC*Rz/(0.001229*( exp( 4*log( cap.Ho+cap.Alpha*y ))-exp( 4*log( cap.Ho+cap.Alpha*x ))));
-		else // y >= 25
-			cap.R = FACC1*Rz/(0.001229*( exp(4*log( cap.Ho+cap.Alpha*25 ))-exp( 4*log( cap.Ho+cap.Alpha*x))));
+
+		y = std::min(y, 25.0);
+		cap.R = (y-x)*Rz*K/(sqr(sqr(cap.Ho+cap.Alpha*y)) -
+		                    sqr(sqr(cap.Ho+cap.Alpha*x)));
 	}
 	else { // x >= 25
 		cap.R = Rz;
@@ -1289,10 +1288,6 @@ double Model::deltaCapillaryResistance( int i )
 		if( y < 25 )
 			throw "Internal capillary resistance error 2";
 	}
-
-
-	if (Ri == 0.0) // avoid dividing by 0 and return pressure gradient instead
-		return FACC;
 
 	return fabs(cap.R-Ri)/Ri; // return different from target tolerance
 }
