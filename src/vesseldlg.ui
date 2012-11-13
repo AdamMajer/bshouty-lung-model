@@ -66,7 +66,11 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="D"/>
+       <widget class="QLineEdit" name="D">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Baseline vessel diamter in micrometers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="a_label">
@@ -76,7 +80,11 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="a"/>
+       <widget class="QLineEdit" name="a">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Parameter describing the change in vessel cross-sectional area as a function of transmural pressure (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tm&lt;/span&gt;) according to the following relationship Area=1/&lt;span style=&quot; font-weight:600;&quot;&gt;[A&lt;/span&gt;+B*e^-(C*P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tm&lt;/span&gt;)].&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_3">
@@ -86,7 +94,11 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="b"/>
+       <widget class="QLineEdit" name="b">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Parameter describing the change in vessel cross-sectional area as a function of transmural pressure (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tm&lt;/span&gt;) according to the following relationship Area=1/&lt;span style=&quot; font-weight:600;&quot;&gt;[&lt;/span&gt;A+&lt;span style=&quot; font-weight:600;&quot;&gt;B&lt;/span&gt;*e^-(C*P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tm&lt;/span&gt;)].&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="c_label">
@@ -96,7 +108,11 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="c"/>
+       <widget class="QLineEdit" name="c">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Parameter describing the change in vessel cross-sectional area as a function of transmural pressure (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tm&lt;/span&gt;) according to the following relationship Area=1/&lt;span style=&quot; font-weight:600;&quot;&gt;[&lt;/span&gt;A+B*e^-(&lt;span style=&quot; font-weight:600;&quot;&gt;C&lt;/span&gt;*P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tm&lt;/span&gt;)].&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="label_6">
@@ -106,7 +122,11 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QLineEdit" name="gp"/>
+       <widget class="QLineEdit" name="gp">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Effective Gravitational Pressure at the specific vessel position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
       </item>
       <item row="5" column="0">
        <widget class="QLabel" name="label_10">
@@ -126,7 +146,11 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="QLineEdit" name="ptp"/>
+       <widget class="QLineEdit" name="ptp">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Effective transpulmonary pressure at specific vessel position calculated as alveolar pressure (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;al&lt;/span&gt;) minus corrected (based on vertical position in the model) pleural pressure (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
       </item>
       <item row="6" column="0">
        <widget class="QLabel" name="label_5">
@@ -136,7 +160,11 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="6" column="1">
-       <widget class="QLineEdit" name="tone"/>
+       <widget class="QLineEdit" name="tone">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Smooth muscle tone (in mmHg) can be added to any vessel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

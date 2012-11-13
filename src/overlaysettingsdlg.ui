@@ -29,6 +29,9 @@
    </item>
    <item row="0" column="1">
     <widget class="QComboBox" name="overlayType">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Values are presented in absolute terms and scaled to average flow (CO/Number of vessels) in a given generation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <item>
       <property name="text">
        <string>Absolute Values (Scaled)</string>
@@ -85,6 +88,9 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Specify the Minimum Scaled (to CO) Flow.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
            </widget>
           </item>
           <item row="1" column="2">
@@ -139,6 +145,9 @@
            <widget class="QLineEdit" name="manualMaximum">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Specify the Maximum Scaled (to CO) Flow.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>

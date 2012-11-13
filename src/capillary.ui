@@ -25,7 +25,11 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLineEdit" name="alpha"/>
+    <widget class="QLineEdit" name="alpha">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Compliance  (in microm/cmH&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;O) of the Capillary Sheet (Fung and Sobin).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="label_3">
@@ -35,7 +39,11 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QLineEdit" name="ho"/>
+    <widget class="QLineEdit" name="ho">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capillary Sheet thickness (in microm).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
    </item>
    <item row="4" column="0" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -48,7 +56,11 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="r"/>
+    <widget class="QLineEdit" name="r">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Baseline Capillary Resistance.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
    </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label_4">
