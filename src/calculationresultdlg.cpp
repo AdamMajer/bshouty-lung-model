@@ -71,7 +71,7 @@ CalculationResultDlg::CalculationResultDlg(QWidget *parent, const Model &m)
 	// and add the vessels to the table
 	ui->vesselTable->setRowCount(10);
 	int table_row = 0;
-	for (std::map<double, DeltaRStruct>::const_reverse_iterator i=values.rbegin(); i!=values.rend(); ++i) {
+	for (std::multimap<double, DeltaRStruct>::const_reverse_iterator i=values.rbegin(); i!=values.rend(); ++i) {
 		QString label = VesselView::vesselToStringTitle(i->second.type, i->second.gen, i->second.idx);
 		label.append(QString::fromLatin1(" Gen: %1").arg(i->second.gen));
 
