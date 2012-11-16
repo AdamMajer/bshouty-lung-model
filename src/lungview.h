@@ -28,6 +28,9 @@ class ModelScene;
 class LungView : public QGraphicsView
 {
 public:
+	Q_OBJECT
+
+public:
 	enum OverlayType { NoOverlay,
 		           FlowOverlay,
 		           VolumeOverlay
@@ -51,6 +54,9 @@ public:
 
 	static QColor gradientColor(double distance_from_mean);
 	static double gradientToDistanceFromMean(QColor color);
+
+public slots:
+	void zoomToVessel(int type, int gen, int idx);
 
 protected:
 	virtual void drawForeground(QPainter *painter, const QRectF &rect);

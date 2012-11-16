@@ -52,6 +52,8 @@ public:
 	                   QWidget *widget);
 	virtual bool contains(const QPointF &point) const;
 
+	static QString vesselToStringTitle(Type type, int gen, int idx);
+
 protected:
 	QString headers(double lod) const;
 	QString baselineValuesText(double lod) const;

@@ -45,6 +45,7 @@ public:
 	const Model & model() const { return m; }
 	const Model &baselineModel() const { return baseline; }
 	QRectF generationRect(int n) const;
+	QRectF vesselRect(VesselView::Type type, int gen, int idx);
 
 public slots:
 	void updateModelValues();

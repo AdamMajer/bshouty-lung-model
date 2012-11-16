@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>972</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuData">
@@ -68,6 +68,7 @@
      <string>&amp;Window</string>
     </property>
     <addaction name="actionInputOutputPane"/>
+    <addaction name="actionConvergenceSummary"/>
     <addaction name="separator"/>
     <addaction name="actionCalibrateModel"/>
    </widget>
@@ -169,8 +170,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>257</width>
-              <height>1658</height>
+              <width>264</width>
+              <height>1585</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout">
@@ -1676,6 +1677,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionFixedFlow">
    <property name="text">
     <string>Fixed Flow...</string>
+   </property>
+  </action>
+  <action name="actionConvergenceSummary">
+   <property name="text">
+    <string>Convergence Summary</string>
    </property>
   </action>
  </widget>

@@ -20,6 +20,7 @@
 #include "about.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "calculationresultdlg.h"
 #include "calibratedlg.h"
 #include "capillary.h"
 #include "common.h"
@@ -715,6 +716,15 @@ void MainWindow::on_actionOpenCL_triggered()
 	dlg.exec();
 }
 
+void MainWindow::on_actionConvergenceSummary_triggered()
+{
+	CalculationResultDlg *dlg = new CalculationResultDlg(this, *model);
+	connect(dlg, SIGNAL(highlightVessel(int,int,int)),
+	        ui->view, SLOT(zoomToVessel(int,int,int)));
+	connect(dlg, SIGNAL(finished(int)), dlg, SLOT(deleteLater()));
+	dlg->show();
+}
+
 void MainWindow::on_actionCalibrateModel_triggered()
 {
 	CalibrateDlg dlg(this);
@@ -1259,6 +1269,9 @@ void MainWindow::modelSelected(Model *new_model, int n_iters)
 	updateInputsOutputs();
 
 	updateTitleFilename();
+
+	if (model->numIterations() >= 50)
+		on_actionConvergenceSummary_triggered();
 }
 
 void MainWindow::multiModelWindowClosed()

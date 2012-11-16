@@ -36,29 +36,16 @@ VesselView::VesselView(const void *baseline_data, const void *vessel_or_cap,
 	cap = 0;
 	vessel = 0;
 
-	QString vessel_side;
-	int gen_count = 1;
-	if (gen>1) {
-		vessel_side = (idx < 1<<(gen-2)) ? QLatin1String("Lt.") : QLatin1String("Rt.");
-		gen_count = 1<<(gen-2);
-	}
-
-	vessel_title = QLatin1String("%3  %4 (%1 of %2)");
-	int idx_from_bottom = gen_count - idx%gen_count;
-
 	switch (v_type) {
 	case Capillary:
 		cap = static_cast<const ::Capillary*>(vessel_or_cap);
 		baseline_cap = static_cast<const ::Capillary*>(baseline_data);
-		vessel_title = vessel_title.arg(idx_from_bottom).arg(gen_count).arg("Capillary").arg(vessel_side);
 		break;
 	case Vein:
-		vessel_title = vessel_title.arg(idx_from_bottom).arg(gen_count).arg("Vein").arg(vessel_side);
 		vessel = static_cast<const ::Vessel*>(vessel_or_cap);
 		baseline_vessel = static_cast<const ::Vessel*>(baseline_data);
 		break;
 	case Artery:
-		vessel_title = vessel_title.arg(idx_from_bottom).arg(gen_count).arg("Artery").arg(vessel_side);
 		vessel = static_cast<const ::Vessel*>(vessel_or_cap);
 		baseline_vessel = static_cast<const ::Vessel*>(baseline_data);
 		break;
@@ -66,7 +53,33 @@ VesselView::VesselView(const void *baseline_data, const void *vessel_or_cap,
 		break;
 	}
 
+	vessel_title = vesselToStringTitle(v_type, gen, idx);
 	setupPath();
+}
+
+QString VesselView::vesselToStringTitle(Type type, int gen, int idx)
+{
+	QString vessel_side;
+	int gen_count = 1;
+	if (gen>1) {
+		vessel_side = (idx < 1<<(gen-2)) ? QLatin1String("Lt.") : QLatin1String("Rt.");
+		gen_count = 1<<(gen-2);
+	}
+	QString t = QLatin1String("%3  %4 (%1 of %2)");
+	int idx_from_bottom = gen_count - idx%gen_count;
+
+	switch (type) {
+	case Capillary:
+		return t.arg(idx_from_bottom).arg(gen_count).arg("Capillary").arg(vessel_side);
+	case Vein:
+		return t.arg(idx_from_bottom).arg(gen_count).arg("Vein").arg(vessel_side);
+	case Artery:
+		return t.arg(idx_from_bottom).arg(gen_count).arg("Artery").arg(vessel_side);
+	case Connection:
+		break;
+	}
+
+	return QString();
 }
 
 VesselView::~VesselView()

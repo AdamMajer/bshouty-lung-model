@@ -92,6 +92,7 @@ Model::Model(Transducer transducer_pos, ModelType type, int n_gen, IntegralType 
 {
 	model_type = type;
 	n_generations = n_gen;
+	n_iterations = 0;
 
 	if (model_type == DoubleLung)
 		n_generations++;
@@ -218,6 +219,7 @@ Model& Model::operator =(const Model &other)
 	model_type = other.model_type;
 
 	Krc_factor = other.Krc_factor;
+	n_iterations = other.n_iterations;
 
 	if (n_generations != other.n_generations) {
 		/* If n_generations do not match, then we need to reallocate memory
@@ -923,19 +925,19 @@ int Model::calc( int max_iter )
 		model_reset = false;
 	}
 
-	int i=0;
+	n_iterations = 0;
 	do {
 		vascPress();
 
-		int iter_prog = 10000*i/max_iter;
+		int iter_prog = 10000*n_iterations/max_iter;
 		if (prog < iter_prog)
 			prog = iter_prog;
 	}while( !deltaR() &&
-	                ++i < max_iter &&
+	                ++n_iterations < max_iter &&
 	                abort_calculation==0);
 
 	modified_flag = true;
-	return i;
+	return n_iterations;
 }
 
 bool Model::calculationErrors() const
@@ -1293,7 +1295,9 @@ double Model::deltaCapillaryResistance( int i )
 			throw "Internal capillary resistance error 2";
 	}
 
-	return fabs(cap.R-Ri)/Ri; // return different from target tolerance
+	cap.last_delta_R = fabs(cap.R-Ri)/Ri;
+
+	return cap.last_delta_R; // return different from target tolerance
 }
 
 bool Model::deltaR()

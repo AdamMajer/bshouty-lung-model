@@ -1,5 +1,6 @@
 SOURCES += \
 	$${SRC_DIR}/about.cpp \
+	$${SRC_DIR}/calculationresultdlg.cpp \
 	$${SRC_DIR}/calibratedlg.cpp \
 	$${SRC_DIR}/capillary.cpp \
 	$${SRC_DIR}/capillaryview.cpp \
@@ -31,6 +32,7 @@ SOURCES += \
 
 HEADERS += \
 	$${SRC_DIR}/about.h \
+	$${SRC_DIR}/calculationresultdlg.h \
 	$${SRC_DIR}/calibratedlg.h \
 	$${SRC_DIR}/capillary.h \
 	$${SRC_DIR}/capillaryview.h \
@@ -61,6 +63,7 @@ HEADERS += \
 
 FORMS += \
 	$${SRC_DIR}/about.ui \
+	$${SRC_DIR}/calculationresultdlg.ui \
 	$${SRC_DIR}/calibratedlg.ui \
 	$${SRC_DIR}/capillary.ui \
 	$${SRC_DIR}/diseaselistdlg.ui \

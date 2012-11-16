@@ -71,6 +71,7 @@ public slots:
 	void on_actionConfigureDisease_triggered();
 	void on_actionOpenCL_triggered();
 
+	void on_actionConvergenceSummary_triggered();
 	void on_actionCalibrateModel_triggered();
 
 	void on_actionOverview_triggered();

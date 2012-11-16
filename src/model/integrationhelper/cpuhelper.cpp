@@ -182,8 +182,9 @@ double CpuIntegrationHelper::laminarFlowVessel(Vessel &vein)
 	vein.volume = vein.volume / (1e9*vein.vessel_ratio); // um**3 => uL, and correct for real number of vessels
 	vein.R = Rs;
 	// vein.R = K1 * vein.R + K2 * Rin;
+	vein.last_delta_R = fabs(Rin-vein.R)/Rin;
 
-	return fabs(Rin-vein.R)/Rin;
+	return vein.last_delta_R;
 }
 
 double CpuIntegrationHelper::integrateArtery(int vessel_index)
@@ -316,6 +317,7 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 	vein.volume = vein.volume / (1e9*vein.vessel_ratio); // um**3 => uL, and correct for real number of vessels
 	vein.R = Rtot;
 	// vein.R = K1 * vein.R + K2 * Rin;
+	vein.last_delta_R = fabs(Rin-vein.R)/Rin;
 
-	return fabs(Rin-vein.R)/Rin;
+	return vein.last_delta_R;
 }

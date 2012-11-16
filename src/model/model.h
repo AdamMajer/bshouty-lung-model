@@ -33,6 +33,7 @@ struct Vessel
 	enum Type { Artery, Vein };
 
 	double R; // mmHg*min/l
+	double last_delta_R; // (Rin-Rout)/Rout
 	double D; // um
 	double D_calc, Dmin, Dmax; // um
 	double volume; // cm**3
@@ -59,7 +60,7 @@ struct Vessel
 	char vessel_outside_lung;
 	char padding[7];
 
-	double cacheline_padding[5]; // padding to 64-byte caching boundary
+	double cacheline_padding[4]; // padding to 64-byte caching boundary
 };
 
 struct Capillary
@@ -68,7 +69,9 @@ struct Capillary
 	double Ho;
 	double Alpha;
 
-	double cacheline_padding[5];
+	double last_delta_R;
+
+	double cacheline_padding[4];
 };
 
 extern bool operator==(const struct Vessel &a, const struct Vessel &b);
@@ -174,6 +177,8 @@ public:
 	int numVeins() const { return nElements(); }
 	int numCapillaries() const { return nElements(nGenerations()); }
 
+	int numIterations() const { return n_iterations; }
+
 	// get and set data
 	const Vessel& artery( int gen, int index ) const;
 	const Vessel& vein( int gen, int index ) const;
@@ -222,7 +227,6 @@ public:
 	double getKrc();
 
 	static QString calibrationPath(DataType type);
-
 protected:
 	static double calibrationValue(DataType);
 
@@ -267,6 +271,7 @@ private:
 	bool modified_flag; // used by isModified() function
 	int abort_calculation;
 	bool model_reset;
+	int n_iterations;
 
 	int prog; // progress is set 0-10000
 	AbstractIntegrationHelper *integration_helper;

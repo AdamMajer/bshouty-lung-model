@@ -259,6 +259,34 @@ QRectF ModelScene::generationRect(int n) const
 	return QRectF(rect_w[n-1], -extra_h, rect_w[n]-rect_w[n-1], 96 + extra_h*2);
 }
 
+QRectF ModelScene::vesselRect(VesselView::Type type, int gen, int idx)
+{
+	if (gen < 1 || gen > 16 || idx < 0 || idx > m.nElements(gen))
+		return QRectF();
+
+	VesselView *vessel = 0;
+	QTransform t;
+	switch (type) {
+	case VesselView::Artery:
+		vessel = arteries[m.nElements(gen) - 1 + idx].v;
+		break;
+	case VesselView::Vein:
+		vessel = veins[m.nElements(gen) - 1 + idx].v;
+		break;
+	case VesselView::Capillary:
+		vessel = caps[idx].v;
+		break;
+	case VesselView::Connection:
+		break;
+	}
+
+	// retrieve vessel rect based on its transformation and boundingRect
+	if (vessel == 0)
+		return QRectF();
+
+	return vessel->transform().mapRect(vessel->boundingRect());
+}
+
 void ModelScene::updateModelValues()
 {
 	/* Show correct transducer */

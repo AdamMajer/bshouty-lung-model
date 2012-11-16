@@ -19,6 +19,7 @@
 
 #include <QMouseEvent>
 #include <QTextStream>
+#include <QTransform>
 #include <QWheelEvent>
 #include "lungview.h"
 #include "modelscene.h"
@@ -115,6 +116,26 @@ double LungView::gradientToDistanceFromMean(QColor c)
 		return -b;
 
 	return 0.0;
+}
+
+void LungView::zoomToVessel(int t, int gen, int idx)
+{
+	ModelScene *s = dynamic_cast<ModelScene*>(scene());
+	if (s == 0)
+		return;
+
+	VesselView::Type type = static_cast<VesselView::Type>(t);
+	QRectF r = s->vesselRect(type, gen, idx);
+	if (r.isValid()) {
+		double s = std::min(static_cast<double>(width()) / r.width(),
+		                    static_cast<double>(height()) / r.height());
+
+		QTransform new_transform;
+		new_transform.scale(s, s);
+		new_transform.translate(-r.left(), -r.top());
+
+		setTransform(new_transform);
+	}
 }
 
 void LungView::drawForeground(QPainter *painter, const QRectF &rect)
