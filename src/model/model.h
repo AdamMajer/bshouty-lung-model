@@ -36,7 +36,7 @@ struct Vessel
 	double last_delta_R; // (Rin-Rout)/Rout
 	double D; // um
 	double D_calc, Dmin, Dmax; // um
-	double volume; // cm**3
+	double volume; // ul (microlitre)
 	double length; // um
 	double length_factor; // adjustment to vessel Ptp
 	double viscosity_factor; // in cP (mPa*s)
