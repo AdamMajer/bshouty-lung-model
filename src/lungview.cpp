@@ -531,48 +531,101 @@ void LungView::calculateVolumeOverlay(const Model &model)
 	// mean is 50% of max volume
 	// stddev is 25% of max volume
 	//   -> scale is 0-100% of max volume
-
+	const double um_to_ul = 1e-9; // um^3 => ul
 	const int n_gen = model.nGenerations();
 	std::vector<double> max_art_size, max_vein_size;
+	double mean, stddev;
 
-	max_art_size.reserve(n_gen);
-	max_vein_size.reserve(n_gen);
+	max_art_size.reserve(model.nElements());
+	max_vein_size.reserve(model.nElements());
 
+	// mean as perentage of max vessel volume
 	for (int gen=1; gen<=n_gen; ++gen) {
 		const int n_elements = model.nElements(gen);
-		double art_size = 0;
-		double vein_size = 0;
 
 		for (int i=0; i<n_elements; ++i) {
 			const Vessel &art = model.artery(gen, i);
 			const Vessel &vein = model.vein(gen, i);
 
-			art_size = std::max(art_size, sqrt(art.a)*art.D);
-			vein_size = std::max(vein_size, sqrt(vein.a)*vein.D);
-		}
+			double art_s_max = art.a*sqr(art.D)*M_PI/4.0*art.length/art.vessel_ratio*um_to_ul;
+			double vein_s_max = vein.a*sqr(vein.D)*M_PI/4.0*vein.length/vein.vessel_ratio*um_to_ul;
 
-		// 1e-9 uL/um**3
-		double art_len = model.artery(gen, n_elements/2).length;
-		double vein_len = model.vein(gen, n_elements/2).length;
-		max_art_size.push_back(M_PI*art_len*art_size*art_size * 1e-9 / 4.0);
-		max_vein_size.push_back(M_PI*vein_len*vein_size*vein_size * 1e-9 / 4.0);
+			max_art_size.push_back(art_s_max);
+			max_vein_size.push_back(vein_s_max);
+
+			mean += 100.0*art.volume/art_s_max +
+			        100.0*vein.volume/vein_s_max;
+		}
 	}
+	mean = mean / (2.0 * model.nElements());
+
+	// stddev
+	std::vector<double>::const_iterator art_size_iter = max_art_size.begin();
+	std::vector<double>::const_iterator vein_size_iter = max_vein_size.begin();
+
+	stddev = 0.0;
+	for (int gen=1; gen<=n_gen; ++gen) {
+		const int n_elements = model.nElements(gen);
+
+		for (int i=0; i<n_elements; ++i) {
+			stddev += sqr(100.0*model.artery(gen, i).volume/(*art_size_iter) - mean);
+			stddev += sqr(100.0*model.vein(gen, i).volume/(*vein_size_iter) - mean);
+
+			art_size_iter++;
+			vein_size_iter++;
+		}
+	}
+	stddev = sqrt(stddev / (2.0 * model.nElements()));
+
+	// calculate actual used values
+	double overlay_stddev = 0.0;
+	double overlay_mean = 0.0;
+
+	switch (overlay_settings.type) {
+	case OverlaySettings::Absolute: {
+		overlay_settings.min = (overlay_settings.auto_min ?
+		                                std::max(0.0, mean-2.0*stddev) :
+		                                overlay_settings.min);
+		overlay_settings.max = (overlay_settings.auto_max ?
+		                                std::min(100.0, mean+2.0*stddev) :
+		                                overlay_settings.max);
+
+		overlay_mean = (overlay_settings.min + overlay_settings.max) / 2.0;
+		overlay_stddev = (overlay_settings.max - overlay_settings.min) / 4.0;
+		break;
+	}
+	case OverlaySettings::Relative:
+		overlay_settings.mean = (overlay_settings.auto_mean ?
+		                                 mean :
+		                                 overlay_settings.mean);
+		overlay_settings.range = (overlay_settings.auto_range ?
+		                                  stddev :
+		                                  overlay_settings.range/2.0);
+
+		overlay_mean = overlay_settings.mean;
+		overlay_stddev = overlay_settings.range;
+	}
+
+	// generate overlay
+	art_size_iter = max_art_size.begin();
+	vein_size_iter = max_vein_size.begin();
 
 	for (int gen=1; gen<=n_gen; ++gen) {
 		const int n_elements = model.nElements(gen);
-		const double max_art = max_art_size.at(gen-1);
-		const double max_vein = max_vein_size.at(gen-1);
 		int paint_height = overlay_image.height() / n_elements;
 		int y = 0;
 
-		qDebug("gen: %d    art vol: %f\t\tvein vol: %f", gen, max_art, max_vein);
-
 		for (int i=0; i<n_elements; ++i) {
 			const Vessel &art = model.artery(gen, i);
 			const Vessel &vein = model.vein(gen, i);
 
-			QRgb art_col = gradientColor((art.volume*art.vessel_ratio - max_art/2.0)*2.0/(max_art/2.0)).rgba();
-			QRgb vein_col = gradientColor((vein.volume*vein.vessel_ratio - max_vein/2.0)*2.0/(max_vein/2.0)).rgba();
+			double a = (100.0*art.volume/(*art_size_iter) - overlay_mean)
+			           / (2.0*overlay_stddev);
+			QRgb art_col = gradientColor(a).rgba();
+
+			double v = (100.0*vein.volume/(*vein_size_iter) - overlay_mean)
+			           / (2.0*overlay_stddev);
+			QRgb vein_col = gradientColor(v).rgba();
 
 			for (int j=y; j<y+paint_height; ++j) {
 				overlay_image.setPixel(gen-1, j, art_col);
@@ -580,18 +633,22 @@ void LungView::calculateVolumeOverlay(const Model &model)
 			}
 
 			y += paint_height;
+
+			art_size_iter++;
+			vein_size_iter++;
 		}
 	}
 
-	for (int i=0; i<7; i++) {
+	// legend
+	for (int i=0; i<21; i++) {
 		overlay_text[i].clear();
 		QTextStream label(&overlay_text[i]);
 
-		label.setNumberFlags(QTextStream::ForceSign);
 		label.setRealNumberNotation(QTextStream::FixedNotation);
 		label.setRealNumberPrecision(1);
 
-		label << i*16.66666667 << "%";
+		label << overlay_mean + ((i-10)*2*overlay_stddev) / 10.0
+		      << "%";
 	}
 }
 
