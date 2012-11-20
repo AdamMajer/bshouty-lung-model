@@ -1704,6 +1704,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>lungHt</tabstop>
   <tabstop>Vrv</tabstop>
   <tabstop>Vfrc</tabstop>
+  <tabstop>Vtlc</tabstop>
   <tabstop>Hct</tabstop>
   <tabstop>PA_EVL</tabstop>
   <tabstop>PA_Diameter</tabstop>
@@ -1726,12 +1727,12 @@ p, li { white-space: pre-wrap; }
   <tabstop>Pci</tabstop>
   <tabstop>Pco</tabstop>
   <tabstop>recalc</tabstop>
+  <tabstop>oneLungModel</tabstop>
+  <tabstop>twoLungModel</tabstop>
   <tabstop>numGenerations5</tabstop>
   <tabstop>numGenerations15</tabstop>
   <tabstop>calculationTypeDiseaseParams</tabstop>
   <tabstop>calculationTypePAPm</tabstop>
-  <tabstop>twoLungModel</tabstop>
-  <tabstop>oneLungModel</tabstop>
  </tabstops>
  <resources/>
  <connections>
