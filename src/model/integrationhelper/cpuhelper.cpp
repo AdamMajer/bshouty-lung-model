@@ -135,7 +135,7 @@ double CpuIntegrationHelper::laminarFlowVessel(Vessel &vein)
 		Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
 		      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
 
-	const double dL =  vein.length * vein.length_factor;
+	const double dL =  vein.length;
 
 	// min diameter is always first segment
 	vein.viscosity_factor = 0.0;
@@ -241,7 +241,7 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 		Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
 		                vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
 
-	const double dL =  vein.length * vein.length_factor / (double)nSums;
+	const double dL =  vein.length / (double)nSums;
 
 	// min diameter is always first segment
 	vein.viscosity_factor = 0.0;
