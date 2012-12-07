@@ -279,7 +279,7 @@ void LungView::drawOverlay(QPainter *p, const QRectF &r)
 		QRectF art_r( s->generationRect(i));
 		QRectF vein_r( 200.0 - art_r.right(), art_r.top(),
 		               art_r.width(), art_r.height());
-		const double offset = (s->model().modelType()==Model::DoubleLung && i>1) ? 10.0 : 0.0;
+		const double offset = (i>1) ? 10.0 : 0.0;
 		const double scaling_factor = 32768.0/(art_r.height()-offset*2);
 
 		// Stop at subpixel sizes

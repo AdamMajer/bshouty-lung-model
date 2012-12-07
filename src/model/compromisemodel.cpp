@@ -21,10 +21,8 @@
 #include "math.h"
 
 CompromiseModel::CompromiseModel(Model::Transducer trans,
-                                 ModelType type,
-                                 int n_generations,
                                  Model::IntegralType integral_type)
-        : Model(trans, type, n_generations, integral_type)
+        : Model(trans, integral_type)
 {
 	target_pap = 25;
 	slew_disease_idx = -1;
@@ -123,6 +121,7 @@ int CompromiseModel::calc(int max_iter)
 		com_prog = 10000*(orig_range-r.max()+r.min())/orig_range;
 	}
 
+	n_iterations = i; // override n_iterations set by Model::calc()
 	return i;
 }
 

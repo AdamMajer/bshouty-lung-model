@@ -33,8 +33,6 @@
     <property name="title">
      <string>&amp;Data</string>
     </property>
-    <addaction name="actionModelWizard"/>
-    <addaction name="separator"/>
     <addaction name="actionLoad"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
@@ -48,12 +46,6 @@
     <property name="title">
      <string>&amp;Options</string>
     </property>
-    <addaction name="actionOneLungModel"/>
-    <addaction name="actionTwoLungModel"/>
-    <addaction name="separator"/>
-    <addaction name="action5GenModel"/>
-    <addaction name="action15GenModel"/>
-    <addaction name="separator"/>
     <addaction name="actionDiseaseProgression"/>
     <addaction name="actionPAP"/>
     <addaction name="separator"/>
@@ -1160,106 +1152,6 @@ p, li { white-space: pre-wrap; }
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
-          <widget class="QGroupBox" name="groupBox">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="title">
-            <string>Single/Double Lung Model</string>
-           </property>
-           <layout class="QFormLayout" name="formLayout">
-            <item row="0" column="0">
-             <widget class="QRadioButton" name="oneLungModel">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="font">
-               <font>
-                <weight>50</weight>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Single Lung Model</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QRadioButton" name="twoLungModel">
-              <property name="font">
-               <font>
-                <weight>50</weight>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Double Lung Model</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="numGenerationOptionBox">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="title">
-            <string>Number of Generations</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
-            <item>
-             <widget class="QRadioButton" name="numGenerations5">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="font">
-               <font>
-                <weight>50</weight>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>5 Generation Model</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="numGenerations15">
-              <property name="font">
-               <font>
-                <weight>50</weight>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>15 Generation Model</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
           <widget class="QGroupBox" name="calculationTypeOptionBox">
            <property name="font">
             <font>
@@ -1415,42 +1307,6 @@ p, li { white-space: pre-wrap; }
     <string>F4</string>
    </property>
   </action>
-  <action name="actionModelWizard">
-   <property name="text">
-    <string>&amp;New Model ...</string>
-   </property>
-   <property name="statusTip">
-    <string>Starts a wizard to help you through selecting model parameters</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+N</string>
-   </property>
-  </action>
-  <action name="action5GenModel">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>5-generation Model</string>
-   </property>
-  </action>
-  <action name="action15GenModel">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>15-generation Model</string>
-   </property>
-  </action>
   <action name="actionSave">
    <property name="text">
     <string>&amp;Save</string>
@@ -1554,28 +1410,6 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="statusTip">
     <string>Accelerated computation OpenCL options and diagnostic</string>
-   </property>
-  </action>
-  <action name="actionOneLungModel">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>One Lung Model</string>
-   </property>
-  </action>
-  <action name="actionTwoLungModel">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Two Lung Model</string>
    </property>
   </action>
   <action name="actionCalibrateModel">
@@ -1727,10 +1561,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>Pci</tabstop>
   <tabstop>Pco</tabstop>
   <tabstop>recalc</tabstop>
-  <tabstop>oneLungModel</tabstop>
-  <tabstop>twoLungModel</tabstop>
-  <tabstop>numGenerations5</tabstop>
-  <tabstop>numGenerations15</tabstop>
   <tabstop>calculationTypeDiseaseParams</tabstop>
   <tabstop>calculationTypePAPm</tabstop>
  </tabstops>

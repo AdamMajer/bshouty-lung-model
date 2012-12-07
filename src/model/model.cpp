@@ -88,15 +88,9 @@ bool operator==(const struct Capillary &a, const struct Capillary &b)
 
 
 // CONSTRUCTOR - always called - initializes everything
-Model::Model(Transducer transducer_pos, ModelType type, int n_gen, IntegralType int_type)
+Model::Model(Transducer transducer_pos, IntegralType int_type)
 {
-	model_type = type;
-	n_generations = n_gen;
 	n_iterations = 0;
-
-	if (model_type == DoubleLung)
-		n_generations++;
-
 	vessel_value_override.resize(nElements()*2 + numCapillaries(), false);
 
 	arteries = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numArteries());
@@ -169,7 +163,10 @@ Model::Model(Transducer transducer_pos, ModelType type, int n_gen, IntegralType 
 
 Model::Model(const Model &other)
 {
-	n_generations = 0;
+	arteries = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numArteries());
+	veins = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numVeins());
+	caps = (Capillary*)allocateCachelineAligned(sizeof(Capillary)*numCapillaries());
+
 	*this = other;
 }
 
@@ -216,32 +213,9 @@ Model& Model::operator =(const Model &other)
 	integral_type = other.integral_type;
 
 	dis = other.dis;
-	model_type = other.model_type;
 
 	Krc_factor = other.Krc_factor;
 	n_iterations = other.n_iterations;
-
-	if (n_generations != other.n_generations) {
-		/* If n_generations do not match, then we need to reallocate memory
-		 * that store vessel information
-		 */
-
-		if (n_generations != 0) {
-			// delete current memory allocations.
-			// assume that n_generation == 0 is only from copy constructor
-			freeAligned(arteries);
-			freeAligned(veins);
-			freeAligned(caps);
-		}
-
-		n_generations = other.n_generations;
-		arteries = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numArteries());
-		veins = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numVeins());
-		caps = (Capillary*)allocateCachelineAligned(sizeof(Capillary)*numCapillaries());
-
-		if (arteries == 0 || veins == 0 || caps == 0)
-			throw std::bad_alloc();
-	}
 
 	memcpy(arteries, other.arteries, numArteries()*sizeof(Vessel));
 	memcpy(veins, other.veins, numVeins()*sizeof(Vessel));
@@ -443,106 +417,6 @@ double Model::measuredLengthRatio(Vessel::Type vessel_type,
 	return 1;
 }
 
-/*
-double Model::arteryResistanceFactor(int gen)
-{
-//	double r[] = {1, 3.31, 10.96, 36.29, 120.17};
-//	return r[gen-1];
-	if (art_calib.gen_r[0] == 0) {
-		// calculate generation resistances for 16 generations
-		const double len_ratio = art_calib.len_ratio;
-		const double diam_ratio = art_calib.diam_ratio;
-		const double branch_ratio = art_calib.branch_ratio;
-
-		double a_factor = diam_ratio*diam_ratio*diam_ratio*diam_ratio / len_ratio;
-
-		double n_vessel = 1;
-		double ind_r = getKra();
-		for (int i=0; i<16; ++i) {
-			art_calib.gen_r[i] = ind_r * n_vessel;
-
-			n_vessel *= 2.0 / branch_ratio;
-			ind_r *= a_factor;
-		}
-	}
-	return vesselResistanceFactor(gen, art_calib.gen_r);
-}
-
-double Model::veinResistanceFactor(int gen)
-{
-	if (vein_calib.gen_r[0] == 0) {
-		// calculate generation resistances for 16 generations
-		const double len_ratio = vein_calib.len_ratio;
-		const double diam_ratio = vein_calib.diam_ratio;
-		const double branch_ratio = vein_calib.branch_ratio;
-
-		double v_factor = diam_ratio*diam_ratio*diam_ratio*diam_ratio / len_ratio;
-
-		double n_vessel = 1;
-		double ind_r = getKrv();
-		for (int i=0; i<16; ++i) {
-			vein_calib.gen_r[i] = ind_r * n_vessel;
-
-			n_vessel *= 2.0 / branch_ratio;
-			ind_r *= v_factor;
-		}
-	}
-
-	return vesselResistanceFactor(gen, vein_calib.gen_r);
-}
-
-double Model::vesselResistanceFactor(int gen, const double *gen_r) const
-{
-	* Normally the remainder vesseks gets attached to the start of the
-	 * first generation unless the remainder is larger than number of vessels
-	 * in a generation, then number of vessels per generation is increased by 1
-	 * and remaing vessels get grouped at beginning.. The goal is,
-	 *
-	 *  15 gen => div=1, rem=1
-	 *  6 gen => div=3, rem=1
-	 *  5 gen => div=3, rem=1
-	 *
-	int div = 16 / n_generations;
-	int rem = 16 % n_generations;
-
-	int start_gen_idx, end_gen_idx;
-	if (rem*n_generations >= 16) {
-		// Remainder gets is separated at first generation
-		div = 16/(n_generations-1);
-		rem = 16%(n_generations-1);
-
-		if (gen == 1) {
-			start_gen_idx = 0;
-			end_gen_idx = rem;
-		}
-		else {
-			start_gen_idx = div*(gen-2)+rem;
-			end_gen_idx = div*(gen-1)+rem;
-		}
-	}
-	else {
-		// Remainder gets attached to first generation
-		if (gen == 1) {
-			start_gen_idx = 0;
-			end_gen_idx = div+rem;
-		}
-		else {
-			start_gen_idx = div*(gen-1)+rem;
-			end_gen_idx = div*gen+rem;
-		}
-	}
-
-
-	double gen_sum=0;
-
-	// Calculating individual model resistances for the target generation
-	for (int i=start_gen_idx; i<end_gen_idx; ++i)
-		gen_sum += gen_r[i] / nElements(i+1);
-
-	return gen_sum * nElements(gen);
-}
-*/
-
 double Model::BSAz() const
 {
 	return BSA(calibrationValue(Model::Pat_Ht_value),
@@ -556,7 +430,7 @@ double Model::BSA(double pat_ht, double pat_wt)
 
 const Vessel& Model::artery( int gen, int index ) const
 {
-	if( gen <= 0 || index < 0 || gen > n_generations || index >= nElements( gen ))
+	if( gen <= 0 || index < 0 || gen > 16 || index >= nElements( gen ))
 		throw "Out of bounds";
 
 	return arteries[ index + startIndex( gen )];
@@ -564,7 +438,7 @@ const Vessel& Model::artery( int gen, int index ) const
 
 const Vessel& Model::vein( int gen, int index ) const
 {
-	if( gen <= 0 || index < 0 || gen > n_generations || index >= nElements( gen ))
+	if( gen <= 0 || index < 0 || gen > 16 || index >= nElements( gen ))
 		throw "Out of bounds";
 
 	return veins[ index + startIndex( gen )];
@@ -572,7 +446,7 @@ const Vessel& Model::vein( int gen, int index ) const
 
 const Capillary& Model::capillary( int index ) const
 {
-	if( index < 0 || index >= nElements( n_generations ))
+	if( index < 0 || index >= nElements( 16 ))
 		throw "Out of bounds";
 
 	return caps[ index ];
@@ -580,7 +454,7 @@ const Capillary& Model::capillary( int index ) const
 
 void Model::setArtery(int gen, int index, const Vessel & v, bool override)
 {
-	if( gen <= 0 || index < 0 || gen > n_generations || index >= nElements( gen ))
+	if( gen <= 0 || index < 0 || gen > 16 || index >= nElements( gen ))
 		throw "Out of bounds";
 
 	const int idx = index + startIndex(gen);
@@ -592,7 +466,7 @@ void Model::setArtery(int gen, int index, const Vessel & v, bool override)
 
 void Model::setVein(int gen, int index, const Vessel & v, bool override)
 {
-	if( gen <= 0 || index < 0 || gen > n_generations || index >= nElements( gen ))
+	if( gen <= 0 || index < 0 || gen > 16 || index >= nElements( gen ))
 		throw "Out of bounds";
 
 	const int idx = index + startIndex(gen);
@@ -605,7 +479,7 @@ void Model::setVein(int gen, int index, const Vessel & v, bool override)
 
 void Model::setCapillary(int index, const Capillary & c, bool override)
 {
-	if( index < 0 || index >= nElements( n_generations ))
+	if( index < 0 || index >= nElements( 16 ))
 		throw "Out of bounds";
 
 	const int c_idx = index + nElements()*2;
@@ -642,8 +516,8 @@ double Model::getResult(DataType type) const
 		return (getResult(PAP_value) - LAP) / CO;
 	case PciA_value:{
 			double ret = 0.0;
-			int n = nElements( n_generations );
-			int start = startIndex( n_generations );
+			int n = nElements( 16 );
+			int start = startIndex( 16 );
 			int end = start + n;
 			while( start < end ){
 				if (isnan(arteries[start].pressure_out))
@@ -657,8 +531,8 @@ double Model::getResult(DataType type) const
 		}
 	case PcoA_value:{
 			double ret = 0.0;
-			int n = nElements( n_generations );
-			int start = startIndex( n_generations );
+			int n = nElements( 16 );
+			int start = startIndex( 16 );
 			int end = start + n;
 			while( start < end ){
 				if (isnan(veins[start].pressure_in))
@@ -1259,7 +1133,7 @@ double Model::deltaCapillaryResistance( int i )
 	double x = Pout - Pal;
 	double y = Pin - Pal;
 	const double deltaP = Pin - Pout;
-	const double Rz = getKrc() * BSA_ratio * nElements(n_generations) / nElements(16);
+	const double Rz = getKrc() * BSA_ratio * nElements(16) / nElements(16);
 
 	// constant so the function is continuous and equal to Rz at x=25, y>=25
 	const double K = 4.0*cap.Alpha*(sqr(cap.Ho) +
@@ -1392,7 +1266,7 @@ void Model::initVesselBaselineResistances()
 		if (vessel_value_override[nElements()*2 + i])
 			continue;
 
-		caps[i].R = cKrc * nElements(n_generations) / nElements(16);
+		caps[i].R = cKrc;
 	}
 }
 
@@ -1450,17 +1324,10 @@ void Model::initVesselBaselineResistances(int gen)
 		// then corrected based on transducer position
 		// GPz is a fraction of lung height
 		int gp_gen = gen;
-		int effective_ngen = n_generations;
-
-		switch (model_type) {
-		case SingleLung:
-			break;
-		case DoubleLung:
-			effective_ngen--;
-			if (gen > 1) {
-				gp_gen--;
-				vessel_no %= nElements(gp_gen);
-			}
+		int effective_ngen = 16-1;
+		if (gen > 1) {
+			gp_gen--;
+			vessel_no %= nElements(gp_gen);
 		}
 
 		const double GPz = (vessel_no*exp((effective_ngen-gp_gen+1)*M_LN2)+
@@ -1530,7 +1397,7 @@ void Model::calculateBaselineCharacteristics()
 	const int num_capillaries = numCapillaries();
 	const int num_arteries = numArteries();
 	const int num_veins = numVeins();
-	const int start_offset = startIndex(n_generations);
+	const int start_offset = startIndex(16);
 	for (int i=0; i<num_capillaries; i++) {
 		const Vessel &connected_vessel = arteries[i+start_offset];
 		if (vessel_value_override[num_arteries + num_veins + i])
@@ -1644,16 +1511,6 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	q.addBindValue((int)trans_pos);
 	q.exec();
 
-	q.addBindValue("model_type");
-	q.addBindValue(offset);
-	q.addBindValue((int)model_type);
-	q.exec();
-
-	q.addBindValue("ngen");
-	q.addBindValue(offset);
-	q.addBindValue(n_generations);
-	q.exec();
-
 	q.addBindValue("integral_type");
 	q.addBindValue(offset);
 	q.addBindValue((int)integral_type);
@@ -1662,7 +1519,7 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	if (progress)
 		progress->setValue(progress->value()+1);
 
-	double div_per_vessel = (nElements()*2+nElements(n_generations)) * 0.999 / 998.0;
+	double div_per_vessel = (nElements()*2+nElements(16)) * 0.999 / 998.0;
 	double progress_value=0, current_value=0;
 
 	// save each vessel value
@@ -1733,7 +1590,7 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 		}
 	}
 
-	n_elements = nElements(n_generations);
+	n_elements = nElements(16);
 	values.clear();
 
 	for (int n=0; n<n_elements; ++n) {
@@ -1831,9 +1688,6 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 
 	q.prepare("SELECT value FROM model_values WHERE key = ? AND offset = ?");
 
-	/* Load transducer and model_type first and make certain the model has correct
-	 * number of generations of vessels allocated.
-	 */
 	q.addBindValue("transducer");
 	q.addBindValue(offset);
 	if (!q.exec() || !q.next()) {
@@ -1842,13 +1696,6 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	}
 	trans_pos = (Transducer)q.value(0).toInt();
 
-	q.addBindValue("model_type");
-	q.addBindValue(offset);
-	if (!q.exec() || !q.next())
-		model_type = SingleLung;
-	else
-		model_type = (ModelType)q.value(0).toInt();
-
 	q.addBindValue("integral_type");
 	q.addBindValue(offset);
 	if (!q.exec() || !q.next())
@@ -1856,18 +1703,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	else
 		integral_type = (IntegralType)q.value(0).toInt();
 
-	q.addBindValue("ngen");
-	q.addBindValue(offset);
-	if (!q.exec() || !q.next())
-		return false;
-	int new_gen = q.value(0).toInt();
-	if (new_gen == 0)
-		return false;
-	if (new_gen != nGenerations()) {
-		if (model_type == DoubleLung)
-			new_gen--;
-		*this = Model(trans_pos, model_type, new_gen, integral_type);
-	}
+	*this = Model(trans_pos, integral_type);
 
 	// Load all values
 	for (QMap<QString,double>::iterator i=values.begin(); i!=values.end(); ++i) {
@@ -1907,7 +1743,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	if (progress)
 		progress->setValue(progress->value()+1);
 
-	double div_per_vessel = 998.0 / (nElements()*2+nElements(n_generations));
+	double div_per_vessel = 998.0 / (nElements()*2+nElements(16));
 	double progress_value=0, current_value=0;
 
 	q.prepare("SELECT value FROM vessel_values WHERE type=? AND vessel_idx=? AND key=? AND offset=?");

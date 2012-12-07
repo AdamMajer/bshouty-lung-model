@@ -103,11 +103,9 @@ public:
 
 	enum Transducer { Top, Middle, Bottom };
 
-	enum ModelType { SingleLung=0, DoubleLung };
-
 	enum IntegralType { BshoutyIntegral, LaminarFlow, NavierStokes };
 
-	Model( Transducer, ModelType, int n_generations, IntegralType type );
+	Model( Transducer, IntegralType type );
 	Model(const Model &other);
 	virtual ~Model();
 
@@ -118,7 +116,7 @@ public:
 	IntegralType integralType() const { return integral_type; }
 
 	// Number of generations in the model
-	int nGenerations() const { return n_generations; }
+	int nGenerations() const { return 16; }
 
 	// number of elements on each side of the model
 	int nElements() const { return (1 << nGenerations())-1; } // 2^nGenerations-1
@@ -191,7 +189,6 @@ public:
 	virtual double getResult( DataType ) const;
 	virtual bool setData( DataType, double );
 
-	ModelType modelType() const { return model_type; }
 	Transducer transducerPos() const;
 	void setTransducerPos(Transducer trans);
 
@@ -253,6 +250,7 @@ protected:
 
 protected:
 	DiseaseList dis;
+	int n_iterations;
 
 private:
 	double Tlrns, LungHt, Pal, Ppl, CO, CI, LAP;
@@ -261,9 +259,7 @@ private:
 	double Hct;
 	double PA_EVL, PA_diam, PV_EVL, PV_diam; // cm
 	Transducer trans_pos;
-	ModelType model_type;
 
-	int n_generations;
 	std::vector<bool> vessel_value_override; // [arts + veins + caps]
 	Vessel *arteries, *veins;
 	Capillary *caps;
@@ -271,13 +267,11 @@ private:
 	bool modified_flag; // used by isModified() function
 	int abort_calculation;
 	bool model_reset;
-	int n_iterations;
 
 	int prog; // progress is set 0-10000
 	AbstractIntegrationHelper *integration_helper;
 
 	double BSA_ratio; // BSAz()/BSA()
-
 
 	/* Calibration constants */
 	double Krc_factor;

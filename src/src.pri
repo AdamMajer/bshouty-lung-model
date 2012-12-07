@@ -27,8 +27,7 @@ SOURCES += \
 	$${SRC_DIR}/vesseldlg.cpp \
 	$${SRC_DIR}/vesselview.cpp \
 	$${SRC_DIR}/vesselwidget.cpp \
-	$${SRC_DIR}/vesselconnectionview.cpp \
-	$${SRC_DIR}/wizard.cpp
+	$${SRC_DIR}/vesselconnectionview.cpp
 
 HEADERS += \
 	$${SRC_DIR}/about.h \
@@ -58,8 +57,7 @@ HEADERS += \
 	$${SRC_DIR}/vesseldlg.h \
 	$${SRC_DIR}/vesselview.h \
 	$${SRC_DIR}/vesselwidget.h \
-	$${SRC_DIR}/vesselconnectionview.h \
-	$${SRC_DIR}/wizard.h
+	$${SRC_DIR}/vesselconnectionview.h
 
 FORMS += \
 	$${SRC_DIR}/about.ui \
@@ -78,6 +76,5 @@ FORMS += \
 RESOURCES += $${SRC_DIR}/images.qrc
 RC_FILE = $${SRC_DIR}/model.rc
 
-include(wizard/wizard.pri)
 include(model/model.pri)
 

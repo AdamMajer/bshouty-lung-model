@@ -27,12 +27,9 @@
 #include "ui_calibratedlg.h"
 #include <limits>
 
-const int CalibrateDlg::n_gen_progression[] = {/*5, 6, 15,*/ 16, 0};
-
 CalibrateDlg::CalibrateDlg(QWidget *parent)
         : QDialog(parent),
-          gen_pos(0),
-          base_model(Model::Middle, Model::DoubleLung, 15, Model::BshoutyIntegral)
+          base_model(Model::Middle, Model::BshoutyIntegral)
 {
 	ui = new Ui::CalibrateDlg;
 	ui->setupUi(this);
@@ -240,7 +237,7 @@ void CalibrateDlg::calculationComplete()
 	ui->rm->setText(doubleToString(rm/pvr*100.0, 2));
 	ui->rds->setText(doubleToString(rds/pvr*100.0, 2));
 
-	ui->n_gen->setText(QString::number(n_gen_progression[gen_pos]));
+	ui->n_gen->setText(QString::number(16));
 
 	bool calibration_complete = true;
 
@@ -306,29 +303,15 @@ void CalibrateDlg::calculationComplete()
 		if (m->getResult(Model::Tlrns_value) <= tlrns)
 			tlrns /= 2.0;
 		else {
-			gen_pos++;
+			ui->calculateButton->setDisabled(false);
+			ui->saveButton->setDisabled(false);
+			ui->status->setText(QLatin1String("Calibration complete."));
+			activity_indication_timer.stop();
 
-			switch (n_gen_progression[gen_pos]) {
-			case 5:
-			case 6:
-			case 15:
-			case 16:
-				tlrns = 0.001;
-				break;
-			case 0:
-				ui->calculateButton->setDisabled(false);
-				ui->saveButton->setDisabled(false);
-				ui->status->setText(QLatin1String("Calibration complete."));
-				activity_indication_timer.stop();
+			QApplication::beep();
 
-				QApplication::beep();
-				gen_pos=0;
-
-				setCursor(Qt::ArrowCursor);
-				return;
-			default:
-				qFatal("Should not happen");
-			}
+			setCursor(Qt::ArrowCursor);
+			return;
 		}
 	} // if (calibration_complete)
 
@@ -421,23 +404,6 @@ struct CalibrationValue CalibrateDlg::correctVariable(const CalibrationValue &va
 
 void CalibrateDlg::resetBaseModel()
 {
-	switch (n_gen_progression[gen_pos]) {
-	case 5:
-	case 15:
-		base_model = Model(Model::Middle,
-		                   Model::SingleLung,
-		                   n_gen_progression[gen_pos],
-		                   Model::BshoutyIntegral);
-		break;
-	case 6:
-	case 16:
-		base_model = Model(Model::Middle,
-		                   Model::DoubleLung,
-		                   n_gen_progression[gen_pos]-1,
-		                   Model::BshoutyIntegral);
-		break;
-	}
-
 	QMap<Model::DataType, QLineEdit*> v;
 
 	v.insert(Model::Tlrns_value, ui->tolerance);

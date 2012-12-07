@@ -39,7 +39,6 @@ class QCheckBox;
 class ModelScene;
 class MultiModelOutput;
 class QPropertyAnimation;
-class Wizard;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -58,7 +57,6 @@ public slots:
 	// void on_transducerPosition_activated( int position );
 	void on_actionCalculate_triggered();
 	void on_actionResetModel_triggered();
-	void on_actionModelWizard_triggered();
 
 	void on_actionLoad_triggered();
 	void on_actionSave_triggered();
@@ -123,8 +121,6 @@ protected slots:
 	void diseaseActionTriggered(bool);
 	void diseaseGroupBoxTriggered(int id);
 
-	void numLungsGroupClick(int id);
-	void numGenerationButtonGroupClick(int id);
 	void calculationTypeButtonGroupClick(int id);
 	void allocateNewModel(bool propagate_diseases_to_new_model=true);
 

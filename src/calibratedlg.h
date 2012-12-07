@@ -61,9 +61,6 @@ private:
 	AsyncRangeModelHelper *model_runner;
 	double tlrns;
 
-	const static int n_gen_progression[];
-	int gen_pos;
-
 	Model base_model;
 
 	// setup values - <control, <settings_path, default_value>>

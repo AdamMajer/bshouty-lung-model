@@ -47,18 +47,12 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 
 	for (int gen=1; gen<=m.nGenerations(); ++gen) {
 		QTransform shear_transform = QTransform();
-		double split_lung_offset = 0;
+		double split_lung_offset = (gen>1) ? 10 : 0;
 		int nElements = m.nElements(gen);
 		int n = m.startIndex(gen);
 
 		double cell_scaling_factor = 1.0/exp2(gen);
 		bool final_generation = (gen == m.nGenerations());
-
-		if (base.modelType() == Model::DoubleLung) {
-			// "stretch" space between two models after 1st generation
-			if (gen > 1)
-				split_lung_offset = 10;
-		}
 
 		for (int i=0; i<nElements; ++i, ++n) {
 			QTransform vein_mirror = QTransform(-1, 0, 0, 1, 0, 0);
@@ -114,12 +108,7 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 			}
 			else {
 				// Add connecting items to next generation
-				double y_offset = 0.0;
-				if (base.modelType() == Model::DoubleLung) {
-					// "stretch" space between two models after 1st generation
-					if (gen == 1)
-						y_offset = 20;
-				}
+				double y_offset = (gen==1) ? 20.0 : 0.0;
 
 				VesselConnectionView *art_con = new VesselConnectionView(VesselView::Artery, gen, i, y_offset);
 				VesselConnectionView *vein_con = new VesselConnectionView(VesselView::Vein, gen, i, y_offset);
@@ -175,26 +164,24 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 	//item->setZValue(-100);
 	addItem(item);
 
-	if (base.modelType() == Model::DoubleLung) {
-		item = new QGraphicsTextItem("Left Lung");
-		item->setFont(font);
-		item->setScale(0.3);
-		item->setPos(91, 37);
-		//item->setZValue(-100);
-		addItem(item);
+	item = new QGraphicsTextItem("Left Lung");
+	item->setFont(font);
+	item->setScale(0.3);
+	item->setPos(91, 37);
+	//item->setZValue(-100);
+	addItem(item);
 
-		item = new QGraphicsTextItem("Right Lung");
-		item->setFont(font);
-		item->setScale(0.3);
-		item->setPos(90, 52);
-		//item->setZValue(-100);
-		addItem(item);
+	item = new QGraphicsTextItem("Right Lung");
+	item->setFont(font);
+	item->setScale(0.3);
+	item->setPos(90, 52);
+	//item->setZValue(-100);
+	addItem(item);
 
-		QGraphicsLineItem *line = new QGraphicsLineItem(QLineF(75, 49, 125, 49));
-		line->setPen(QPen(QColor(128, 200, 128, 128), 0.25, Qt::DotLine));
-		//line->setZValue(-100);
-		addItem(line);
-	}
+	QGraphicsLineItem *line = new QGraphicsLineItem(QLineF(75, 49, 125, 49));
+	line->setPen(QPen(QColor(128, 200, 128, 128), 0.25, Qt::DotLine));
+	//line->setZValue(-100);
+	addItem(line);
 
 	updateModelValues();
 }
@@ -252,9 +239,7 @@ QRectF ModelScene::generationRect(int n) const
 	                            99.99847412109375
 	                          };
 
-	int extra_h = 0;
-	if (model().modelType() == Model::DoubleLung)
-		extra_h = 10;
+	int extra_h = 10;
 
 	return QRectF(rect_w[n-1], -extra_h, rect_w[n]-rect_w[n-1], 96 + extra_h*2);
 }

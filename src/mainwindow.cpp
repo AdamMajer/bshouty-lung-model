@@ -34,7 +34,6 @@
 #include "opencl.h"
 #include "overlaymapwidget.h"
 #include "specialfixedflowwidget.h"
-#include "wizard.h"
 
 #include "model/integrationhelper/cpuhelper.h"
 
@@ -81,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
 	calc_thread = 0;
 	mres = 0;
 
-	baseline = new Model(Model::Middle, Model::DoubleLung, 15, Model::BshoutyIntegral);
+	baseline = new Model(Model::Middle, Model::BshoutyIntegral);
 	model = baseline->clone();
 	ui = new Ui::MainWindow;
 	ui->setupUi(this);
@@ -89,20 +88,6 @@ MainWindow::MainWindow(QWidget *parent)
 	disease_model = new DiseaseModel(this);
 	ui->diseaseView->setModel(disease_model);
 	ui->diseaseView->setItemDelegate(new DiseaseParamDelegate(ui->diseaseView));
-
-	QActionGroup *num_lung_actiongroup = new QActionGroup(this);
-	num_lung_actiongroup->addAction(ui->actionOneLungModel);
-	num_lung_actiongroup->addAction(ui->actionTwoLungModel);
-	num_lung_actiongroup->setExclusive(true);
-	connect(num_lung_actiongroup, SIGNAL(triggered(QAction*)),
-	        SLOT(setNumLungs(QAction*)));
-
-	QActionGroup *ngen_actiongroup = new QActionGroup(this);
-	ngen_actiongroup->addAction(ui->action15GenModel);
-	ngen_actiongroup->addAction(ui->action5GenModel);
-	ngen_actiongroup->setExclusive(true);
-	connect(ngen_actiongroup, SIGNAL(triggered(QAction*)),
-	        SLOT(setNumGenerations(QAction*)));
 
 	QActionGroup *calc_type = new QActionGroup(this);
 	calc_type->addAction(ui->actionDiseaseProgression);
@@ -128,18 +113,6 @@ MainWindow::MainWindow(QWidget *parent)
 	        SLOT(setIntegralType(QAction*)));
 
 	QButtonGroup *bg = new QButtonGroup(this);
-	bg->addButton(ui->oneLungModel, 1);
-	bg->addButton(ui->twoLungModel, 2);
-	bg->setExclusive(true);
-	connect(bg, SIGNAL(buttonClicked(int)), SLOT(numLungsGroupClick(int)));
-
-	bg = new QButtonGroup(this);
-	bg->addButton(ui->numGenerations5, 5);
-	bg->addButton(ui->numGenerations15, 15);
-	bg->setExclusive(true);
-	connect(bg, SIGNAL(buttonClicked(int)),
-	        SLOT(numGenerationButtonGroupClick(int)));
-
 	bg = new QButtonGroup(this);
 	bg->addButton(ui->calculationTypeDiseaseParams, DiseaseProgressCalculation);
 	bg->addButton(ui->calculationTypePAPm, PAPmCalculation);
@@ -150,11 +123,7 @@ MainWindow::MainWindow(QWidget *parent)
 	// link the group boxes with actions, avoiding recursive loops
 	typedef QPair<QAction*,QRadioButton*> linked_control;
 	QList<linked_control> linked_controls;
-	linked_controls << linked_control(ui->actionOneLungModel, ui->oneLungModel)
-	                << linked_control(ui->actionTwoLungModel, ui->twoLungModel)
-	                << linked_control(ui->action5GenModel, ui->numGenerations5)
-	                << linked_control(ui->action15GenModel, ui->numGenerations15)
-	                << linked_control(ui->actionDiseaseProgression, ui->calculationTypeDiseaseParams)
+	linked_controls << linked_control(ui->actionDiseaseProgression, ui->calculationTypeDiseaseParams)
 	                << linked_control(ui->actionPAP, ui->calculationTypePAPm);
 	foreach (const linked_control &c, linked_controls)
 		connect(c.first, SIGNAL(toggled(bool)), c.second, SLOT(setChecked(bool)));
@@ -198,7 +167,6 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->PV_EVL->setProperty(range_property, "0.5 to 20;0.1");
 	ui->PV_Diameter->setProperty(range_property, "0.5 to 20;0.05");
 
-	// on_actionModelWizard_triggered();
 	ui->diseaseView->hide();
 	ui->diseaseViewLabel->hide();
 
@@ -256,10 +224,6 @@ MainWindow::MainWindow(QWidget *parent)
 	QRect new_rect = DbSettings::value("/settings/main_window_size", QRect()).toRect();
 	if (new_rect.isValid())
 		setGeometry(new_rect);
-
-	// wizard, show on start
-	if (DbSettings::value(show_wizard_on_start, "true").toBool())
-		QTimer::singleShot(0, ui->actionModelWizard, SLOT(trigger()));
 
 #if (QT_POINTER_SIZE != 8)
 	ui->actionOpenCL->setEnabled(false);
@@ -541,103 +505,6 @@ void MainWindow::on_actionCalculate_triggered()
 void MainWindow::on_actionResetModel_triggered()
 {
 	allocateNewModel(false);
-}
-
-void MainWindow::on_actionModelWizard_triggered()
-{
-	Wizard wiz(this);
-	if (wiz.exec() != QDialog::Accepted)
-		return;
-
-	ui->action5GenModel->setChecked(wiz.nGenerations() == 5);
-	ui->action15GenModel->setChecked(wiz.nGenerations() == 15);
-
-	ui->actionOneLungModel->setChecked(wiz.singleLungModel());
-	ui->actionTwoLungModel->setChecked(!wiz.singleLungModel());
-
-	DiseaseList diseases = Disease::allDiseases();
-	DiseaseList pvod_pah_disease;
-
-	for (DiseaseList::const_iterator i=diseases.begin(); i!=diseases.end(); ++i)
-		if (i->id() == PVOD_ID) {
-			pvod_pah_disease.push_back(*i);
-			break;
-		}
-
-	for (DiseaseList::const_iterator i=diseases.begin(); i!=diseases.end(); ++i)
-		if (i->id() == PAH_ID) {
-			pvod_pah_disease.push_back(*i);
-			break;
-		}
-
-	if (pvod_pah_disease.size() != 2 )
-		throw "Error!";
-
-	/* Sets up disease */
-	disease_model->clear();
-	switch (wiz.exitPage()) {
-	case Wizard::Wizard_IntroPage:
-	case Wizard::Wizard_GenerationPage:
-	case Wizard::Wizard_ModelPage:
-	case Wizard::Wizard_PHPage:
-	case Wizard::Wizard_PHPahPage:
-	case Wizard::Wizard_PHPvodPage:
-	case Wizard::Wizard_FullModelPage:
-	case Wizard::Wizard_ModelTypePage:
-		// Not possible outcomes! or not used
-		break;
-	case Wizard::Wizard_PahAreaPage:
-	case Wizard::Wizard_PahPAPPage: {
-		Disease d(*(--pvod_pah_disease.end()));
-
-		disease_model->addDisease(d);
-		disease_model->setSlewParameter(d, 0);
-		break;
-	}
-	case Wizard::Wizard_PvodAreaPage:
-	case Wizard::Wizard_PvodPAPPage:
-		Disease d(*pvod_pah_disease.begin());
-
-		disease_model->addDisease(d);
-		disease_model->setSlewParameter(d, 0);
-		break;
-	}
-
-	/* Sets up menu selections */
-	switch (wiz.exitPage()) {
-	case Wizard::Wizard_IntroPage:
-	case Wizard::Wizard_GenerationPage:
-	case Wizard::Wizard_ModelPage:
-	case Wizard::Wizard_PHPage:
-	case Wizard::Wizard_PHPahPage:
-	case Wizard::Wizard_PHPvodPage:
-	case Wizard::Wizard_ModelTypePage:
-		// Not possible outcomes!
-		break;
-	case Wizard::Wizard_FullModelPage:
-		ui->actionDiseaseProgression->setChecked(false);
-		ui->actionPAP->setChecked(true);
-		break;
-	case Wizard::Wizard_PahAreaPage:
-		ui->actionPAP->setChecked(false);
-		ui->actionDiseaseProgression->setChecked(true);
-		break;
-	case Wizard::Wizard_PvodAreaPage:
-		ui->actionPAP->setChecked(false);
-		ui->actionDiseaseProgression->setChecked(true);
-		break;
-	case Wizard::Wizard_PahPAPPage:
-		ui->actionDiseaseProgression->setChecked(false);
-		ui->actionPAP->setChecked(true);
-		break;
-	case Wizard::Wizard_PvodPAPPage:
-		ui->actionDiseaseProgression->setChecked(false);
-		ui->actionPAP->setChecked(true);
-		break;
-	}
-
-	allocateNewModel(true);
-	updateDiseaseMenu();
 }
 
 void MainWindow::on_actionLoad_triggered()
@@ -1321,30 +1188,6 @@ void MainWindow::diseaseGroupBoxTriggered(int id)
 	}
 }
 
-void MainWindow::numLungsGroupClick(int id)
-{
-	switch (id) {
-	case 1:
-		ui->actionOneLungModel->trigger();
-		break;
-	case 2:
-		ui->actionTwoLungModel->trigger();
-		break;
-	}
-}
-
-void MainWindow::numGenerationButtonGroupClick(int id)
-{
-	switch (id) {
-	case 5:
-		ui->action5GenModel->trigger();
-		break;
-	case 15:
-		ui->action15GenModel->trigger();
-		break;
-	}
-}
-
 void MainWindow::calculationTypeButtonGroupClick(int id)
 {
 	switch ((ModelCalculationType)id) {
@@ -1361,20 +1204,12 @@ void MainWindow::allocateNewModel(bool propagate_diseases_to_new_model)
 {
 	Model *old_model = model;
 
-	Model::ModelType model_type = Model::SingleLung;
 	ModelCalculationType calculation_type = PAPmCalculation;
-	int n_generations = 5;
 	Model::Transducer trans_pos = model->transducerPos();
 	Model::IntegralType type = Model::BshoutyIntegral;
 
 	if (ui->actionDiseaseProgression->isChecked())
 		calculation_type = DiseaseProgressCalculation;
-
-	if (ui->action15GenModel->isChecked())
-		n_generations = 15;
-
-	if (ui->actionTwoLungModel->isChecked())
-		model_type = Model::DoubleLung;
 
 	if (ui->actionBshoutyIntegral->isChecked())
 		type = Model::BshoutyIntegral;
@@ -1385,10 +1220,10 @@ void MainWindow::allocateNewModel(bool propagate_diseases_to_new_model)
 
 	switch (calculation_type) {
 	case DiseaseProgressCalculation:
-		model = new CompromiseModel(trans_pos, model_type, n_generations, type);
+		model = new CompromiseModel(trans_pos, type);
 		break;
 	case PAPmCalculation:
-		model = new Model(trans_pos, model_type, n_generations, type);
+		model = new Model(trans_pos, type);
 		break;
 	}
 
