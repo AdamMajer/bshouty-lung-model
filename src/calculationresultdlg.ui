@@ -14,15 +14,22 @@
    <string>Model Convergence Summary</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Number of Iterations</string>
+   <item row="1" column="3">
+    <widget class="QLineEdit" name="targetDeltaR">
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="iterationCount">
+   <item row="1" column="2">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Target DeltaR</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="avDeltaR">
      <property name="readOnly">
       <bool>true</bool>
      </property>
@@ -38,51 +45,42 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="avDeltaR">
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="iterationCount">
      <property name="readOnly">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="1" column="2">
-    <widget class="QLabel" name="label_3">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>Target DeltaR</string>
+      <string>Number of Iterations</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="3">
-    <widget class="QLineEdit" name="targetDeltaR">
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
+   <item row="3" column="0" colspan="4">
+    <widget class="QTableWidget" name="vesselTable">
+     <column>
+      <property name="text">
+       <string>Vessel</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Delta R</string>
+      </property>
+     </column>
     </widget>
    </item>
    <item row="2" column="0" colspan="4">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>GroupBox</string>
+    <widget class="QLabel" name="label_4">
+     <property name="styleSheet">
+      <string notr="true">font: bold</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <property name="margin">
-       <number>0</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QTableWidget" name="vesselTable">
-        <column>
-         <property name="text">
-          <string>Vessel</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Delta R</string>
-         </property>
-        </column>
-       </widget>
-      </item>
-     </layout>
+     <property name="text">
+      <string>Largest Delta-R by Vessel</string>
+     </property>
     </widget>
    </item>
   </layout>
@@ -91,7 +89,6 @@
   <tabstop>iterationCount</tabstop>
   <tabstop>avDeltaR</tabstop>
   <tabstop>targetDeltaR</tabstop>
-  <tabstop>vesselTable</tabstop>
  </tabstops>
  <resources/>
  <connections/>

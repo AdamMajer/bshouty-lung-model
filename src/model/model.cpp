@@ -101,6 +101,7 @@ Model::Model(Transducer transducer_pos, IntegralType int_type)
 		throw std::bad_alloc();
 
 	Krc_factor = calibrationValue(Krc);
+	pat_gender = Male;
 
 	/* set to zero, mostly to prevent valgrind complaining */
 	memset(arteries, 0, numArteries()*sizeof(Vessel));
@@ -182,6 +183,7 @@ Model::~Model()
 Model& Model::operator =(const Model &other)
 {
 	// Assigns all values from other other model to the current model
+	pat_gender = other.pat_gender;
 	Tlrns = other.Tlrns;
 	LungHt = other.LungHt;
 	Pal = other.Pal;
@@ -428,6 +430,21 @@ double Model::BSA(double pat_ht, double pat_wt)
 	 return sqrt(pat_ht * pat_wt) / 60.0;
 }
 
+double Model::idealWeight(Gender gender, double pat_ht)
+{
+	switch (gender) {
+	case Model::Male:
+		if (pat_ht > 123.558)
+			return 50.0 + 2.3/2.54 * (pat_ht - 60*2.54);
+	case Model::Female:
+		if (pat_ht > 134.479)
+			return 45.5 + 2.3/2.54 * (pat_ht - 60*2.54);
+	}
+
+	// pediatric ideal weight formula
+	return 2.39*exp(0.01863*pat_ht);
+}
+
 const Vessel& Model::artery( int gen, int index ) const
 {
 	if( gen <= 0 || index < 0 || gen > 16 || index >= nElements( gen ))
@@ -546,6 +563,8 @@ double Model::getResult(DataType type) const
 		}
 	case Tlrns_value:
 		return Tlrns;
+	case Gender_value:
+		return pat_gender;
 	case Pat_Ht_value:
 		return PatHt;
 	case Pat_Wt_value:
@@ -724,8 +743,11 @@ bool Model::setData(DataType type, double val)
 			 *  in vivo by contrast-enhanced MR-angiography)
 			 */
 
-			double baseline_diameter = 4.85 + 13.43*sqrt(BSA(PatHt, PatWt));
-			double new_diameter = 4.85 + 13.43*sqrt(BSA(val, PatWt));
+			PatWt = idealWeight(pat_gender, val);
+			double baseline_diameter = 4.85 + 13.43*
+			                sqrt(BSA(PatHt, PatWt));
+			double new_diameter = 4.85 + 13.43*
+			                sqrt(BSA(val, PatWt));
 
 			PatHt = val;
 			PA_diam *= new_diameter/baseline_diameter;
@@ -738,12 +760,7 @@ bool Model::setData(DataType type, double val)
 		break;
 	case Pat_Wt_value:
 		if (significantChange(PatWt, val)) {
-			double baseline_diameter = 4.85 + 13.43*sqrt(BSA(PatHt, PatWt));
-			double new_diameter = 4.85 + 13.43*sqrt(BSA(PatHt, val));
-
 			PatWt = val;
-			PA_diam *= new_diameter/baseline_diameter;
-			PV_diam *= new_diameter/baseline_diameter;
 
 			initVesselBaselineResistances();
 			modified_flag = true;
@@ -751,6 +768,7 @@ bool Model::setData(DataType type, double val)
 		}
 		break;
 	case DiseaseParam:
+	case Gender_value:
 		break;
 
 	case Krc:
@@ -786,6 +804,12 @@ void Model::setTransducerPos(Model::Transducer trans)
 	trans_pos = trans;
 	modified_flag = true;
 	calculateBaselineCharacteristics();
+}
+
+void Model::setGender(Gender g)
+{
+	 pat_gender = g;
+	 setData(Pat_Wt_value, idealWeight(g, PatHt));
 }
 
 int Model::calc( int max_iter )
@@ -930,12 +954,14 @@ double Model::calibrationValue(DataType type)
 
 
 	switch (type) {
+	case Model::Gender_value:
+		return Model::Male;
 	case Model::Tlrns_value:
 		return 0.0001;
 	case Model::Pat_Ht_value:
 		return 175.0;
 	case Model::Pat_Wt_value:
-		return 75.0;
+		return 70.465;
 	case Model::Lung_Ht_value:
 		return 20;
 	case Model::Vrv_value:
@@ -945,7 +971,7 @@ double Model::calibrationValue(DataType type)
 	case Model::Vtlc_value:
 		return 1.0;
 	case Model::CO_value:
-		return 6.45;
+		return 3.37801294 * BSA(175.0, 70.465);
 	case Model::LAP_value:
 		return 5.0;
 	case Model::Pal_value:
@@ -1511,6 +1537,11 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	q.addBindValue((int)trans_pos);
 	q.exec();
 
+	q.addBindValue("gender");
+	q.addBindValue(offset);
+	q.addBindValue((int)pat_gender);
+	q.exec();
+
 	q.addBindValue("integral_type");
 	q.addBindValue(offset);
 	q.addBindValue((int)integral_type);
@@ -1695,6 +1726,13 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 		return false;
 	}
 	trans_pos = (Transducer)q.value(0).toInt();
+
+	q.addBindValue("gender");
+	q.addBindValue(offset);
+	if (!q.exec() || !q.next())
+		pat_gender = Model::Male;
+	else
+		pat_gender = (Model::Gender)q.value(0).toInt();
 
 	q.addBindValue("integral_type");
 	q.addBindValue(offset);

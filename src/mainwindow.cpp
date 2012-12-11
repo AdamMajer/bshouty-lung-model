@@ -705,14 +705,15 @@ void MainWindow::on_actionFixedFlow_triggered()
 	dlg.exec();
 }
 
-void MainWindow::setNumLungs(QAction *)
+void MainWindow::on_gender_currentIndexChanged(int idx)
 {
-	allocateNewModel();
-}
+	Model::Gender g = idx==0 ? Model::Male : Model::Female;
 
-void MainWindow::setNumGenerations(QAction*)
-{
-	allocateNewModel();
+	if (g == baseline->gender())
+		return;
+
+	baseline->setGender(g);
+	ui->patWt->setText(doubleToString(baseline->getResult(Model::Pat_Wt_value)));
 }
 
 void MainWindow::setCalculationType(QAction*)
@@ -1251,7 +1252,7 @@ void MainWindow::allocateNewModel(bool propagate_diseases_to_new_model)
 void MainWindow::patHtWtChanged()
 {
 	const Range ht_range(ui->patHt->text());
-	const Range wt_range(ui->patWt->text());
+	Range wt_range(ui->patWt->text());
 	const bool is_range = ht_range.sequenceCount() > 1 ||
 	                      wt_range.sequenceCount() > 1;
 
@@ -1261,6 +1262,15 @@ void MainWindow::patHtWtChanged()
 	bool data_modified = false;
 	if (ht_range.sequenceCount() == 1) {
 		double val = ht_range.firstValue();
+		if (wt_range.sequenceCount() == 1) {
+			// Only set ideal weight if we change height
+			// and weight not a range
+			double ideal_weight = Model::idealWeight(baseline->gender(),
+			                                         val);
+			ui->patWt->setText(doubleToString(ideal_weight));
+			wt_range.setMin(ideal_weight);
+			wt_range.setMax(ideal_weight);
+		}
 		data_modified = baseline->setData(Model::Pat_Ht_value, val);
 	}
 

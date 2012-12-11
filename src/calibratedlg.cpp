@@ -155,6 +155,8 @@ void CalibrateDlg::on_calculateButton_clicked()
 {
 	tlrns = 0.1;
 	double target_total = 0.0;
+	calibration_loop_no = 0;
+
 	for (std::list<CalibrationValue>::iterator i=calibration_values.begin(); i!=calibration_values.end(); i++) {
 		switch (i->type) {
 		case PA_diam:
@@ -210,11 +212,15 @@ void CalibrateDlg::on_resetButton_clicked()
 void CalibrateDlg::calculationComplete()
 {
 	// calibration loop
-	const QString status_msg = QLatin1String("Calculating ....  [ last iteration count: %1 ]");
+	const QString status_msg = QLatin1String("Calculating ....  [ calibration loop: %2, iteration count: %1 ]");
 	ModelCalcList results = model_runner->output();
 	const int n_iter = results.first().first;
 
-	ui->status->setText(status_msg.arg(n_iter < 50 ? QString::number(n_iter) : QString("NOT converging")));
+	calibration_loop_no++;
+	ui->status->setText(status_msg
+	                    .arg(n_iter < 50 ? QString::number(n_iter) : QString("NOT converging"))
+	                    .arg(calibration_loop_no));
+
 	const Model *m = results.first().second;
 
 	const double pap = m->getResult(Model::PAP_value);
@@ -373,6 +379,49 @@ void CalibrateDlg::valueEditorFinished(const QString &val_str)
 	// update values that were modified
 	for (QMap<Model::DataType,QLineEdit*>::const_iterator i=v.begin(); i!=v.end(); ++i) {
 		const double cur_val = current_values[i.key()];
+		const double new_val = base_model.getResult(i.key());
+		if (visibleChange(cur_val, new_val))
+			i.value()->setText(doubleToString(new_val));
+	}
+}
+
+void CalibrateDlg::on_gender_currentIndexChanged(int idx)
+{
+	switch (idx) {
+	case 0: // Male
+		base_model.setGender(Model::Male);
+		break;
+	case 1: // Female
+		base_model.setGender(Model::Female);
+		break;
+	}
+
+	updateCalculatedModelValues();
+}
+
+void CalibrateDlg::updateCalculatedModelValues()
+{
+	QMap<Model::DataType, QLineEdit*> v;
+
+	v.insert(Model::Tlrns_value, ui->tolerance);
+	v.insert(Model::Pat_Ht_value, ui->patHt);
+	v.insert(Model::Pat_Wt_value, ui->patWt);
+	v.insert(Model::Lung_Ht_value, ui->lungHt);
+	v.insert(Model::Vrv_value, ui->Vrv);
+	v.insert(Model::Vfrc_value, ui->Vfrc);
+	v.insert(Model::Vtlc_value, ui->Vtlc);
+
+	v.insert(Model::CO_value, ui->CO);
+	v.insert(Model::LAP_value, ui->LAP);
+	v.insert(Model::Pal_value, ui->Pal);
+	v.insert(Model::Ppl_value, ui->Ppl);
+
+	v.insert(Model::Hct_value, ui->Hct);
+	v.insert(Model::PA_EVL_value, ui->PA_EVL);
+	v.insert(Model::PV_EVL_value, ui->PV_EVL);
+
+	for (QMap<Model::DataType,QLineEdit*>::const_iterator i=v.begin(); i!=v.end(); ++i) {
+		const double cur_val = i.value()->text().toDouble();
 		const double new_val = base_model.getResult(i.key());
 		if (visibleChange(cur_val, new_val))
 			i.value()->setText(doubleToString(new_val));

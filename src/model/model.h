@@ -97,11 +97,13 @@ public:
 	                TotalR_value,
 	                Krc,
 	                Hct_value, PA_EVL_value, PA_Diam_value, PV_EVL_value, PV_Diam_value,
+		        Gender_value,
 	                CO_value = Flow_value,
 	                DiseaseParam = 0xFFFF
 	};
 
 	enum Transducer { Top, Middle, Bottom };
+	enum Gender { Male, Female };
 
 	enum IntegralType { BshoutyIntegral, LaminarFlow, NavierStokes };
 
@@ -170,6 +172,7 @@ public:
 
 	double BSAz() const;
 	static double BSA(double pat_ht, double pat_wt);
+	static double idealWeight(Gender gender, double pat_ht);
 
 	int numArteries() const { return nElements(); }
 	int numVeins() const { return nElements(); }
@@ -191,6 +194,9 @@ public:
 
 	Transducer transducerPos() const;
 	void setTransducerPos(Transducer trans);
+
+	Gender gender() const { return pat_gender; }
+	void setGender(Gender g);
 
 	// does actual calculations
 	virtual int calc( int max_iter = 100 ); // returns number of iterations
@@ -259,6 +265,7 @@ private:
 	double Hct;
 	double PA_EVL, PA_diam, PV_EVL, PV_diam; // cm
 	Transducer trans_pos;
+	Gender pat_gender;
 
 	std::vector<bool> vessel_value_override; // [arts + veins + caps]
 	Vessel *arteries, *veins;

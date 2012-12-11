@@ -81,9 +81,7 @@ public slots:
 
 	void on_actionFixedFlow_triggered();
 
-	void setNumLungs(QAction*);
-	// switch between 5/15 generation model
-	void setNumGenerations(QAction*);
+	void on_gender_currentIndexChanged(int idx);
 	void setCalculationType(QAction*);
 	void adjustVisibleModelInputs(ModelCalculationType calc_type);
 	void setOverlayType(QAction*);

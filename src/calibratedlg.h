@@ -48,6 +48,9 @@ public slots:
 protected slots:
 	void calculationComplete();
 	void valueEditorFinished(const QString &val);
+	void on_gender_currentIndexChanged(int idx);
+
+	void updateCalculatedModelValues();
 
 protected:
 	struct CalibrationValue correctVariable(const struct CalibrationValue & value) const;
@@ -60,6 +63,7 @@ private:
 	std::list<CalibrationValue> calibration_values;
 	AsyncRangeModelHelper *model_runner;
 	double tlrns;
+	int calibration_loop_no;
 
 	Model base_model;
 
