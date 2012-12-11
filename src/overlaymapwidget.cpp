@@ -173,7 +173,7 @@ void OverlayMapWidget::mouseMoveEvent(QMouseEvent *ev)
 	const QString text = QLatin1String("Gen: %4\nVessel: %5 of %6\n\nValue: %1\nMean: %2 %3%");
 	const int gen_no = genNo(pos);
 	const int n_elem = 1 << (gen_no-1);
-	double mean;
+	double mean=1.0;
 	switch (settings.type) {
 	case OverlaySettings::Absolute:
 		mean = (settings.min + settings.max) / 2.0;
@@ -257,7 +257,7 @@ double OverlayMapWidget::mapValue(const QPoint &pos) const
 	                              pos.y()*original_map.height()/map_rect.height());
 	double n = LungView::gradientToDistanceFromMean(c);
 
-	double range, mean;
+	double range=1.0, mean=1.0;
 	switch (settings.type) {
 	case OverlaySettings::Absolute:
 		range = settings.max - settings.min;

@@ -470,7 +470,7 @@ void LungView::calculateFlowOverlay(const Model &model)
 			double vein_flow = isnan(vein.flow) ? 0.0 : vein.flow;
 			double art_flow = isnan(art.flow) ? 0.0 : art.flow;
 
-			QRgb art_col, vein_col;
+			QRgb art_col = qRgb(0,0,0), vein_col = qRgb(0,0,0);
 			switch (overlay_settings.type) {
 			case OverlaySettings::Absolute: {
 				const double range = overlay_settings.max - overlay_settings.min;
@@ -534,7 +534,7 @@ void LungView::calculateVolumeOverlay(const Model &model)
 	const double um_to_ul = 1e-9; // um^3 => ul
 	const int n_gen = model.nGenerations();
 	std::vector<double> max_art_size, max_vein_size;
-	double mean, stddev;
+	double mean=1.0, stddev=1.0;
 
 	max_art_size.reserve(model.nElements());
 	max_vein_size.reserve(model.nElements());
