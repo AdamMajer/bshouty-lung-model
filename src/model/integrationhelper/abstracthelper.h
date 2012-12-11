@@ -45,7 +45,6 @@ protected:
 	Vessel* arteries() { return model->arteries; }
 	Vessel* veins() { return model->veins; }
 	int nElements() const { return model->nElements(); }
-	int nOutsideElements() const { return model->nOutsideElements(); }
 	int index(int gen, int idx) const { return model->startIndex(gen)+idx; }
 	double LAP() const { return model->LAP; }
 	double Hct() const { return model->Hct; }

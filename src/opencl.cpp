@@ -57,7 +57,7 @@ OpenCL::OpenCL()
 	 */
 	n_devices = 0;
 
-#if (QT_POINTER_SIZE == 88) // FIXME: fix opencl implementation when calculations are finalized
+#if (QT_POINTER_SIZE == 8)
 	resolveFunctions();
 #else
 	memset(&opencl, 0, sizeof(opencl));
@@ -229,6 +229,13 @@ void OpenCL::addDevice(cl_platform_id platform_id, cl_device_id device_id)
 	                                  sizeof(cl_uint),
 	                                  &dev.cacheline_size, 0));
 
+	if (dev.cacheline_size > 256) {
+		QMessageBox::information(0, "OpenCL optimization error",
+		                         QString("Cacheline padding on OpenCL device is %1 which is larger than\n"
+		                                 "maximum cacheline size configured in this application. Please\n"
+		                                 "adjust the model source code for larger cacheline padding!").arg(dev.cacheline_size));
+	}
+
 	cl_bool cl_compiler_available;
 	errorCheck(opencl.clGetDeviceInfo(device_id, CL_DEVICE_COMPILER_AVAILABLE,
 	                                  sizeof(cl_bool),
@@ -268,14 +275,18 @@ void OpenCL::addDevice(cl_platform_id platform_id, cl_device_id device_id)
 	errorCheck(err);
 
 	err = opencl.clBuildProgram(dev.program, 1, &device_id, "-cl-single-precision-constant", NULL, NULL);
-	if (err != CL_SUCCESS) {
-		char msg[10240];
-		memset(msg, 0, 10240);
-		cl_build_status stat;
-		size_t len;
-		opencl.clGetProgramBuildInfo(dev.program, device_id, CL_PROGRAM_BUILD_STATUS, sizeof(stat), &stat, 0);
-		opencl.clGetProgramBuildInfo(dev.program, device_id, CL_PROGRAM_BUILD_LOG, 10240, msg, &len);
 
+	char msg[10240];
+	memset(msg, 0, 10240);
+	cl_build_status stat;
+	size_t len;
+	opencl.clGetProgramBuildInfo(dev.program, device_id, CL_PROGRAM_BUILD_STATUS, sizeof(stat), &stat, 0);
+	opencl.clGetProgramBuildInfo(dev.program, device_id, CL_PROGRAM_BUILD_LOG, 10240, msg, &len);
+
+	qDebug() << "Compiler result: " << stat;
+	qDebug() << msg;
+
+	if (err != CL_SUCCESS) {
 		if (len < 10240)
 			throw opencl_exception(QString::fromLocal8Bit(msg));
 		else
@@ -286,13 +297,9 @@ void OpenCL::addDevice(cl_platform_id platform_id, cl_device_id device_id)
 	dev.queue = opencl.clCreateCommandQueue(dev.context, device_id, 0, &err);
 	errorCheck(err);
 
-	dev.intInsideArtery = opencl.clCreateKernel(dev.program, "integrateInsideArtery", &err);
+	dev.intVessel = opencl.clCreateKernel(dev.program, "integrateVessel", &err);
 	errorCheck(err);
-	dev.intOutsideArtery = opencl.clCreateKernel(dev.program, "integrateOutsideArtery", &err);
-	errorCheck(err);
-	dev.intInsideVein = opencl.clCreateKernel(dev.program, "integrateInsideVein", &err);
-	errorCheck(err);
-	dev.intOutsideVein = opencl.clCreateKernel(dev.program, "integrateOutsideVein", &err);
+	dev.rigidFlowVessel = opencl.clCreateKernel(dev.program, "rigidVesselFlow", &err);
 	errorCheck(err);
 
 	dev.mem_vein_buffer = opencl.clCreateBuffer(dev.context, CL_MEM_READ_ONLY, sizeof(CL_Vessel)*4*256, NULL, &err);

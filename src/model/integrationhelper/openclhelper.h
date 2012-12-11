@@ -30,12 +30,13 @@ public:
 	OpenCLIntegrationHelper(Model *model);
 	virtual ~OpenCLIntegrationHelper();
 
-	virtual double integrate();
+	virtual double integrateBshoutyModel();
+	virtual double laminarFlow();
 	virtual bool isAvailable() const { return is_available; }
 	virtual bool hasErrors() const { return has_errors; }
 
 protected:
-	float integrateByDevice(OpenCL_device &dev);
+	float integrateByDevice(OpenCL_device &dev, cl_kernel k);
 	float processWorkGroup(const struct WorkGroup &wg,
 	                       OpenCL_device &dev,
 	                       struct CL_Vessel *cl_vessel_buf,

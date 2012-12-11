@@ -65,7 +65,7 @@ OpenCLIntegrationHelper::~OpenCLIntegrationHelper()
 
 }
 
-double OpenCLIntegrationHelper::integrate()
+double OpenCLIntegrationHelper::integrateBshoutyModel()
 {
 
 	/*
@@ -77,10 +77,9 @@ double OpenCLIntegrationHelper::integrate()
 	vein_index = 0;
 
 	for (int i=0; i<n_devices; ++i) {
-		QFuture<float> f = QtConcurrent::run(this,
-		                          &OpenCLIntegrationHelper::integrateByDevice,
-		                          d[i]);
-		futures.addFuture(f);
+		futures.addFuture(QtConcurrent::run(this,
+		        &OpenCLIntegrationHelper::integrateByDevice,
+		        d[i], d[i].intVessel));
 	}
 
 	QList<QFuture<float> > results = futures.futures();
@@ -91,10 +90,30 @@ double OpenCLIntegrationHelper::integrate()
 	return ret;
 }
 
-float OpenCLIntegrationHelper::integrateByDevice(OpenCL_device &dev)
+double OpenCLIntegrationHelper::laminarFlow()
 {
-	const int n_outside_elements = nOutsideElements();
+	QFutureSynchronizer<float> futures;
 
+	n_elements = nElements();
+	art_index = 0;
+	vein_index = 0;
+
+	for (int i=0; i<n_devices; ++i) {
+		futures.addFuture(QtConcurrent::run(this,
+		        &OpenCLIntegrationHelper::integrateByDevice,
+		        d[i], d[i].rigidFlowVessel));
+	}
+
+	QList<QFuture<float> > results = futures.futures();
+	float ret = 0.0;
+	foreach (const QFuture<float> &r, results)
+		ret = qMax(ret, r.result());
+
+	return ret;
+}
+
+float OpenCLIntegrationHelper::integrateByDevice(OpenCL_device &dev, cl_kernel k)
+{
 	struct CL_Vessel *cl_vessel = dev.cl_vessel;
 	struct CL_Result *ret_values = dev.integration_workspace;
 	float ret = 0.0;
@@ -105,15 +124,13 @@ float OpenCLIntegrationHelper::integrateByDevice(OpenCL_device &dev)
 	 * or number of elemnets in a given block, whichever is smaller
 	 */
 
-	const struct WorkGroup group[4] = {
-	        WorkGroup(n_outside_elements, dev.intOutsideArtery, arteries(), &art_index),
-	        WorkGroup(n_elements,         dev.intInsideArtery,  arteries(), &art_index),
-	        WorkGroup(n_outside_elements, dev.intOutsideVein,   veins(),    &vein_index),
-	        WorkGroup(n_elements,         dev.intInsideVein,    veins(),    &vein_index),
+	const struct WorkGroup group[2] = {
+	        WorkGroup(n_elements, k, arteries(), &art_index),
+	        WorkGroup(n_elements, k, veins(),    &vein_index)
 	};
 
 	try {
-		for (int i=0; i<4; ++i) {
+		for (int i=0; i<2; ++i) {
 			float v = processWorkGroup(group[i], dev, cl_vessel, ret_values);
 			ret = qMax(v, ret);
 		}
@@ -173,9 +190,12 @@ float OpenCLIntegrationHelper::processWorkGroup(
 		                            0, NULL, NULL);
 		cl->errorCheck(err);
 
+		updateResults(ret_values_buf, w.vessels+idx, n);
 		for (int i=0; i<n; ++i) {
-			updateResults(ret_values_buf, w.vessels+idx, n);
-			ret = qMax(ret, (cl_vessel_buf[i].R - ret_values_buf[i].R)/cl_vessel_buf[i].R);
+			if (isinf(ret_values_buf[i].R) || isnan(ret_values_buf[i].R)) {
+				qDebug("INF");
+			}
+			ret = qMax(ret, ret_values_buf[i].delta_R);
 		}
 
 		// qDebug() << "dev type: " << (int)dev.device_type << "  ret: " << ret;
@@ -195,6 +215,7 @@ void OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
 		const Vessel &v = vessels[i];
 		CL_Vessel &c = cl_vessels[i];
 
+		c.max_a = v.max_a;
 		c.a = v.a;
 		c.b = v.b;
 		c.c = v.c;
@@ -210,7 +231,7 @@ void OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
 		c.tone = v.tone;
 
 		c.D = v.D;
-		c.len = v.length * v.length_factor;
+		c.len = v.length;
 
 		c.vessel_ratio = v.vessel_ratio;
 	}
@@ -225,6 +246,7 @@ void OpenCLIntegrationHelper::updateResults(const CL_Result *cl_vessels,
 		const CL_Result &r = cl_vessels[i];
 
 		v.R = r.R;
+		v.last_delta_R = r.delta_R;
 		v.D_calc = r.D;
 		v.Dmax = r.Dmax;
 		v.Dmin = r.Dmin;

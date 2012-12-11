@@ -24,7 +24,6 @@
 #include "cpuhelper.h"
 #include <vector>
 
-
 extern const double K1;
 extern const double K2;
 extern const int nSums;
@@ -65,7 +64,6 @@ double CpuIntegrationHelper::integrateBshoutyModel()
 		max_deviation = qMax(max_deviation, futures[i].result());
 
 	qDebug("max deviation from CPU integration: %f", max_deviation);
-
 	return max_deviation;
 }
 
@@ -129,11 +127,8 @@ double CpuIntegrationHelper::laminarFlowVessel(Vessel &vein)
 		return Rin > 1e100 ? 0 : 10.0;
 	}
 
-	if (vein.vessel_outside_lung)
-		Ptm = Ptm - vein.Ppl;
-	else
-		Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
-		      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
+	Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
+	      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
 
 	const double dL =  vein.length;
 
@@ -151,13 +146,9 @@ double CpuIntegrationHelper::laminarFlowVessel(Vessel &vein)
 			old_Pin = new_Pin;
 			double avg_P = (new_Pin + Pout) / 2.0;
 			Ptm = 1.35951002636 * ( avg_P - vein.tone );
-			if (vein.vessel_outside_lung)
-				Ptm = Ptm - vein.Ppl;
-			else
-				Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
-				      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
+			Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
+			      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
 
-			// const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
 			const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
 			D = vein.D / sqrt(inv_A);
 			const double vf = viscosityFactor(D, hct);
@@ -234,12 +225,8 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 		return Rin > 1e100 ? 0 : 10.0;
 	}
 
-	const bool is_outside_lung = isOutsideLung(vessel_index);
-	if (is_outside_lung)
-		Ptm = Ptm - vein.Ppl;
-	else
-		Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
-		                vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
+	Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
+	      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
 
 	const double dL =  vein.length / (double)nSums;
 
@@ -252,15 +239,9 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 	}
 	else {
 		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
-
-		if (type == Vessel::Artery) {
-			double area = vein.a / 2.0;
-			double A = ((1/inv_A - 1.0) * area + 1.0)*area;
-			vein.Dmin = vein.D * sqrt(A);
-		}
-		else
-			vein.Dmin = vein.D / sqrt(inv_A);
-
+		double area = vein.a / vein.max_a;
+		double A = ((1/inv_A - 1.0) * area + 1.0)*area;
+		vein.Dmin = vein.D * sqrt(A);
 
 		//vein.Dmin = vein.D / sqrt(inv_A);
 		const double vf = viscosityFactor(vein.Dmin, hct);
@@ -280,22 +261,14 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 	for( int j=1; j<nSums; j++ ) {
 		Ptm = 1.35951002636 * ( P - vein.tone );
 
-		if (is_outside_lung)
-			Ptm = Ptm - vein.Ppl;
-		else
-			Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
-			                vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
+		Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
+		      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
 
 		// corrected to Ptp=0, Ptm=35 cmH2O
 		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
-
-		if (type == Vessel::Artery) {
-			double area = vein.a / 2.0;
-			double A = ((1/inv_A - 1.0) * area + 1.0)*area;
-			D = vein.D * sqrt(A);
-		}
-		else
-			D = vein.D / sqrt(inv_A);
+		const double area = vein.a / vein.max_a;
+		const double A = ((1/inv_A - 1.0) * area + 1.0)*area;
+		D = vein.D * sqrt(A);
 
 		D_integral += D;
 		const double vf = viscosityFactor(D, hct);

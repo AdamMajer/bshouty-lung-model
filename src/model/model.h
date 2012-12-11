@@ -41,6 +41,7 @@ struct Vessel
 	double length_factor; // adjustment to vessel Ptp
 	double viscosity_factor; // in cP (mPa*s)
 
+	double max_a;
 	double a,b,c;
 	double tone;
 
@@ -57,10 +58,7 @@ struct Vessel
 
 	double vessel_ratio; // n_model_vessels / real vessels
 
-	char vessel_outside_lung;
-	char padding[7];
-
-	double cacheline_padding[4]; // padding to 64-byte caching boundary
+	double cacheline_padding[5]; // padding to 256-byte cacheline boundary
 };
 
 struct Capillary
@@ -71,7 +69,7 @@ struct Capillary
 
 	double last_delta_R;
 
-	double cacheline_padding[4];
+	double cacheline_padding[28];
 };
 
 extern bool operator==(const struct Vessel &a, const struct Vessel &b);

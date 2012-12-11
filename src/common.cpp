@@ -89,11 +89,11 @@ bool visibleChange(double val1, double val2)
 void* allocateCachelineAligned(int size)
 {
 #if defined(Q_OS_WIN)
-	return _aligned_malloc(size, 64);
+	return _aligned_malloc(size, 256);
 #elif defined(Q_OS_UNIX)
 	void *memptr;
 
-	return posix_memalign(&memptr, 64, size) == 0 ? memptr : NULL;
+	return posix_memalign(&memptr, 256, size) == 0 ? memptr : NULL;
 #endif
 }
 

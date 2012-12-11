@@ -117,8 +117,8 @@ typedef struct _opencl_device
 	cl_program program;
 	cl_command_queue queue;
 
-	cl_kernel intOutsideArtery, intInsideArtery;
-	cl_kernel intOutsideVein,   intInsideVein;
+	cl_kernel intVessel;
+	cl_kernel rigidFlowVessel;
 
 	cl_mem mem_vein_buffer;
 	cl_mem mem_pressures;
@@ -154,6 +154,7 @@ struct CL_Vessel {
 	cl_float flow;
 	cl_float Ppl;
 
+	cl_float max_a;
 	cl_float a;
 	cl_float b;
 	cl_float c;
@@ -167,18 +168,24 @@ struct CL_Vessel {
 
 	cl_float vessel_ratio;
 
-	// cl_float pad[0]; // pad to 64 bytes
+	/* cacheline padding. Current implementations have cache lines
+	 * of 64-bytes on CPU and up to 128 on GPU (nVidia Kerpler, for example)
+	 * The padding MUST NOT be smaller than cacheline size
+	 */
+	cl_float pad[15 + 2*16]; // pad to 256 bytes
 };
 
 struct CL_Result {
 	cl_float R;
+	cl_float delta_R;
 	cl_float D;
 	cl_float Dmin;
 	cl_float Dmax;
 	cl_float vol;
 	cl_float viscosity_factor;
 
-	cl_float pad[10]; // pad to 64 bytes
+	/* cacheline padding */
+	cl_float pad[1+8 + 3*16]; // pad to 256 bytes
 };
 
 class opencl_exception : public std::runtime_error

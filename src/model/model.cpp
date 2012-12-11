@@ -145,11 +145,10 @@ Model::Model(Transducer transducer_pos, IntegralType int_type)
 
 	bool opencl_helper = cl->isAvailable() &&
 	                DbSettings::value(settings_opencl_enabled, true).toBool();
-/*
+
 	if (opencl_helper)
 		integration_helper = new OpenCLIntegrationHelper(this);
 	else
-*/
 		integration_helper = new CpuIntegrationHelper(
 		                             this,
 		                             integral_type);
@@ -229,11 +228,10 @@ Model& Model::operator =(const Model &other)
 
 	bool opencl_helper = cl->isAvailable() &&
 	                DbSettings::value(settings_opencl_enabled, true).toBool();
-	/*
+
 	if (opencl_helper)
 		integration_helper = new OpenCLIntegrationHelper(this);
 	else
-	*/
 		integration_helper = new CpuIntegrationHelper(
 		                             this,
 		                             integral_type);
@@ -1018,18 +1016,28 @@ void Model::getParameters()
 	int n = nElements();
 	for (int i=0; i<n; i++) {
 		Vessel &art = arteries[i];
-		art.perivascular_press_a = 15.0 - 0.2*art.Ptp;
-		art.perivascular_press_b = -16.0 - 0.2*art.Ptp;
-		art.perivascular_press_c = -0.013 - 0.0002*art.Ptp;
+		Vessel &vein = veins[i];
+
+		if (isOutsideLung(i)) {
+			art.perivascular_press_a = 0.0;
+			art.perivascular_press_b = 0.0;
+			art.perivascular_press_c = 0.0;
+
+			vein.perivascular_press_a = 0.0;
+			vein.perivascular_press_b = 0.0;
+			vein.perivascular_press_c = 0.0;
+		}
+		else {
+			art.perivascular_press_a = 15.0 - 0.2*art.Ptp;
+			art.perivascular_press_b = -16.0 - 0.2*art.Ptp;
+			art.perivascular_press_c = -0.013 - 0.0002*art.Ptp;
+
+			vein.perivascular_press_a = 12.0 - 0.1*vein.Ptp;
+			vein.perivascular_press_b = -12.0 - 0.2*vein.Ptp;
+			vein.perivascular_press_c = -0.020 - 0.0002*vein.Ptp;
+		}
 
 		art.length *= art.length_factor;
-
-
-		Vessel &vein = veins[i];
-		vein.perivascular_press_a = 12.0 - 0.1*vein.Ptp;
-		vein.perivascular_press_b = -12.0 - 0.2*vein.Ptp;
-		vein.perivascular_press_c = -0.020 - 0.0002*vein.Ptp;
-
 		vein.length *= vein.length_factor;
 	}
 }
@@ -1243,7 +1251,7 @@ void Model::initVesselBaselineCharacteristics()
 
 		// correcting area to Ptp=0, Ptm=35 cmH2O
 		//arteries[i].a = 0.2419 / 1.2045;
-		arteries[i].vessel_outside_lung = isOutsideLung(i);
+		arteries[i].max_a = 2.0;
 		arteries[i].a = 2.0;
 		arteries[i].b = 8.95866; //0.0275 / 1.2045;
 		arteries[i].c = -0.060544062342;
@@ -1260,16 +1268,15 @@ void Model::initVesselBaselineCharacteristics()
 
 		if (isOutsideLung(i)) {
 			// correct for vessels outside the lung
-			veins[i].vessel_outside_lung = 1;
 			veins[i].b = 10.0;
 			veins[i].c = -10.0;
 		}
 		else {
 			// correcting area to Ptp=0, Ptm=35 cmH2O
-			veins[i].vessel_outside_lung = 0;
 			veins[i].b = 2.4307;
 			veins[i].c = -0.2355;
 		}
+		veins[i].max_a = 1.0;
 		veins[i].a = 1.0;
 		veins[i].tone = 0;
 

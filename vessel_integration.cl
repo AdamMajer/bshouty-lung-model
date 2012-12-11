@@ -9,6 +9,7 @@ struct Vessel {
 	float flow;
 	float Ppl;
 
+	float max_a;
 	float a;
 	float b;
 	float c;
@@ -22,22 +23,23 @@ struct Vessel {
 
 	float vessel_ratio;
 
-	// float pad[1]; // pad to 64 bytes
+	float pad[15 + 2*16]; // pad to 256 bytes
 };
 
 struct Result {
 	float R;
+	float delta_R;
 	float D;
 	float Dmin;
 	float Dmax;
 	float volume;
 	float viscosity_factor;
 
-	float pad[10]; // pad to 64 bytes
+	float pad[1+8 + 3*16]; // pad to 256 bytes
 };
 
 __constant float Kr = 1.2501e8; // cP/um**3 => mmHg*min/l
-__constant int nSums = 16;
+__constant int nSums = 128;
 // #define Kr 1.2501e8
 
 inline float sqr(float n)
@@ -52,227 +54,125 @@ inline float viscosityFactor(float D, float Hct)
 	return (1.0 + (Mi45-1.0)*(powr((float)1.0-Hct, C)-1.0)/(powr((float)1.0-(float)0.45, C)-1.0)) / 3.2;
 }
 
-
-__kernel void integrateInsideArtery(
-                float hct,
-                __global __read_only struct Vessel *v, 
-                __global __write_only struct Result *result)
+__kernel void rigidVesselFlow(
+		float hct, float tlrns,
+		__global __read_only struct Vessel *v,
+		__global __write_only struct Result *result)
 {
-	const size_t vessel_index = get_global_id(0) + get_global_id(1)*WIDTH;
-	const struct Vessel art = v[vessel_index];
-
-	float Rtot = 0.0;
-	float Pout = art.pressure;
-
-	float Ptm = 1.35951002636 * ( Pout - art.tone ) - art.GP;
-	float Rs;
-
-	float D = 0.0;
-	float D_integral = 0.0;
-	float volume = 0.0;
-	float viscosity = 0.0;
-	float dL = art.len / nSums;
-
-	Ptm = Ptm - art.Ppl - art.peri_a - art.peri_b * exp( art.peri_c * ( Ptm - art.Ppl ));
-	if( Ptm < 0 ) {
-		Rs = -Ptm/( 1.35951002636 * art.flow ); // Starling Resistor
-	}
-	else {
-		const float A = art.a + art.b * Ptm;
-		D = art.D * sqrt(A);
-		const float vf = viscosityFactor(D, hct);
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * art.vessel_ratio;
-		
-		viscosity += vf;
-		volume += M_PI_F/4.0 * sqr(D_integral) * dL;
-		D_integral += D;
-	}
-
-	result[vessel_index].Dmin = D;
-	Pout = Pout + art.flow * Rs;
-	Rtot += Rs;
-
-	for (int sum=1; sum<nSums; sum++){
-		Ptm = 1.35951002636 * ( Pout - art.tone ) - art.GP;
-		Ptm = Ptm - art.Ppl - art.peri_a - art.peri_b * exp( art.peri_c * ( Ptm - art.Ppl ));
-		
-		const float A = art.a + art.b * Ptm;
-		D = art.D * sqrt(A);
-		D_integral += D;
-		const float vf = viscosityFactor(D, hct);
-		Rs = 128.0*Kr/M_PI * vf * dL / sqr(sqr(D)) * art.vessel_ratio;
-		
-		viscosity += vf;
-		volume += M_PI_F/4.0 * sqr(D) * dL;
-
-		Pout += art.flow * Rs;
-		Rtot += Rs;
-	}
-
-	result[vessel_index].R = Rtot;
-	result[vessel_index].D = D_integral / nSums;
-	result[vessel_index].Dmax = D;
-	result[vessel_index].volume = volume / (1e9 * art.vessel_ratio);
-	result[vessel_index].viscosity_factor = viscosity / nSums;
-}
-
-__kernel void integrateOutsideArtery(
-                float hct,
-                __global __read_only struct Vessel *v,
-                __global __write_only struct Result *result)
-{
-	const size_t vessel_index = get_global_id(0) + get_global_id(1)*WIDTH;
-	const struct Vessel art = v[vessel_index];
-
-	float Rtot = 0.0;
-	float Pout = art.pressure;
-
-	float Ptm = 1.35951002636 * ( Pout - art.tone ) - art.GP;
-	float Rs;
-
-	float D = 0.0;
-	float D_integral = 0.0;
-	float volume = 0.0;
-	float viscosity = 0.0;
-	float dL = art.len / nSums;
-
-	Ptm = Ptm - art.Ppl;
-	if( Ptm < 0 ) {
-		Rs = -Ptm/( 1.35951002636 * art.flow ); // Starling Resistor
-	}
-	else {
-		const float A = art.a + art.b * Ptm;
-		D = art.D * sqrt(A);
-		const float vf = viscosityFactor(D, hct);
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * art.vessel_ratio;
-
-		viscosity += vf;
-		volume += M_PI_F/4.0 * sqr(D) * dL;
-		D_integral += D;
-	}
-
-	result[vessel_index].Dmin = D;
-	Pout = Pout + art.flow * Rs;
-	Rtot += Rs;
-
-	for (int sum=1; sum<nSums; sum++){
-		Ptm = 1.35951002636 * ( Pout - art.tone ) - art.GP;
-		Ptm = Ptm - art.Ppl;
-		
-		const float A = art.a + art.b * Ptm;
-		D = art.D * sqrt(A);
-		D_integral += D;
-		const float vf = viscosityFactor(D, hct);
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * art.vessel_ratio;
-		
-		viscosity += vf;
-		volume += M_PI_F/4.0 * sqr(D) * dL;
-
-		Pout += art.flow * Rs;
-		Rtot += Rs;
-	}
-
-	result[vessel_index].R = Rtot;
-	result[vessel_index].D = D_integral / nSums;
-	result[vessel_index].Dmax = D;
-	result[vessel_index].volume = volume / (1e9 * art.vessel_ratio);
-	result[vessel_index].viscosity_factor = viscosity / nSums;
-}
-
-__kernel void integrateInsideVein(
-                float hct,
-                __global __read_only struct Vessel *v, 
-                __global __read_only float *next_vein_pressure, 
-                __global __write_only struct Result *result)
-{
+	/* NOTE: calc_dim is assumed empty, if supplied */
 	const size_t vessel_index = get_global_id(0) + get_global_id(1)*WIDTH;
 	const struct Vessel vein = v[vessel_index];
+	
+	const float Rin = vein.R;
+	const float Pin = vein.pressure_in;
+	const float Pout = vein.pressure_out;
 
-	float Rtot = 0.0;
-	float Pout = next_vein_pressure[vessel_index]; // true for first vein only
+	// undefined pressure signals no flow (closed vessel(s) somewhere)
+	if (isnan(Pout) || isnan(Pin))
+		return;
 
-	float Ptm = 1.35951002636 * ( Pout - vein.tone ) - vein.GP;
+	float Ptm = 1.35951002636 * ((Pin+Pout)/2.0 - vein.tone);
 	float Rs;
 
-	float D = 0.0;
-	float D_integral = 0.0;
-	float volume = 0.0;
-	float viscosity = 0.0;
-	float dL = vein.len / nSums;
+	/* First segment is slightly different from others, so we pull it out */
+	/* First 1/5th of generations is outside the lung - use different equation */
+
+	// check if vessel is closed
+	if (vein.D < 0.1) {
+		result[vessel_index].D = 0.0;
+		result[vessel_index].Dmin = 0.0;
+		result[vessel_index].Dmax = 0.0;
+
+		result[vessel_index].viscosity_factor = INFINITY;
+		result[vessel_index].volume = 0.0;
+		result[vessel_index].R = INFINITY;
+		result[vessel_index].delta_R = 0.0;
+		return;
+	}
 
 	Ptm = Ptm - vein.Ppl - vein.peri_a - vein.peri_b * exp( vein.peri_c * ( Ptm - vein.Ppl ));
 
+	// min diameter is always first segment
+	float D = 0.0;
+	float vf = 0.0;
+	
 	if( Ptm < 0 ) {
 		Rs = -Ptm/( 1.35951002636 * vein.flow ); // Starling Resistor
 	}
 	else {
-		const float inv_A = 1.0 + vein.b * exp( vein.c * Ptm );
-		D = vein.D * rsqrt(inv_A);
-		const float vf = viscosityFactor(D, hct);
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
+		float new_Pin = Pin;
+		float old_Pin;
 		
-		D_integral = D;
-		viscosity += vf;
-		volume += M_PI_F/4.0 * sqr(D) * dL;
-	}
+		do {
+			old_Pin = new_Pin;
+			float avg_P = (new_Pin + Pout) / 2.0;
+			Ptm = 1.35951002636 * ( avg_P - vein.tone );
+			Ptm = Ptm - vein.Ppl - vein.peri_a -
+			      vein.peri_b * exp( vein.peri_c * ( Ptm - vein.Ppl ));
 
+			const float inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
+			D = vein.D * rsqrt(inv_A);
+			vf = viscosityFactor(D, hct);
+			Rs = 128*Kr/M_PI * vf * vein.len / sqr(sqr(D)) * vein.vessel_ratio;
+
+			new_Pin = Pout + vein.flow * Rs;
+			new_Pin = (new_Pin + old_Pin) / 2.0;
+		} while (fabs(new_Pin - old_Pin)/old_Pin > tlrns);
+	}
+	
+	result[vessel_index].viscosity_factor = vf;
+	result[vessel_index].volume = M_PI/4.0 * sqr(D) * vein.len / (1e9*vein.vessel_ratio); // um**3 => uL, and correct for real number of vessels
+	result[vessel_index].Dmax = D; // max diameter is always last segment
 	result[vessel_index].Dmin = D;
-	Pout = Pout + vein.flow * Rs;
-	Rtot = Rs;
-
-	for( int sum=1; sum<nSums; sum++ ){
-		Ptm = 1.35951002636 * ( Pout - vein.tone ) - vein.GP;
-		Ptm = Ptm - vein.Ppl - vein.peri_a - vein.peri_b * exp( vein.peri_c * ( Ptm - vein.Ppl ));
-
-		const float inv_A = 1.0 + vein.b * exp( vein.c * Ptm );
-		D = vein.D * rsqrt(inv_A);
-		const float vf = viscosityFactor(D, hct);
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
-
-		volume += M_PI_F/4.0 * sqr(D) * dL;
-		viscosity += vf;
-		D_integral += D;
-		
-		Pout = Pout + vein.flow * Rs;
-		Rtot += Rs;
-	}
-
-	result[vessel_index].R = Rtot;
-	result[vessel_index].D = D_integral / nSums;
-	result[vessel_index].Dmax = D;
-	result[vessel_index].volume = volume / (1e9 * vein.vessel_ratio);
-	result[vessel_index].viscosity_factor = viscosity / nSums;
+	result[vessel_index].D = D;
+	result[vessel_index].R = Rs;
+	result[vessel_index].delta_R = fabs(Rin - Rs)/Rin;
 }
 
-__kernel void integrateOutsideVein(
+__kernel void integrateVessel(
                 float hct,
                 __global __read_only struct Vessel *v, 
-                __global __read_only float *next_vein_pressure, 
                 __global __write_only struct Result *result)
 {
 	const size_t vessel_index = get_global_id(0) + get_global_id(1)*WIDTH;
 	const struct Vessel vein = v[vessel_index];
 
 	float Rtot = 0.0;
-	float Pout = next_vein_pressure[vessel_index];
+	float Pout = vein.pressure_out;
 
-	float Ptm = 1.35951002636 * ( Pout - vein.tone ) - vein.GP;
+	float Ptm_i = 1.35951002636 * ( Pout - vein.tone );
 	float Rs;
 
 	float D = 0.0;
 	float D_integral = 0.0;
 	float volume = 0.0;
 	float viscosity = 0.0;
-	float dL = vein.len / nSums;
+	float dL = vein.len / (float)nSums;
 
-	Ptm = Ptm - vein.Ppl;
+	float Ptm = Ptm_i - vein.Ppl - vein.peri_a - vein.peri_b * exp( vein.peri_c * ( Ptm_i - vein.Ppl ));
+	
+	// check if vessel is closed
+	if (vein.D < 0.1) {
+		result[vessel_index].D = 0.0;
+		result[vessel_index].Dmin = 0.0;
+		result[vessel_index].Dmax = 0.0;
+
+		result[vessel_index].viscosity_factor = INFINITY;
+		result[vessel_index].volume = 0.0;
+		result[vessel_index].R = INFINITY;
+		result[vessel_index].delta_R = 0.0;
+		return;
+	}
+
 
 	if( Ptm < 0 ) {
 		Rs = -Ptm/( 1.35951002636 * vein.flow ); // Starling Resistor
 	}
 	else {
-		const float inv_A = 1.0 + vein.b * exp( vein.c * Ptm );
-		D = vein.D * rsqrt(inv_A);
+		const float inv_A = (1.0 + vein.b*exp(vein.c*Ptm)) / 0.99936058722097668220 / vein.a;
+		const float area = vein.a / vein.max_a;
+		const float A = ((1/inv_A - 1.0) * area + 1.0)*area;
+		D = vein.D * sqrt(A);
 		const float vf = viscosityFactor(D, hct);
 		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
 		
@@ -286,11 +186,13 @@ __kernel void integrateOutsideVein(
 	Rtot = Rs;
 
 	for( int sum=1; sum<nSums; sum++ ){
-		Ptm = 1.35951002636 * ( Pout - vein.tone ) - vein.GP;
-		Ptm = Ptm - vein.Ppl;
+		Ptm_i = 1.35951002636 * ( Pout - vein.tone );
+		Ptm = Ptm_i - vein.Ppl - vein.peri_a - vein.peri_b * exp( vein.peri_c * ( Ptm_i - vein.Ppl ));
 
-		const float A = 1.0 + vein.b * exp( vein.c * Ptm );
-		D = vein.D * rsqrt(A);
+		const float inv_A = (1.0 + vein.b*exp(vein.c*Ptm)) / 0.99936058722097668220 / vein.a;
+		const float area = vein.a / vein.max_a;
+		const float A = ((1/inv_A - 1.0) * area + 1.0)*area;
+		D = vein.D * sqrt(A);
 		const float vf = viscosityFactor(D, hct);
 		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
 
@@ -307,4 +209,6 @@ __kernel void integrateOutsideVein(
 	result[vessel_index].Dmax = D;
 	result[vessel_index].volume = volume / (1e9 * vein.vessel_ratio);
 	result[vessel_index].viscosity_factor = viscosity / nSums;
+	result[vessel_index].delta_R = fabs(vein.R-Rtot)/vein.R;
 }
+
