@@ -1,4 +1,4 @@
-#include "specialfixedflowwidget.h"
+#include "specialgeometricflowwidget.h"
 #include <QImage>
 #include <QLabel>
 #include <QLinearGradient>
@@ -10,7 +10,7 @@
 #include "lungview.h"
 #include "model/model.h"
 
-SpecialFixedFlowWidget::SpecialFixedFlowWidget(const Model &model, QWidget *parent)
+SpecialGeometricFlowWidget::SpecialGeometricFlowWidget(const Model &model, QWidget *parent)
         : QWidget(parent),
           original_map(12, 32, QImage::Format_ARGB32)
 {
@@ -56,12 +56,12 @@ SpecialFixedFlowWidget::SpecialFixedFlowWidget(const Model &model, QWidget *pare
 	setMinimumSize(logicalDpiX()*5, logicalDpiY()*6);
 }
 
-SpecialFixedFlowWidget::~SpecialFixedFlowWidget()
+SpecialGeometricFlowWidget::~SpecialGeometricFlowWidget()
 {
 	delete info_widget;
 }
 
-void SpecialFixedFlowWidget::setGrid(bool is_visible)
+void SpecialGeometricFlowWidget::setGrid(bool is_visible)
 {
 	/* 12 x 32 grid */
 	if (grid_visible == is_visible)
@@ -71,7 +71,7 @@ void SpecialFixedFlowWidget::setGrid(bool is_visible)
 	update();
 }
 
-void SpecialFixedFlowWidget::paintEvent(QPaintEvent *ev)
+void SpecialGeometricFlowWidget::paintEvent(QPaintEvent *ev)
 {
 	QPainter p(this);
 
@@ -153,14 +153,14 @@ void SpecialFixedFlowWidget::paintEvent(QPaintEvent *ev)
 	ev->accept();
 }
 
-void SpecialFixedFlowWidget::leaveEvent(QEvent *ev)
+void SpecialGeometricFlowWidget::leaveEvent(QEvent *ev)
 {
 	QWidget::leaveEvent(ev);
 
 	info_widget->hide();
 }
 
-void SpecialFixedFlowWidget::mouseMoveEvent(QMouseEvent *ev)
+void SpecialGeometricFlowWidget::mouseMoveEvent(QMouseEvent *ev)
 {
 	const QPoint & pos = ev->pos();
 	const QRect r = rect().adjusted(0, 0, 0, -logicalDpiY());

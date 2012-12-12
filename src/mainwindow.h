@@ -79,7 +79,7 @@ public slots:
 	void on_actionOverlayMap_triggered();
 	void on_actionOverlaySettings_triggered();
 
-	void on_actionFixedFlow_triggered();
+	void on_actionGeometricFlow_triggered();
 
 	void on_gender_currentIndexChanged(int idx);
 	void setCalculationType(QAction*);

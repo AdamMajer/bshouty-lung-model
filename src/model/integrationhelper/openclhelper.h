@@ -30,8 +30,8 @@ public:
 	OpenCLIntegrationHelper(Model *model);
 	virtual ~OpenCLIntegrationHelper();
 
-	virtual double integrateBshoutyModel();
-	virtual double laminarFlow();
+	virtual double segmentedVessels();
+	virtual double rigidVessels();
 	virtual bool isAvailable() const { return is_available; }
 	virtual bool hasErrors() const { return has_errors; }
 

@@ -34,10 +34,10 @@ AbstractIntegrationHelper::~AbstractIntegrationHelper()
 double AbstractIntegrationHelper::integrate()
 {
 	switch (solver_type) {
-	case Model::BshoutyIntegral:
-		return integrateBshoutyModel();
-	case Model::LaminarFlow:
-		return laminarFlow();
+	case Model::SegmentedVesselFlow:
+		return segmentedVessels();
+	case Model::RigidVesselFlow:
+		return rigidVessels();
 	}
 
 	return 0.0;

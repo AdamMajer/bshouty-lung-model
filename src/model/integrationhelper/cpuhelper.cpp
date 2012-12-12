@@ -19,6 +19,9 @@
 
 #include <QtConcurrentRun>
 #include <QtConcurrentMap>
+#include <QFuture>
+#include <QFutureSynchronizer>
+#include <QThread>
 #include "common.h"
 #include <limits>
 #include "cpuhelper.h"
@@ -43,44 +46,14 @@ CpuIntegrationHelper::CpuIntegrationHelper(Model *model, Model::IntegralType typ
 
 }
 
-double CpuIntegrationHelper::integrateBshoutyModel()
+double CpuIntegrationHelper::segmentedVessels()
 {
-	const int n_elements = nElements();
-	std::vector<QFuture<double> > futures;
-	std::vector<int> v(n_elements);
-
-	// reserve space for all veins and arteries
-	futures.reserve(n_elements * 2);
-
-	for (int i=0; i<n_elements; ++i) {
-		v[i] = i;
-
-		futures.push_back(QtConcurrent::run(this, &CpuIntegrationHelper::integrateVessel, Vessel::Artery, v[i], (std::vector<double>*)0));
-		futures.push_back(QtConcurrent::run(this, &CpuIntegrationHelper::integrateVessel, Vessel::Vein, v[i], (std::vector<double>*)0));
-	}
-
-	double max_deviation = 0;
-	for (int i=0; i<n_elements*2; ++i)
-		max_deviation = qMax(max_deviation, futures[i].result());
-
-	qDebug("max deviation from CPU integration: %f", max_deviation);
-	return max_deviation;
+	return vesselIntegration(&CpuIntegrationHelper::segmentedFlowVessel);
 }
 
-double CpuIntegrationHelper::laminarFlow()
+double CpuIntegrationHelper::rigidVessels()
 {
-	// TODO: parallelize
-	const int n_elements = nElements();
-	double ret = 0.0;
-
-	for (int i=0; i<n_elements; ++i) {
-		ret = std::max(ret,
-		               laminarFlowVessel(arteries()[i]));
-		ret = std::max(ret,
-		               laminarFlowVessel(veins()[i]));
-	}
-
-	return ret;
+	return vesselIntegration(&CpuIntegrationHelper::rigidFlowVessel);
 }
 
 void CpuIntegrationHelper::integrateWithDimentions(Vessel::Type t,
@@ -90,10 +63,11 @@ void CpuIntegrationHelper::integrateWithDimentions(Vessel::Type t,
 {
 	calc_dim.clear();
 	calc_dim.reserve(nSums);
-	integrateVessel(t, index(gen, idx), &calc_dim);
+	Vessel *v_ptr = (t==Vessel::Artery) ? arteries() : veins();
+	segmentedFlowVessel(v_ptr[index(gen, idx)], &calc_dim);
 }
 
-double CpuIntegrationHelper::laminarFlowVessel(Vessel &vein)
+double CpuIntegrationHelper::rigidFlowVessel(Vessel &vein)
 {
 	/* NOTE: calc_dim is assumed empty, if supplied */
 	const double hct = Hct();
@@ -178,23 +152,15 @@ double CpuIntegrationHelper::laminarFlowVessel(Vessel &vein)
 	return vein.last_delta_R;
 }
 
-double CpuIntegrationHelper::integrateArtery(int vessel_index)
+double CpuIntegrationHelper::segmentedFlowVessel(Vessel &vein)
 {
-	return integrateVessel(Vessel::Artery, vessel_index, 0);
+	return segmentedFlowVessel(vein, NULL);
 }
 
-double CpuIntegrationHelper::integrateVein(int vessel_index)
-{
-	return integrateVessel(Vessel::Vein, vessel_index, NULL);
-}
-
-double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
-                                             int vessel_index,
-                                             std::vector<double> *calc_dim)
+double CpuIntegrationHelper::segmentedFlowVessel(Vessel &vein,
+                                                 std::vector<double> *calc_dim)
 {
 	/* NOTE: calc_dim is assumed empty, if supplied */
-	Vessel & vein = (type == Vessel::Artery) ? arteries()[vessel_index] : veins()[vessel_index];
-
 	const double hct = Hct();
 	double Rtot = 0.0;
 	double Rin = vein.R;
@@ -293,4 +259,53 @@ double CpuIntegrationHelper::integrateVessel(Vessel::Type type,
 	vein.last_delta_R = fabs(Rin-vein.R)/Rin;
 
 	return vein.last_delta_R;
+}
+
+double CpuIntegrationHelper::vesselIntegration(double(CpuIntegrationHelper::* func)(Vessel&))
+{
+	QFutureSynchronizer<double> threads;
+	int thread_count = QThread::idealThreadCount();
+	if (thread_count < 1)
+		thread_count = 4;
+
+	artery_no = 0;
+	vein_no = 0;
+
+	while (thread_count--)
+		threads.addFuture(
+		        QtConcurrent::run(this,
+		                &CpuIntegrationHelper::vesselIntegrationThread,
+		                func));
+
+	threads.waitForFinished();
+
+	double max_deviation = 0;
+	foreach (QFuture<double> future, threads.futures())
+		max_deviation = qMax(max_deviation, future.result());
+
+	qDebug("max deviation from CPU integration: %f", max_deviation);
+	return max_deviation;
+}
+
+double CpuIntegrationHelper::vesselIntegrationThread(double (CpuIntegrationHelper::*func)(Vessel &))
+{
+	double ret = 0.0;
+	int n = nElements();
+	int i;
+
+	Vessel *v = arteries();
+	while ((i=artery_no.fetchAndAddOrdered(1024)) < n) {
+		int max_pos = std::min(n, i+1024);
+		for (int j=i; j<max_pos; ++j)
+			ret = std::max(ret, (this->*func)(v[j]));
+	}
+
+	v = veins();
+	while ((i=vein_no.fetchAndAddOrdered(1024)) < n) {
+		int max_pos = std::min(n, i+1024);
+		for (int j=i; j<max_pos; ++j)
+			ret = std::max(ret, (this->*func)(v[i]));
+	}
+
+	return ret;
 }

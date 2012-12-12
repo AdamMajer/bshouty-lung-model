@@ -29,7 +29,7 @@
 
 CalibrateDlg::CalibrateDlg(QWidget *parent)
         : QDialog(parent),
-          base_model(Model::Middle, Model::BshoutyIntegral)
+          base_model(Model::Middle, Model::SegmentedVesselFlow)
 {
 	ui = new Ui::CalibrateDlg;
 	ui->setupUi(this);

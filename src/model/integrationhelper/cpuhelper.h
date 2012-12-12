@@ -25,19 +25,20 @@ class CpuIntegrationHelper : public AbstractIntegrationHelper
 public:
 	CpuIntegrationHelper(Model *model, Model::IntegralType type);
 
-	virtual double integrateBshoutyModel();
-	virtual double laminarFlow();
+	virtual double segmentedVessels();
+	virtual double rigidVessels();
 	void integrateWithDimentions(Vessel::Type t,
 	                             int gen, int idx,
 	                             std::vector<double> &calc_dim);
 
 protected:
-	double laminarFlowVessel(Vessel &vessel);
+	double rigidFlowVessel(Vessel &vessel);
+	double segmentedFlowVessel(Vessel &vein);
+	double segmentedFlowVessel(Vessel &vein,
+	                           std::vector<double> *calc_dim);
 
-	double integrateArtery(int vessel_index);
-	double integrateVein(int vessel_index);
+	double vesselIntegration(double(CpuIntegrationHelper::* func)(Vessel&));
+	double vesselIntegrationThread(double(CpuIntegrationHelper::* func)(Vessel&));
 
-	double integrateVessel(Vessel::Type type,
-	                       int vessel_index,
-	                       std::vector<double> *calc_dim);
+	QAtomicInt artery_no, vein_no;
 };

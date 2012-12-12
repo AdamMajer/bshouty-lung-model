@@ -117,8 +117,8 @@ typedef struct _opencl_device
 	cl_program program;
 	cl_command_queue queue;
 
-	cl_kernel intVessel;
-	cl_kernel rigidFlowVessel;
+	cl_kernel segmentedVesselKernel;
+	cl_kernel rigidVesselKernel;
 
 	cl_mem mem_vein_buffer;
 	cl_mem mem_pressures;

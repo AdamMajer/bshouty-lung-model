@@ -1,5 +1,5 @@
-#ifndef SpecialFixedFlowWidget_H
-#define SpecialFixedFlowWidget_H
+#ifndef SpecialGeometricFlowWidget_H
+#define SpecialGeometricFlowWidget_H
 
 #include <QPixmap>
 #include <QWidget>
@@ -7,13 +7,13 @@
 #include "overlaysettingsdlg.h"
 
 class QLabel;
-class SpecialFixedFlowWidget : public QWidget
+class SpecialGeometricFlowWidget : public QWidget
 {
 	Q_OBJECT
 
 public:
-	SpecialFixedFlowWidget(const Model &model, QWidget *parent=0);
-	virtual ~SpecialFixedFlowWidget();
+	SpecialGeometricFlowWidget(const Model &model, QWidget *parent=0);
+	virtual ~SpecialGeometricFlowWidget();
 
 public slots:
 	void setGrid(bool is_visible);
@@ -33,4 +33,4 @@ private:
 	double mean_flow;
 };
 
-#endif // SpecialFixedFlowWidget_H
+#endif // SpecialGeometricFlowWidget_H

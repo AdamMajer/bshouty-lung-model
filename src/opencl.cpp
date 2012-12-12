@@ -297,9 +297,9 @@ void OpenCL::addDevice(cl_platform_id platform_id, cl_device_id device_id)
 	dev.queue = opencl.clCreateCommandQueue(dev.context, device_id, 0, &err);
 	errorCheck(err);
 
-	dev.intVessel = opencl.clCreateKernel(dev.program, "integrateVessel", &err);
+	dev.segmentedVesselKernel = opencl.clCreateKernel(dev.program, "segmentedVesselFlow", &err);
 	errorCheck(err);
-	dev.rigidFlowVessel = opencl.clCreateKernel(dev.program, "rigidVesselFlow", &err);
+	dev.rigidVesselKernel = opencl.clCreateKernel(dev.program, "rigidVesselFlow", &err);
 	errorCheck(err);
 
 	dev.mem_vein_buffer = opencl.clCreateBuffer(dev.context, CL_MEM_READ_ONLY, sizeof(CL_Vessel)*4*256, NULL, &err);

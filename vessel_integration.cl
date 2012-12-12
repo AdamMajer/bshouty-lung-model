@@ -129,7 +129,7 @@ __kernel void rigidVesselFlow(
 	result[vessel_index].delta_R = fabs(Rin - Rs)/Rin;
 }
 
-__kernel void integrateVessel(
+__kernel void segmentedVesselFlow(
                 float hct,
                 __global __read_only struct Vessel *v, 
                 __global __write_only struct Result *result)

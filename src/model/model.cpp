@@ -813,6 +813,7 @@ void Model::setGender(Gender g)
 int Model::calc( int max_iter )
 {
 	abort_calculation = 0;
+	prog = 0;
 	if (model_reset) {
 		getParameters();
 		for (DiseaseList::iterator i=dis.begin(); i!=dis.end(); ++i)
@@ -1744,7 +1745,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	q.addBindValue("integral_type");
 	q.addBindValue(offset);
 	if (!q.exec() || !q.next())
-		integral_type = BshoutyIntegral;
+		integral_type = SegmentedVesselFlow;
 	else
 		integral_type = (IntegralType)q.value(0).toInt();
 

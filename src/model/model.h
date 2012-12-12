@@ -103,7 +103,7 @@ public:
 	enum Transducer { Top, Middle, Bottom };
 	enum Gender { Male, Female };
 
-	enum IntegralType { BshoutyIntegral, LaminarFlow, NavierStokes };
+	enum IntegralType { SegmentedVesselFlow, RigidVesselFlow, NavierStokes };
 
 	Model( Transducer, IntegralType type );
 	Model(const Model &other);

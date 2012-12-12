@@ -33,7 +33,7 @@
 #include "opencldlg.h"
 #include "opencl.h"
 #include "overlaymapwidget.h"
-#include "specialfixedflowwidget.h"
+#include "specialgeometricflowwidget.h"
 
 #include "model/integrationhelper/cpuhelper.h"
 
@@ -80,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
 	calc_thread = 0;
 	mres = 0;
 
-	baseline = new Model(Model::Middle, Model::BshoutyIntegral);
+	baseline = new Model(Model::Middle, Model::SegmentedVesselFlow);
 	model = baseline->clone();
 	ui = new Ui::MainWindow;
 	ui->setupUi(this);
@@ -105,8 +105,8 @@ MainWindow::MainWindow(QWidget *parent)
 	        SLOT(setOverlayType(QAction*)));
 
 	QActionGroup *integral_type = new QActionGroup(this);
-	integral_type->addAction(ui->actionBshoutyIntegral);
-	integral_type->addAction(ui->actionLaminarFlow);
+	integral_type->addAction(ui->actionSegmentedVessels);
+	integral_type->addAction(ui->actionRigidVessels);
 	integral_type->addAction(ui->actionNavierStokes);
 	integral_type->setExclusive(true);
 	connect(integral_type, SIGNAL(triggered(QAction*)),
@@ -675,11 +675,11 @@ void MainWindow::on_actionOverlaySettings_triggered()
 		ui->view->setOverlaySettings(dlg.overlaySettings());
 }
 
-void MainWindow::on_actionFixedFlow_triggered()
+void MainWindow::on_actionGeometricFlow_triggered()
 {
 	QDialog dlg(this);
 	QGridLayout *layout = new QGridLayout(&dlg);
-	SpecialFixedFlowWidget *widget = new SpecialFixedFlowWidget(*model,
+	SpecialGeometricFlowWidget *widget = new SpecialGeometricFlowWidget(*model,
 	                                                            this);
 	QSizePolicy expanding_policy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	expanding_policy.setHorizontalStretch(10);
@@ -750,10 +750,10 @@ void MainWindow::setOverlayType(QAction *ac)
 
 void MainWindow::setIntegralType(QAction *ac)
 {
-	if (ac == ui->actionBshoutyIntegral)
-		baseline->setIntegralType(Model::BshoutyIntegral);
-	else if (ac == ui->actionLaminarFlow)
-		baseline->setIntegralType(Model::LaminarFlow);
+	if (ac == ui->actionSegmentedVessels)
+		baseline->setIntegralType(Model::SegmentedVesselFlow);
+	else if (ac == ui->actionRigidVessels)
+		baseline->setIntegralType(Model::RigidVesselFlow);
 	else if (ac == ui->actionNavierStokes)
 		baseline->setIntegralType(Model::NavierStokes);
 }
@@ -1207,15 +1207,15 @@ void MainWindow::allocateNewModel(bool propagate_diseases_to_new_model)
 
 	ModelCalculationType calculation_type = PAPmCalculation;
 	Model::Transducer trans_pos = model->transducerPos();
-	Model::IntegralType type = Model::BshoutyIntegral;
+	Model::IntegralType type = Model::SegmentedVesselFlow;
 
 	if (ui->actionDiseaseProgression->isChecked())
 		calculation_type = DiseaseProgressCalculation;
 
-	if (ui->actionBshoutyIntegral->isChecked())
-		type = Model::BshoutyIntegral;
-	else if(ui->actionLaminarFlow->isChecked())
-		type = Model::LaminarFlow;
+	if (ui->actionSegmentedVessels->isChecked())
+		type = Model::SegmentedVesselFlow;
+	else if(ui->actionRigidVessels->isChecked())
+		type = Model::RigidVesselFlow;
 	else if(ui->actionNavierStokes->isChecked())
 		type = Model::NavierStokes;
 

@@ -25,8 +25,6 @@
 class AbstractIntegrationHelper
 {
 public:
-	enum SolverType { BshoutyModel, LaminarFlow, NavierStokes };
-
 	AbstractIntegrationHelper(Model *model, Model::IntegralType solver);
 	virtual ~AbstractIntegrationHelper();
 
@@ -34,8 +32,8 @@ public:
 	 * the maximum deviation from the pre-integration resistance value.
 	 */
 	double integrate();
-	virtual double integrateBshoutyModel() = 0;
-	virtual double laminarFlow() = 0;
+	virtual double segmentedVessels() = 0;
+	virtual double rigidVessels() = 0;
 
 	virtual bool isAvailable() const { return true; }
 	virtual bool hasErrors() const { return false; }
@@ -46,7 +44,6 @@ protected:
 	Vessel* veins() { return model->veins; }
 	int nElements() const { return model->nElements(); }
 	int index(int gen, int idx) const { return model->startIndex(gen)+idx; }
-	double LAP() const { return model->LAP; }
 	double Hct() const { return model->Hct; }
 	double Tlrns() const { return model->Tlrns; }
 

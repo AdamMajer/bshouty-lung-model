@@ -36,7 +36,7 @@ struct WorkGroup {
 };
 
 OpenCLIntegrationHelper::OpenCLIntegrationHelper(Model *model)
-        : AbstractIntegrationHelper(model, Model::BshoutyIntegral),
+        : AbstractIntegrationHelper(model, Model::SegmentedVesselFlow),
           n_devices(cl->nDevices())
 {
 	has_errors = false;
@@ -65,7 +65,7 @@ OpenCLIntegrationHelper::~OpenCLIntegrationHelper()
 
 }
 
-double OpenCLIntegrationHelper::integrateBshoutyModel()
+double OpenCLIntegrationHelper::segmentedVessels()
 {
 
 	/*
@@ -79,7 +79,7 @@ double OpenCLIntegrationHelper::integrateBshoutyModel()
 	for (int i=0; i<n_devices; ++i) {
 		futures.addFuture(QtConcurrent::run(this,
 		        &OpenCLIntegrationHelper::integrateByDevice,
-		        d[i], d[i].intVessel));
+		        d[i], d[i].segmentedVesselKernel));
 	}
 
 	QList<QFuture<float> > results = futures.futures();
@@ -90,7 +90,7 @@ double OpenCLIntegrationHelper::integrateBshoutyModel()
 	return ret;
 }
 
-double OpenCLIntegrationHelper::laminarFlow()
+double OpenCLIntegrationHelper::rigidVessels()
 {
 	QFutureSynchronizer<float> futures;
 
@@ -101,7 +101,7 @@ double OpenCLIntegrationHelper::laminarFlow()
 	for (int i=0; i<n_devices; ++i) {
 		futures.addFuture(QtConcurrent::run(this,
 		        &OpenCLIntegrationHelper::integrateByDevice,
-		        d[i], d[i].rigidFlowVessel));
+		        d[i], d[i].rigidVesselKernel));
 	}
 
 	QList<QFuture<float> > results = futures.futures();
