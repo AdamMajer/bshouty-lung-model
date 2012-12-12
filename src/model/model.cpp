@@ -434,9 +434,11 @@ double Model::idealWeight(Gender gender, double pat_ht)
 	case Model::Male:
 		if (pat_ht > 123.558)
 			return 50.0 + 2.3/2.54 * (pat_ht - 60*2.54);
+		break;
 	case Model::Female:
 		if (pat_ht > 134.479)
 			return 45.5 + 2.3/2.54 * (pat_ht - 60*2.54);
+		break;
 	}
 
 	// pediatric ideal weight formula
