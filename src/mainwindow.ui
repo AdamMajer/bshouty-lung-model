@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>972</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuData">
@@ -161,13 +161,13 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
-              <width>264</width>
-              <height>1611</height>
+              <y>-139</y>
+              <width>257</width>
+              <height>1710</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout">
-             <item row="26" column="1">
+             <item row="27" column="1">
               <widget class="ClickableLineEdit" name="Pal">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -180,7 +180,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="44" column="0">
+             <item row="45" column="0">
               <widget class="QLabel" name="label_4">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;co &lt;/span&gt;(mmHg)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -190,7 +190,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="14" column="0" colspan="2">
+             <item row="15" column="0" colspan="2">
               <widget class="QLabel" name="CLRangeLabel">
                <property name="font">
                 <font>
@@ -219,14 +219,14 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="20" column="1">
+             <item row="21" column="1">
               <widget class="ClickableLineEdit" name="PV_EVL">
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PV EVL stands for Estimated Pulmonary Vein Length in cm&amp;quot; &amp;quot;Range 0.5 - 20 cm&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; 0.5 – 20cm&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="26" column="0">
+             <item row="27" column="0">
               <widget class="QLabel" name="label_12">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;al &lt;/span&gt;(cmH&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;O)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -249,7 +249,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="43" column="0">
+             <item row="44" column="0">
               <widget class="QLabel" name="label_3">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;ci &lt;/span&gt;(mmHg)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -259,7 +259,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="41" column="0">
+             <item row="42" column="0">
               <widget class="QLabel" name="label_8">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;m&lt;/span&gt;/PVR (%)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -269,7 +269,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="12" column="1">
+             <item row="13" column="1">
               <widget class="ClickableLineEdit" name="Vfrc">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -289,7 +289,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="27" column="0" colspan="2">
+             <item row="28" column="0" colspan="2">
               <widget class="QLabel" name="PalModLabel">
                <property name="font">
                 <font>
@@ -314,7 +314,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="39" column="1">
+             <item row="40" column="1">
               <widget class="QLineEdit" name="Rds">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -328,7 +328,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="31" column="1">
+             <item row="32" column="1">
               <spacer name="verticalSpacer_3">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
@@ -344,7 +344,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </spacer>
              </item>
-             <item row="22" column="0" colspan="2">
+             <item row="23" column="0" colspan="2">
               <widget class="QLabel" name="pv_params_label">
                <property name="styleSheet">
                 <string notr="true">background: yellow;</string>
@@ -374,14 +374,14 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="17" column="0">
+             <item row="18" column="0">
               <widget class="QLabel" name="label_37">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hct (%)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="34" column="0">
+             <item row="35" column="0">
               <widget class="QLabel" name="label_22">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:11pt; font-weight:600; text-decoration: underline; color:#ff0000;&quot;&gt;OUTPUT&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -417,14 +417,14 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="11" column="1">
+             <item row="12" column="1">
               <widget class="ClickableLineEdit" name="Vrv">
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;V&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; vertical-align:sub;&quot;&gt;RV&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;stands for Residual Volume as percent of TLC&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;5 – 95%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="12" column="0">
+             <item row="13" column="0">
               <widget class="QLabel" name="label_16">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;FRC &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif';&quot;&gt;(%TLC)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -447,7 +447,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="30" column="0">
+             <item row="31" column="0">
               <widget class="QLabel" name="PAPm_label">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PAP&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;m &lt;/span&gt;(mmHg)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -470,7 +470,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="37" column="0">
+             <item row="38" column="0">
               <widget class="QLabel" name="label_5">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;us &lt;/span&gt;(mmHg/L/min)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -480,7 +480,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="37" column="1">
+             <item row="38" column="1">
               <widget class="QLineEdit" name="Rus">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -494,7 +494,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="25" column="1">
+             <item row="26" column="1">
               <widget class="ClickableLineEdit" name="LAP">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -507,7 +507,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="33" column="0" colspan="2">
+             <item row="34" column="0" colspan="2">
               <widget class="QTreeView" name="diseaseView">
                <property name="alternatingRowColors">
                 <bool>true</bool>
@@ -538,7 +538,7 @@ p, li { white-space: pre-wrap; }
                </attribute>
               </widget>
              </item>
-             <item row="42" column="0">
+             <item row="43" column="0">
               <widget class="QLabel" name="label_24">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;ds&lt;/span&gt;/PVR (%)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -548,7 +548,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="35" column="0">
+             <item row="36" column="0">
               <widget class="QLabel" name="label">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PAP&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;m &lt;/span&gt;(mmHg)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -588,7 +588,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="24" column="0" colspan="2">
+             <item row="25" column="0" colspan="2">
               <widget class="QLabel" name="CORangeLabel">
                <property name="font">
                 <font>
@@ -617,7 +617,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="28" column="1">
+             <item row="29" column="1">
               <widget class="ClickableLineEdit" name="Ppl">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -646,14 +646,14 @@ p, li { white-space: pre-wrap; }
                </property>
               </spacer>
              </item>
-             <item row="21" column="0">
+             <item row="22" column="0">
               <widget class="QLabel" name="label_39">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PV Diameter (cm)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="36" column="1">
+             <item row="37" column="1">
               <widget class="QLineEdit" name="PVR">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -669,7 +669,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="23" column="0">
+             <item row="24" column="0">
               <widget class="QLabel" name="label_10">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CO (L/min)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -679,7 +679,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="43" column="1">
+             <item row="44" column="1">
               <widget class="QLineEdit" name="Pci">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -722,7 +722,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="23" column="1">
+             <item row="24" column="1">
               <widget class="ClickableLineEdit" name="CO">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -735,7 +735,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="16" column="0" colspan="2">
+             <item row="17" column="0" colspan="2">
               <widget class="QLabel" name="label_20">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Lung / Hemodynamic Parameters&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -745,7 +745,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="44" column="1">
+             <item row="45" column="1">
               <widget class="QLineEdit" name="Pco">
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Average postcapillary pressure in mmHg.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -755,21 +755,21 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="20" column="0">
+             <item row="21" column="0">
               <widget class="QLabel" name="label_35">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PV Length (cm)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="17" column="1">
+             <item row="18" column="1">
               <widget class="ClickableLineEdit" name="Hct">
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hct stands for Hematocrit&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; 5 – 95&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="30" column="1">
+             <item row="31" column="1">
               <widget class="ClickableLineEdit" name="PAPm">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -785,7 +785,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="40" column="1">
+             <item row="41" column="1">
               <widget class="QLineEdit" name="Rus_PVR">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -812,7 +812,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="40" column="0">
+             <item row="41" column="0">
               <widget class="QLabel" name="label_23">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;us&lt;/span&gt;/PVR (%)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -822,21 +822,21 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="19" column="1">
+             <item row="20" column="1">
               <widget class="ClickableLineEdit" name="PA_Diameter">
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PA Diameter stands for Estimated Pulmonary Artery Diameter in cm at a transmural pressure of 35 cmH&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;O&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt; 0.5 &lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;– 2&lt;/span&gt;0cm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="19" column="0">
+             <item row="20" column="0">
               <widget class="QLabel" name="label_38">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PA Diameter (cm)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="38" column="0">
+             <item row="39" column="0">
               <widget class="QLabel" name="label_6">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;m &lt;/span&gt;(mmHg/L/min)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -846,7 +846,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="35" column="1">
+             <item row="36" column="1">
               <widget class="QLineEdit" name="PAPm2">
                <property name="enabled">
                 <bool>true</bool>
@@ -865,7 +865,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="32" column="0" colspan="2">
+             <item row="33" column="0" colspan="2">
               <widget class="QLabel" name="diseaseViewLabel">
                <property name="text">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -879,7 +879,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="38" column="1">
+             <item row="39" column="1">
               <widget class="QLineEdit" name="Rm">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -893,14 +893,14 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="18" column="0">
+             <item row="19" column="0">
               <widget class="QLabel" name="label_36">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PA Length (cm)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="21" column="1">
+             <item row="22" column="1">
               <widget class="ClickableLineEdit" name="PV_Diameter">
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PV Diameter stands for Estimated Pulmonary Vein Diameter in cm at a transmural pressure of 35 cmH&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;O&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt; 0.5 &lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;–&lt;/span&gt; 20 cm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -949,7 +949,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="39" column="0">
+             <item row="40" column="0">
               <widget class="QLabel" name="label_7">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;ds &lt;/span&gt;(mmHg/L/min)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -959,7 +959,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="42" column="1">
+             <item row="43" column="1">
               <widget class="QLineEdit" name="Rds_PVR">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -973,7 +973,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="29" column="0" colspan="2">
+             <item row="30" column="0" colspan="2">
               <widget class="QLabel" name="PplModLabel">
                <property name="font">
                 <font>
@@ -1002,7 +1002,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="45" column="1">
+             <item row="46" column="1">
               <spacer name="verticalSpacer_5">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
@@ -1015,7 +1015,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </spacer>
              </item>
-             <item row="25" column="0">
+             <item row="26" column="0">
               <widget class="QLabel" name="label_11">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;LAP/PCWP (mmHg)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1025,7 +1025,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="46" column="1">
+             <item row="47" column="1">
               <widget class="QPushButton" name="recalc">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1040,7 +1040,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="28" column="0">
+             <item row="29" column="0">
               <widget class="QLabel" name="label_13">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P&lt;span style=&quot; font-size:12pt; vertical-align:sub;&quot;&gt;pl &lt;/span&gt;(cmH&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;O)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1050,7 +1050,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="41" column="1">
+             <item row="42" column="1">
               <widget class="QLineEdit" name="Rm_PVR">
                <property name="toolTip">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1064,14 +1064,14 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="18" column="1">
+             <item row="19" column="1">
               <widget class="ClickableLineEdit" name="PA_EVL">
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PA EVL stands for Estimated Pulmonary Artery Length in cm&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; 0.5 – 20cm&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="36" column="0">
+             <item row="37" column="0">
               <widget class="QLabel" name="label_2">
                <property name="text">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PVR (WU)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1081,7 +1081,7 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="15" column="1">
+             <item row="16" column="1">
               <spacer name="verticalSpacer_2">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
@@ -1097,14 +1097,14 @@ p, li { white-space: pre-wrap; }
                </property>
               </spacer>
              </item>
-             <item row="13" column="1">
+             <item row="14" column="1">
               <widget class="ClickableLineEdit" name="Vtlc">
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;TLC&lt;/span&gt; stands for Total Lung Capacity as percent of predicted TLC&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; 5 – 300%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
-             <item row="11" column="0">
+             <item row="12" column="0">
               <widget class="QLabel" name="label_15">
                <property name="text">
                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1133,10 +1133,10 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="13" column="0">
+             <item row="14" column="0">
               <widget class="QLabel" name="label_40">
                <property name="text">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;TLC &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif';&quot;&gt;(%TLC)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;TLC &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif';&quot;&gt;(% pred.)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -1160,6 +1160,16 @@ p, li { white-space: pre-wrap; }
                 </property>
                </item>
               </widget>
+             </item>
+             <item row="11" column="0">
+              <widget class="QLabel" name="label_27">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;M&lt;/span&gt; (%TLC)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="1">
+              <widget class="QLineEdit" name="Vm"/>
              </item>
             </layout>
            </widget>
@@ -1558,6 +1568,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>patHt</tabstop>
   <tabstop>patWt</tabstop>
   <tabstop>lungHt</tabstop>
+  <tabstop>Vm</tabstop>
   <tabstop>Vrv</tabstop>
   <tabstop>Vfrc</tabstop>
   <tabstop>Vtlc</tabstop>

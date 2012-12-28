@@ -122,7 +122,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QLabel" name="label_15">
         <property name="font">
          <font>
@@ -142,7 +142,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="5" column="1">
        <widget class="ClickableLineEdit" name="Vrv">
         <property name="toolTip">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -155,7 +155,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
+      <item row="6" column="0">
        <widget class="QLabel" name="label_16">
         <property name="font">
          <font>
@@ -175,7 +175,7 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="6" column="1">
        <widget class="ClickableLineEdit" name="Vfrc">
         <property name="toolTip">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -188,14 +188,14 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
+      <item row="7" column="1">
        <widget class="QLineEdit" name="Vtlc">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;TLC&lt;/span&gt; stands for Total Lung Capacity as percent of predicted TLC&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt; 5 – 300%&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
+      <item row="7" column="0">
        <widget class="QLabel" name="label_30">
         <property name="font">
          <font>
@@ -228,6 +228,16 @@ p, li { white-space: pre-wrap; }
          </property>
         </item>
        </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_23">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:9pt;&quot;&gt;V&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:12pt; vertical-align:sub;&quot;&gt;M&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:9pt;&quot;&gt; (% TLC)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="Vm"/>
       </item>
      </layout>
     </widget>
@@ -814,6 +824,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>patHt</tabstop>
   <tabstop>patWt</tabstop>
   <tabstop>lungHt</tabstop>
+  <tabstop>Vm</tabstop>
   <tabstop>Vrv</tabstop>
   <tabstop>Vfrc</tabstop>
   <tabstop>Vtlc</tabstop>

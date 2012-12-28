@@ -37,8 +37,11 @@
 #include "model.h"
 #include <limits>
 
+#include <QSettings>
+
 /* No accuracy benefit above 128. Speed is not compromised at 128 (on 16 core machine!) */
 const int nSums = 128; // number of divisions in the integral
+const QLatin1String vessel_ini("data/vessel.ini");
 
 #if defined(Q_OS_WIN32) && !defined(__GNUC__)
 inline double cbrt(double x) {
@@ -122,6 +125,7 @@ Model::Model(Transducer transducer_pos, IntegralType int_type)
 	CO = calibrationValue(CO_value);
 	LAP = calibrationValue(LAP_value);
 
+	Vm = calibrationValue(Vm_value);
 	Vrv = calibrationValue(Vrv_value);
 	Vfrc = calibrationValue(Vfrc_value);
 	Vtlc = calibrationValue(Vtlc_value);
@@ -191,6 +195,7 @@ Model& Model::operator =(const Model &other)
 	CI = other.CI;
 	LAP = other.LAP;
 
+	Vm = other.Vm;
 	Vrv = other.Vrv;
 	Vfrc = other.Vfrc;
 	Vtlc = other.Vtlc;
@@ -258,43 +263,16 @@ int Model::nVessels(Vessel::Type vessel_type,
 	 * Pulmonary Vasculature, Table 5
 	 */
 
-	const static int artery_number[16] = {
-	        1,
-	        2,
-	        7,
-	        43,
-	        127,
-	        450,
-	        1724,
-	        6225,
-	        22004,
-	        86020,
-	        285772,
-	        674169,
-	        2256846,
-	        5101903,
-	        14057197,
-	        51205812
-	};
+	static int artery_number[16], vein_number[16];
 
-	const static int vein_number[16] = {
-	        1,
-	        2,
-	        4,
-	        11,
-	        31,
-	        63,
-	        143,
-	        435,
-	        1067,
-	        3721,
-	        15567,
-	        73025,
-	        453051,
-	        2166333,
-	        8494245,
-	        39823553
-	};
+	if (artery_number[0] == 0.0) {
+		/* Initialize values */
+		QSettings s(vessel_ini, QSettings::IniFormat);
+		for (int i=1; i<=16; ++i) {
+			artery_number[i-1] = s.value("artery_number/gen_"+QString::number(i)).toInt();
+			vein_number[i-1] = s.value("vein_number/gen_"+QString::number(i)).toInt();
+		}
+	}
 
 	if (gen_no > (unsigned)nGenerations())
 		return 0;
@@ -312,49 +290,16 @@ int Model::nVessels(Vessel::Type vessel_type,
 double Model::measuredDiameterRatio(Vessel::Type vessel_type,
                                     unsigned gen_no)
 {
-	/* Values for the main artery and vein were added later assuming
-	 * standard diameter ratio of 1.57
-	 *
-	 * Ratios derived from Huang (1996) where Ptm=3cmH2O translated to
-	 * Ptm=0 using S.C.Hillier (1993) (eq.2)
-	 */
-	const static double artery_ratios[16] = {
-		1.0,
-		0.636942675,
-		0.315889138,
-		0.179032536,
-		0.116629368,
-		0.075314168,
-		0.067137201,
-		0.033138234,
-		0.021948700,
-		0.014632467,
-		0.009468067,
-		0.006455500,
-		0.004174557,
-		0.002410054,
-		0.001549320,
-		0.000860733
-	};
+	static double artery_ratios[16], vein_ratios[16];
 
-	const static double vein_ratios[16] = {
-		1.0,
-		0.636942675,
-		0.424792147,
-		0.287778263,
-		0.196435675,
-		0.141433686,
-		0.097726748,
-		0.069734665,
-		0.044198027,
-		0.030447530,
-		0.018661389,
-		0.011295051,
-		0.006384159,
-		0.003290298,
-		0.001522376,
-		0.000883961
-	};
+	if (artery_ratios[0] == 0.0) {
+		/* Initialize values */
+		QSettings s(vessel_ini, QSettings::IniFormat);
+		for (int i=1; i<=16; ++i) {
+			artery_ratios[i-1] = s.value("artery_diameter_ratios/gen_"+QString::number(i)).toDouble();
+			vein_ratios[i-1] =  s.value("vein_diameter_ratios/gen_"+QString::number(i)).toDouble();
+		}
+	}
 
 	switch (vessel_type) {
 	case Vessel::Artery:
@@ -372,43 +317,17 @@ double Model::measuredLengthRatio(Vessel::Type vessel_type,
 	/* Length ratios assume 2.5 cm main PA, 5cm left PA
 	 * same for the veins
 	 */
-	const static double artery_ratios[16] = {
-	        1,
-	        0.506,
-	        0.714,
-	        0.5194,
-	        0.3614,
-	        0.247,
-	        0.1316,
-	        0.0746,
-	        0.0562,
-	        0.0384,
-	        0.0216,
-	        0.0136,
-	        0.009,
-	        0.0072,
-	        0.0052,
-	        0.0044
-	};
+	static double artery_ratios[16], vein_ratios[16];
 
-	const static double vein_ratios[16] = {
-	        1,
-	        0.7136,
-	        0.6998,
-	        0.3898,
-	        0.5298,
-	        0.358,
-	        0.2956,
-	        0.2248,
-	        0.1356,
-	        0.0958,
-	        0.0584,
-	        0.03,
-	        0.0212,
-	        0.0076,
-	        0.0042,
-	        0.0026
-	};
+	if (artery_ratios[0] == 0.0) {
+		/* Initialize values */
+		QSettings s(vessel_ini, QSettings::IniFormat);
+		for (int i=1; i<=16; ++i) {
+			artery_ratios[i-1]=s.value("artery_length_ratios/gen_"+QString::number(i)).toDouble();
+			vein_ratios[i-1]=s.value("vein_length_ratios/gen_"+QString::number(i)).toDouble();
+		}
+	}
+
 
 	switch (vessel_type) {
 	case Vessel::Artery:
@@ -433,6 +352,8 @@ double Model::BSA(double pat_ht, double pat_wt)
 
 double Model::idealWeight(Gender gender, double pat_ht)
 {
+	return 22.0 * sqr(pat_ht/100.0);
+
 	switch (gender) {
 	case Model::Male:
 		if (pat_ht > 123.558)
@@ -577,6 +498,8 @@ double Model::getResult(DataType type) const
 	case DiseaseParam:
 		break;
 
+	case Vm_value:
+		return Vm * 100.0;
 	case Vrv_value:
 		return Vrv * 100.0;
 	case Vfrc_value:
@@ -656,6 +579,15 @@ bool Model::setData(DataType type, double val)
 	case Tlrns_value:
 		if (significantChange(Tlrns, val)) {
 			Tlrns = val;
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case Vm_value:
+		val /= 100.0;
+		if (significantChange(Vm, val)) {
+			Vm = val;
+			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
 		}
@@ -965,17 +897,19 @@ double Model::calibrationValue(DataType type)
 	case Model::Pat_Ht_value:
 		return 175.0;
 	case Model::Pat_Wt_value:
-		return 70.465;
+		return 67.375;
 	case Model::Lung_Ht_value:
 		return 20;
+	case Model::Vm_value:
+		return 0.1;
 	case Model::Vrv_value:
-		return 0.3;
+		return 0.27;
 	case Model::Vfrc_value:
-		return 0.45;
+		return 0.55;
 	case Model::Vtlc_value:
 		return 1.0;
 	case Model::CO_value:
-		return 3.37801294 * BSA(175.0, 70.465);
+		return 3.37801294 * BSA(175.0, 67.375);
 	case Model::LAP_value:
 		return 5.0;
 	case Model::Pal_value:
@@ -1451,17 +1385,18 @@ double Model::lengthFactor(const Vessel &v) const
 	const double min_ratio = 0.4 * Vtlc;
 	double len_ratio;
 
-	if (v.Ptp > 35.0)
-		return 1.0;
-
-	if (v.Ptp > 15.0)
-		len_ratio = 0.005 * v.Ptp + 0.825;
+	if (v.Ptp > 20.0)
+		len_ratio = 1.0;
+	else if (v.Ptp > 12.5)
+		len_ratio = 0.1/7.5*(v.Ptp-12.5) + 0.9;
 	else if (v.Ptp > 5.0)
-		len_ratio = (0.09-0.1*Vfrc)*v.Ptp + 1.5*Vfrc - 0.45;
+		len_ratio = (0.9-Vfrc)/7.5*(v.Ptp-5.0) + Vfrc;
+	else if (v.Ptp > 3.0)
+		len_ratio = (Vfrc-Vrv)/2.0*(v.Ptp-3.0) + Vrv;
 	else
-		len_ratio = 0.2*(Vfrc-Vrv)*v.Ptp + Vrv;
+		len_ratio = (Vrv-Vm)/3.0*v.Ptp + Vm;
 
-	len_ratio = qMax(len_ratio, min_ratio);
+	len_ratio = qMax(Vtlc*len_ratio, min_ratio);
 	return cbrt(len_ratio);
 }
 
@@ -1527,6 +1462,7 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(PA_EVL);
 	SET_VALUE(PV_EVL);
 
+	SET_VALUE(Vm);
 	SET_VALUE(Vrv);
 	SET_VALUE(Vfrc);
 	SET_VALUE(Vtlc);
@@ -1719,6 +1655,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(PA_EVL);
 	SET_VALUE(PV_EVL);
 
+	SET_VALUE(Vm);
 	SET_VALUE(Vrv);
 	SET_VALUE(Vfrc);
 	SET_VALUE(Vtlc);
@@ -1776,6 +1713,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	GET_VALUE(PA_EVL);
 	GET_VALUE(PV_EVL);
 
+	GET_VALUE(Vm);
 	GET_VALUE(Vrv);
 	GET_VALUE(Vfrc);
 	GET_VALUE(Vtlc);

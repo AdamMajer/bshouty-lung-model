@@ -90,7 +90,7 @@ public:
 	enum DataType { Lung_Ht_value, Flow_value, LAP_value, Pal_value, Ppl_value,
 	                Ptp_value, PAP_value, Rus_value, Rds_value, Rm_value,
 	                Rt_value, PciA_value, PcoA_value, Tlrns_value,
-	                Vrv_value, Vfrc_value, Vtlc_value,
+	                Vm_value, Vrv_value, Vfrc_value, Vtlc_value,
 	                Pat_Ht_value, Pat_Wt_value,
 	                TotalR_value,
 	                Krc,
@@ -258,7 +258,7 @@ protected:
 
 private:
 	double Tlrns, LungHt, Pal, Ppl, CO, CI, LAP;
-	double Vrv, Vfrc, Vtlc;
+	double Vm, Vrv, Vfrc, Vtlc;
 	double PatWt, PatHt;
 	double Hct;
 	double PA_EVL, PA_diam, PV_EVL, PV_diam; // cm

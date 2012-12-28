@@ -148,9 +148,10 @@ MainWindow::MainWindow(QWidget *parent)
 	adjustVisibleModelInputs(PAPmCalculation);
 
 	// Set valid range data
-	ui->patHt->setProperty(range_property, "20 to 250;1");
+	ui->patHt->setProperty(range_property, "50 to 250;1");
 	ui->patWt->setProperty(range_property, "1 to 200;0.1");
 	ui->lungHt->setProperty(range_property, "1 to 50;0.1");
+	ui->Vm->setProperty(range_property, "0 to 95;1");
 	ui->Vrv->setProperty(range_property, "5 to 95;1");
 	ui->Vfrc->setProperty(range_property, "5 to 95;1");
 	ui->Vtlc->setProperty(range_property, "5 to 300;1");
@@ -206,7 +207,8 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->Pal, SIGNAL(textChanged(QString)), SLOT(vesselPtpDependenciesChanged()));
 	connect(ui->Ppl, SIGNAL(textChanged(QString)), SLOT(vesselPtpDependenciesChanged()));
 
-	connect(ui->Vtlc, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vm, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vrv, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
 	connect(ui->Vfrc, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
 	connect(ui->Vtlc, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
 
@@ -845,6 +847,7 @@ void MainWindow::updateInputsOutputs()
 	GET_MODEL(Model::Pal_value, ui->Pal);
 	GET_MODEL(Model::Ppl_value, ui->Ppl);
 	GET_MODEL(Model::Tlrns_value, ui->Tolerance);
+	GET_MODEL(Model::Vm_value, ui->Vm);
 	GET_MODEL(Model::Vrv_value, ui->Vrv);
 	GET_MODEL(Model::Vfrc_value, ui->Vfrc);
 	GET_MODEL(Model::Vtlc_value, ui->Vtlc);
@@ -919,6 +922,7 @@ QList<QPair<Model::DataType, Range> > MainWindow::fetchModelInputs() const
 	ADD_MODEL_RANGE(ret, Model::Pal_value, ui->Pal);
 	ADD_MODEL_RANGE(ret, Model::Ppl_value, ui->Ppl);
 	ADD_MODEL_RANGE(ret, Model::Tlrns_value, ui->Tolerance);
+	ADD_MODEL_RANGE(ret, Model::Vm_value, ui->Vm);
 	ADD_MODEL_RANGE(ret, Model::Vrv_value, ui->Vrv);
 	ADD_MODEL_RANGE(ret, Model::Vfrc_value, ui->Vfrc);
 	ADD_MODEL_RANGE(ret, Model::Vtlc_value, ui->Vtlc);
@@ -1325,11 +1329,14 @@ void MainWindow::vesselPtpDependenciesChanged()
 
 void MainWindow::globalVolumesChanged()
 {
-	bool Vrv_ok, Vfrc_ok, Vtlc_ok;
+	bool Vm_ok, Vrv_ok, Vfrc_ok, Vtlc_ok;
+	const double new_Vm = ui->Vm->text().toDouble(&Vm_ok);
 	const double new_Vrv = ui->Vrv->text().toDouble(&Vrv_ok);
 	const double new_Vfrc = ui->Vfrc->text().toDouble(&Vfrc_ok);
 	const double new_Vtlc = ui->Vtlc->text().toDouble(&Vtlc_ok);
 
+	if (Vm_ok)
+		baseline->setData(Model::Vm_value, new_Vm);
 	if (Vrv_ok)
 		baseline->setData(Model::Vrv_value, new_Vrv);
 	if (Vfrc_ok)
