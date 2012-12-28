@@ -3,9 +3,12 @@
 <HEAD>
 	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
 	<TITLE></TITLE>
-	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.3  (Win32)">
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.4.1  (Win32)">
 	<META NAME="CREATED" CONTENT="0;0">
-	<META NAME="CHANGED" CONTENT="20120210;9311894">
+	<META NAME="CHANGEDBY" CONTENT="Zoheir Bshouty">
+	<META NAME="CHANGED" CONTENT="20121213;9350940">
+	<META NAME="CHANGEDBY" CONTENT="Zoheir Bshouty">
+	<META NAME="CHANGEDBY" CONTENT="Zoheir Bshouty">
 	<META NAME="CHANGEDBY" CONTENT="Zoheir Bshouty">
 	<META NAME="CHANGEDBY" CONTENT="Zoheir Bshouty">
 	<META NAME="CHANGEDBY" CONTENT="Zoheir Bshouty">
@@ -29,19 +32,30 @@ original model was a multibranch model that bifurcated sequentially
 starting from the pulmonary artery (PA) up to eight (four
 generations) precapillary and capillary channels. The model was later
 modified to simulate the human pulmonary circulation based on 5
-generations (3). Currently the user has the option of using either
-five or fifteen generations ending in either sixteen or 16,384
-precapillary and capillary parallel channels, respectively. On the
-venous side, the vessels converge and reunite sequentially to end in
-the left atrium (LA).</FONT></P>
+generations (3). Currently the model consists of 2 lungs with 15
+generations of bifurcating vessels in each ending in 16,384
+precapillary and capillary parallel channels. On the venous side, the
+vessels converge and reunite sequentially to end in the left atrium
+(LA).</FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm; font-weight: normal"><FONT SIZE=3>The
+main PA and the first 2 generations of vessels are considered
+extra-parenchymal vessels. The last pulmonary vein represents the
+characteristics of the 4 pulmonary veins ending in the LA. The last
+pulmonary vein and the 2 pulmonary vein generations prior are also
+considered extra-parenchymal vessels. Perivascular pressure of
+extra-parenchymal vessels is assumed equal to pleural pressure (<I>P</I><SUB><I>pl</I></SUB>
+<SPAN STYLE="font-style: normal">). The rest of the vessels are
+considered intra-parenchymal vessels.</SPAN></FONT></P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P STYLE="margin-bottom: 0cm"><FONT SIZE=3><SPAN STYLE="font-weight: normal">Each
 extra-</SPAN></FONT><FONT SIZE=3><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">alveolar</SPAN></SPAN></FONT>
 <FONT SIZE=3><SPAN STYLE="font-weight: normal">vessel in the model is
-divided into 10,000 segments. The resistance of each segment is
-dependent on segment cross-sectional area and length. Cross-sectional
-area of each arterial (</SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">A</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">a</SPAN></I></FONT></SUB><FONT SIZE=3><SPAN STYLE="font-weight: normal">)
+divided into 128 segments. The resistance of each segment is
+dependent on segmental cross-sectional area and length.
+Cross-sectional area of each arterial (</SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">A</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">a</SPAN></I></FONT></SUB><FONT SIZE=3><SPAN STYLE="font-weight: normal">)
 and venous (</SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">A</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">v</SPAN></I></FONT></SUB><FONT SIZE=3><SPAN STYLE="font-weight: normal">)
 segment is calculated based on the transmural pressure (</SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">tm</SPAN></I></FONT></SUB><FONT SIZE=3><SPAN STYLE="font-weight: normal">)
 across that segment, </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">tm</SPAN></I></FONT></SUB>
@@ -49,8 +63,8 @@ across that segment, </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: nor
 (</SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">v</SPAN></I></FONT></SUB><FONT SIZE=3><SPAN STYLE="font-weight: normal">)</SPAN></FONT>
 <FONT SIZE=3><SPAN STYLE="font-weight: normal">minus perivascular
 pressure (</SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">x</SPAN></I></FONT></SUB><FONT SIZE=3><SPAN STYLE="font-weight: normal">).
-Changes in lung volume affect vessel segment length and </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">x</SPAN></I></FONT></SUB><FONT SIZE=3><SPAN STYLE="font-weight: normal">,
-and changes in </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">v</SPAN></I></FONT></SUB>
+Changes in lung volume affect both vessel segment length and </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">x</SPAN></I></FONT></SUB><FONT SIZE=3><SPAN STYLE="font-weight: normal">,
+while changes in </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">v</SPAN></I></FONT></SUB>
 <FONT SIZE=3><SPAN STYLE="font-weight: normal">affect </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">x</SPAN></I></FONT></SUB><FONT SIZE=3><SPAN STYLE="font-weight: normal">.
 </SPAN></FONT>
 </P>
@@ -62,8 +76,8 @@ characteristic behavior of </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weigh
 function of </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">tm</SPAN></I></FONT></SUB>
 <FONT SIZE=3><SPAN STYLE="font-weight: normal">was derived from data
 obtained by Smith and Mitzner</SPAN></FONT> <FONT SIZE=3><SPAN STYLE="font-weight: normal">(5)
-and described in detail by Bshouty and Younes(1). </SPAN></FONT><FONT SIZE=3><SPAN LANG="en-CA"><SPAN STYLE="font-weight: normal">I</SPAN></SPAN></FONT><FONT SIZE=3><SPAN STYLE="font-weight: normal">t
-is expressed by the following linear relationship,</SPAN></FONT></P>
+and described in detail by Bshouty and Younes(1). This relationship
+was initially assumed linear and expressed by the following equation,</SPAN></FONT></P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P STYLE="margin-bottom: 0cm"><IMG SRC="intro_html_1b980c0b.gif" NAME="Object2" ALIGN=ABSMIDDLE HSPACE=10 WIDTH=287 HEIGHT=34 BORDER=0>
@@ -79,9 +93,38 @@ minus pleural pressure (</FONT><FONT SIZE=3><I>P</I></FONT><SUB><FONT SIZE=3><I>
 of zero and </FONT><FONT SIZE=3><I>P</I></FONT><SUB><FONT SIZE=3><I>tm</I></FONT></SUB>
 <FONT SIZE=3>of 35 cm H</FONT><SUB><FONT SIZE=3>2</FONT></SUB><FONT SIZE=3>O
 (a reflection of vessel dimensions under standardized conditions), </FONT><FONT SIZE=3><I>a</I></FONT><SUB><FONT SIZE=3><I>a</I></FONT></SUB>
-<FONT SIZE=3><SPAN STYLE="font-style: normal">is 0.2008 and </SPAN></FONT><FONT SIZE=3><I>b</I></FONT><SUB><FONT SIZE=3><I>a</I></FONT></SUB>
-<FONT SIZE=3><SPAN STYLE="font-style: normal">is 0.0228.</SPAN></FONT>
+<FONT SIZE=3><SPAN STYLE="font-style: normal">is 0.242 and </SPAN></FONT><FONT SIZE=3><I>b</I></FONT><SUB><FONT SIZE=3><I>a</I></FONT></SUB>
+<FONT SIZE=3><SPAN STYLE="font-style: normal">is 0.028.</SPAN></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
 </P>
+<P STYLE="margin-bottom: 0cm"><FONT SIZE=3><SPAN STYLE="font-style: normal">Since
+the distensibility of elastic tissues cannot be assumed linear over
+an infinite range of transmural pressures, a new curvilinear
+relationship was derived (similar to veins) with a linear slope over
+a</SPAN></FONT> <FONT SIZE=3><I>P</I></FONT><SUB><FONT SIZE=3><I>tm</I></FONT></SUB></P>
+<P STYLE="margin-bottom: 0cm">range of 0 and 70 cm H<SUB>2</SUB>O
+following which the vessel distensibility plateaus at a
+cross-sectional area that is twice baseline (defined at a <FONT SIZE=3><I>P</I></FONT><SUB><FONT SIZE=3><I>tp
+</I></FONT></SUB><FONT SIZE=3>of zero and </FONT><FONT SIZE=3><I>P</I></FONT><SUB><FONT SIZE=3><I>tm</I></FONT></SUB>
+<FONT SIZE=3>of 35 cm H</FONT><SUB><FONT SIZE=3>2</FONT></SUB><FONT SIZE=3>O)</FONT>.
+The new equation is similar to equation 2 with <I>a</I><SUB><I>a</I></SUB>
+<SPAN STYLE="font-style: normal">(in place of </SPAN><I>a</I><SUB><I>v</I></SUB><SPAN STYLE="font-style: normal">)
+equal to 2, </SPAN><I>b</I><SUB><I>a</I></SUB> <SPAN STYLE="font-style: normal">(in
+place of </SPAN><I>b</I><SUB><I>v</I></SUB><SPAN STYLE="font-style: normal">)
+equal to 8.959 and </SPAN><I>c</I><SUB><I>a</I></SUB> <SPAN STYLE="font-style: normal">(in
+place of </SPAN><I>c</I><SUB><I>v</I></SUB><SPAN STYLE="font-style: normal">)
+equal to -0.0605.</SPAN></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm">Figure 1, shows the distensibility of
+veins in comparison to arteries using the original linear and the
+newly developed curvilinear equation. 
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><IMG SRC="Overview_html_m2f2b56de.gif" NAME="graphics2" ALIGN=LEFT WIDTH=703 HEIGHT=385 BORDER=0><BR CLEAR=LEFT><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><U><B>Figure 1.</B></U></P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P STYLE="margin-bottom: 0cm"><FONT SIZE=3>The characteristic
@@ -105,13 +148,14 @@ a reflection of vessel dimensions under standardized conditions), </FONT><FONT S
 <FONT SIZE=3>is 1.0006, </FONT><FONT SIZE=3><I>b</I></FONT><SUB><FONT SIZE=3><I>v</I></FONT></SUB>
 <FONT SIZE=3><SPAN STYLE="font-style: normal">is 2.4307, and </SPAN></FONT><FONT SIZE=3><I>c</I></FONT><SUB><FONT SIZE=3><I>v</I></FONT></SUB>
 <FONT SIZE=3><SPAN STYLE="font-style: normal">is 0.2355</SPAN></FONT><FONT SIZE=3>.
-</FONT><FONT SIZE=3><SPAN STYLE="font-weight: normal">Perivascular
-pressures of the first (5-generation model) and first three
-(15-generation model) pulmonary arterial and venous generations
-(extraalveolar extraparenchymal vessels) are assumed equal to </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">pl</SPAN></I></FONT></SUB><FONT SIZE=3><SPAN STYLE="font-weight: normal">.
-The relationship between </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">x</SPAN></I></FONT></SUB>
+</FONT>
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT SIZE=3><SPAN STYLE="font-weight: normal">The
+relationship between </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">x</SPAN></I></FONT></SUB>
 <FONT SIZE=3><SPAN STYLE="font-weight: normal">of extra-alveolar
-intraparenchymal vessels and </SPAN></FONT><FONT SIZE=3><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">P</SPAN></SPAN></FONT><SUB><FONT SIZE=3><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">v</SPAN></SPAN></FONT></SUB>
+intraparenchymal vessels and </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">v</SPAN></I></FONT></SUB>
 <FONT SIZE=3><SPAN STYLE="font-weight: normal">was also derived from
 data obtained by Smith and Mitzner (5). The following relationship
 was used for both arteries and veins,</SPAN></FONT></P>
@@ -122,18 +166,18 @@ was used for both arteries and veins,</SPAN></FONT></P>
 </P>
 <P STYLE="margin-bottom: 0cm; font-weight: normal"><FONT SIZE=3>Parameters
 a, b, and c are dependent on whether the vessel segment is arterial
-or venous and all three parameters vary linearly with P<SUB>tp</SUB>
+or venous and all three parameters vary linearly with <I>P</I><SUB><I>tp</I></SUB>
 (1).</FONT></P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P STYLE="margin-bottom: 0cm; font-weight: normal"><FONT SIZE=3>Vessel
-segmental lengths (l) of the extraparenchymal vessels are assumed
-constant and independent of lung volume. The segmental length of
-extraalveolar intraparenchymal vessels are exclusively a function of
-lung volume and hence, P<SUB>tp</SUB> and lung compliance (C<SUB>L</SUB>).
-This relationship was also derived from data obtained by Smith and
-Mitzner (4). The following relationship is used for both arteries and
-veins,</FONT></P>
+segmental lengths (<I>l</I>) of the extraparenchymal vessels are
+assumed constant and independent of lung volume. The segmental length
+of extraalveolar intraparenchymal vessels are exclusively a function
+of lung volume and hence, <I>P</I><SUB><I>tp</I></SUB> and lung
+compliance (<I>C</I><SUB><I>L</I></SUB>). This relationship was also
+derived from data obtained by Smith and Mitzner (4). The following
+relationship is used for both arteries and veins,</FONT></P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P STYLE="margin-bottom: 0cm"><IMG SRC="intro_html_m43d551ef.gif" NAME="graphics14" ALIGN=BOTTOM WIDTH=578 HEIGHT=59 BORDER=0></P>
@@ -141,19 +185,78 @@ veins,</FONT></P>
 </P>
 <P STYLE="margin-bottom: 0cm"><FONT SIZE=3><SPAN STYLE="font-weight: normal">where
 </SPAN><I><SPAN STYLE="font-weight: normal">l</SPAN></I><SUB><SPAN STYLE="font-weight: normal">0,35</SPAN></SUB>
-<SPAN STYLE="font-weight: normal">is vessel segment length at a P</SPAN><SUB><SPAN STYLE="font-weight: normal">tp</SPAN></SUB>
+<SPAN STYLE="font-weight: normal">is vessel segment length at a </SPAN><I><SPAN STYLE="font-weight: normal">P</SPAN></I><SUB><I><SPAN STYLE="font-weight: normal">tp</SPAN></I></SUB>
 <SPAN STYLE="font-weight: normal">of zero (again a reflection of
-vessel characteristics under standardized conditions), V</SPAN><SUB><SPAN STYLE="font-weight: normal">M</SPAN></SUB>
-<SPAN STYLE="font-weight: normal">is minimal lung volume (at P</SPAN><SUB><SPAN STYLE="font-weight: normal">tp</SPAN></SUB>
+vessel characteristics under standardized conditions), </SPAN><I><SPAN STYLE="font-weight: normal">V</SPAN></I><SUB><I><SPAN STYLE="font-weight: normal">M</SPAN></I></SUB>
+<SPAN STYLE="font-weight: normal">is minimal lung volume (at </SPAN><I><SPAN STYLE="font-weight: normal">P</SPAN></I><SUB><I><SPAN STYLE="font-weight: normal">tp</SPAN></I></SUB>
 <SPAN STYLE="font-weight: normal">equals zero) as a fraction of total
-lung capacity TLC (1).</SPAN></FONT></P>
+lung capacity (</SPAN><I><SPAN STYLE="font-weight: normal">TLC</SPAN></I>
+<SPAN STYLE="font-weight: normal">)(1).</SPAN></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT SIZE=3><SPAN STYLE="font-weight: normal">Within
+this basic function is the relationship 1-(1-</SPAN><I><SPAN STYLE="font-weight: normal">V</SPAN></I><SUB><I><SPAN STYLE="font-weight: normal">M</SPAN></I></SUB><SPAN STYLE="font-weight: normal">)</SPAN><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-weight: normal">&middot;e</SPAN></FONT><SUP><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-weight: normal">-CL&middot;Ptp</SPAN></FONT></SUP>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-weight: normal">which
+describes lung volume as a function of </SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">tp</SPAN></I></FONT></SUB><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">.
+Since </SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">C</SPAN></I></FONT><SUB><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">L</SPAN></I></FONT></SUB>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">is
+not a measurable parameter (as it describes the characteristics of
+the whole curve and not actual lung compliance), this relationship
+can be approximated from </SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">TLC</SPAN></I></FONT>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">(%
+predicted) and </SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">V</SPAN></I></FONT><SUB><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">M
+</SPAN></I></FONT></SUB><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">,
+residual volume (</SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">RV</SPAN></I></FONT><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">),
+and functional residual capacity (</SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">FRC</SPAN></I></FONT><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">)
+as percent of </SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">TLC</SPAN></I></FONT><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">.
+Data for normal lung compliance were obtained from Permutt S and
+Martin HB (***) with some assumptions. At </SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">tp</SPAN></I></FONT></SUB>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">greater
+than 20 cm H</SPAN></SPAN></FONT><SUB><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">2</SPAN></SPAN></FONT></SUB><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">O,
+the curve is flat. Between </SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">tp</SPAN></I></FONT></SUB>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">12.5
+and 20, lung volume increases from 0.9*</SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">TLC</SPAN></I></FONT>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">to
+</SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">TLC</SPAN></I></FONT><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">.
+Between </SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">tp</SPAN></I></FONT></SUB>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">5
+and 12.5, lung volume increases from </SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">FRC</SPAN></I></FONT>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">to
+0.9*</SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">TLC</SPAN></I></FONT><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">,
+and between </SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">tp</SPAN></I></FONT></SUB>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">3
+and 5, lung volume increases from </SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">RV</SPAN></I></FONT>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">to
+</SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">FRC</SPAN></I></FONT>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">and
+between </SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">tp</SPAN></I></FONT></SUB>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">0
+and 3, lung volume increases from </SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">V</SPAN></I></FONT><SUB><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">M</SPAN></I></FONT></SUB>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">to
+</SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">RV</SPAN></I></FONT><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">.</SPAN></SPAN></FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT SIZE=3><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">Compliance
+curves with </SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">V</SPAN></I></FONT><SUB><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">M</SPAN></I></FONT></SUB><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">=0.1</SPAN></I></FONT><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">,</SPAN></SPAN></FONT>
+<FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">RV=0.27*TLC,
+FRC=0.56*TLC, </SPAN></I></FONT><FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">and
+</SPAN></SPAN></FONT><FONT FACE="Times New Roman, serif"><I><SPAN STYLE="font-weight: normal">TLC=100%</SPAN></I></FONT>
+<FONT FACE="Times New Roman, serif"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">and
+70% predicted, are shown in Figure 2.</SPAN></SPAN></FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><IMG SRC="Overview_html_m8bf1aed.gif" NAME="graphics1" ALIGN=LEFT WIDTH=703 HEIGHT=385 BORDER=0><BR CLEAR=LEFT><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><U><B>Figure 2.</B></U></P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P STYLE="margin-bottom: 0cm"><FONT SIZE=3><SPAN STYLE="font-weight: normal">The
 characteristic behavior of the pulmonary capillary bed is modeled
-after the sheet model of Fung and Sobin (7, 8). P</SPAN><SUB><SPAN STYLE="font-weight: normal">x</SPAN></SUB>
-<SPAN STYLE="font-weight: normal">for the capillary bed is assumed
-equal to P</SPAN><SUB><SPAN STYLE="font-weight: normal">al</SPAN></SUB><SPAN STYLE="font-weight: normal">.
+after the sheet model of Fung and Sobin (7, 8). </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">x</SPAN></I></FONT></SUB>
+<FONT SIZE=3><SPAN STYLE="font-weight: normal">for the capillary bed
+is assumed equal to </SPAN></FONT><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">P</SPAN></I></FONT><SUB><FONT SIZE=3><I><SPAN STYLE="font-weight: normal">al</SPAN></I></FONT></SUB><FONT SIZE=3><SPAN STYLE="font-weight: normal">.
 Details of capillary resistance calculations, under different zone
 conditions, and recruitment and derecruitment at the capillary level
 were described in detail by Bshouty and Younes (2).</SPAN></FONT></P>
@@ -179,16 +282,15 @@ generations of pulmonary veins between the capillaries and the left
 atrium according to Huang et al. (9). Each resistance in the model
 may be viewed not as a single vessel but representative of many
 vessels that reside at the same hydrostatic level. The first
-generation vessel (arterial and venous in the 5-generation model)
-represents the cumulative resistances of extraalveolar
-extraparenchymal vessels generations one to three. The second
-generation vessels in the model represent the cumulative resistances
-of extraalveolar intraparenchymal vessels generations four to six.
-Each generation in the model represents three generations in the
-human lung so that the fifth generation in the 5-generation model
-represents lung vessel generations thirteen to fifteen.</FONT></P>
-<P STYLE="margin-bottom: 0cm"><BR>
-</P>
+generation arterial vessel represents the pulmonary artery. The
+second generation arterial vessels represent the right and left
+pulmonary arteries. The third generation represents the extraalveolar
+extraparenchymal vessels following the main right and left pulmonary
+arteries. The first generation pulmonary vein represents the four
+main (both right and left) pulmonary veins connected to the LA. The
+second generation pulmonary veins represent the extraalveolar
+intraparenchymal veins. All other vessels represent extraalveolar
+intraparenchymal vessels.</FONT></P>
 <P STYLE="margin-bottom: 0cm; font-weight: normal"><FONT SIZE=3>Although
 the wall structure of the pulmonary arteries varies considerably
 between the main pulmonary artery all the way down to the
@@ -205,25 +307,18 @@ conditions.</FONT></P>
 Humans</B></FONT></P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
-<P STYLE="margin-bottom: 0cm; font-weight: normal"><FONT SIZE=3>The
-model was originally developed based on data obtained in open chested
-dogs. Lung compliance was changed to equal what is normally observed
-in humans (15) after correcting static compliance to liter (L) per cm
-H<SUB>2</SUB>O according to the following relationship,</FONT></P>
+<P STYLE="margin-bottom: 0cm">*** Reference 15 is no longer relevent</P>
+<P STYLE="margin-bottom: 0cm">*** Permutt and Martin is the relevent
+reference</P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
-<P STYLE="margin-bottom: 0cm"><IMG SRC="intro_html_m4332175d.gif" NAME="graphics15" ALIGN=BOTTOM WIDTH=552 HEIGHT=23 BORDER=0></P>
-<P STYLE="margin-bottom: 0cm"><BR>
-</P>
-<P STYLE="margin-bottom: 0cm; font-weight: normal"><FONT SIZE=3>where
-Ht is patient height in cm.</FONT></P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P STYLE="margin-bottom: 0cm; font-weight: normal"><FONT SIZE=3>Since
 the vascular structure of the pulmonary circulation as seen on
 pathology is similar in both humans and dogs, the characteristic
-behavior (cross-sectional area as a function of P<SUB>tm</SUB>, and
-vessel length as a function of lung volume) of extra-alveolar
+behavior (cross-sectional area as a function of <I>P</I><SUB><I>tm</I></SUB>,
+and vessel length as a function of lung volume) of extra-alveolar
 arteries and veins was kept the same. A similar assumption was used
 for the characteristic behavior of the capillary bed.</FONT></P>
 <P STYLE="margin-bottom: 0cm"><BR>
@@ -243,27 +338,43 @@ and pleural pressure was zero (9). Based on the above, baseline
 vessel resistance of each vessel in each generation was calculated.
 Using the characteristic behavior of arteries and veins (equations 1,
 2, and 4) baseline resistances were adjusted to the current model
-standardized conditions of P<SUB>tp</SUB> of zero cm H<SUB>2</SUB>O
-and P<SUB>tm</SUB> of 35 cm H<SUB>2</SUB>O.</FONT></P>
+standardized conditions of <I>P</I><SUB><I>tp</I></SUB> of zero cm
+H<SUB>2</SUB>O and <I>P</I><SUB><I>tm</I></SUB> of 35 cm H<SUB>2</SUB>O.</FONT></P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P STYLE="margin-bottom: 0cm; font-weight: normal"><FONT SIZE=3>Transition
 from the above dimensional characteristics to provide actual
 resistances along the pulmonary vascular bed is achieved by obtaining
-a PAP</FONT><SUB><FONT SIZE=3>m</FONT></SUB> <FONT SIZE=3>of 15 mm Hg
-at a CO of 6.45 L/min (Cardiac index 3.38 L/min/m</FONT><SUP><FONT SIZE=3>2</FONT></SUP><FONT SIZE=3>)
-and a LAP of 5 mm Hg reflecting the normal pulmonary circulation in
-an adult subject 175 cm tall and weighing 75 kg (16). The
+a </FONT><FONT SIZE=3><I>PAP</I></FONT><SUB><FONT SIZE=3><I>m</I></FONT></SUB>
+<FONT SIZE=3>of 15 mm Hg at a </FONT><FONT SIZE=3><I>CO</I></FONT> <FONT SIZE=3>of
+6.11 L/min (Cardiac index 3.38 L/min/m</FONT><SUP><FONT SIZE=3>2</FONT></SUP><FONT SIZE=3>)
+and a </FONT><FONT SIZE=3><I>LAP</I></FONT> <FONT SIZE=3>of 5 mm Hg
+reflecting the normal pulmonary circulation in an adult subject 175
+cm tall with and ideal body weight (see below) of 67.37 kg (16). The
 contribution of capillary resistance to total resistance under these
 conditions is approximately 16% with the arterial and venous systems
 contributing equally to the remaining resistance (17). The model
-accepts a patient height range of 25 to 250 cm and a patient weight
+accepts a patient height range of 50 to 250 cm and a patient weight
 range of 2.5 to 250 kg. Baseline resistances in the model are
-adjusted automatically to accommodate different body sizes. This is
-achieved by assuming that at a normal cardiac index of 3.38, all
-subjects (irrespective of height and weight) with a normal pulmonary
-circulation have a PAP</FONT><SUB><FONT SIZE=3>m</FONT></SUB> <FONT SIZE=3>of
-15 mm Hg at a LAP of 5 mm Hg (16).</FONT></P>
+adjusted automatically to accommodate different body sizes.
+Calibration is based on height and ideal body weight and not actual
+body weight. We used the equation derived by Lemmens HJ et al. (18)
+for ideal body weight as it could be applied to both males and
+females, children and adults and yielded a BMI of 22 irrespective of
+height. </FONT>
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm; font-weight: normal"><FONT SIZE=3>Model
+calibration is achieved by assuming that at a normal cardiac index of
+3.38, all subjects (irrespective of height</FONT><FONT SIZE=3><SPAN STYLE="font-style: normal">)
+with a normal pulmonary circulation have a</SPAN></FONT> <FONT SIZE=3><I>PAP</I></FONT><SUB><FONT SIZE=3><I>m</I></FONT></SUB>
+<FONT SIZE=3><SPAN STYLE="font-style: normal">of 15 mm Hg at a </SPAN></FONT><FONT SIZE=3><I>LAP</I></FONT>
+<FONT SIZE=3>of 5 mm Hg (16) and a normal pulmonary vascular
+distribution of resistance as stated above.</FONT></P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><FONT SIZE=3><B>The Effect of Viscosity</B></FONT></P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
 <P STYLE="margin-bottom: 0cm">&nbsp;</P>
@@ -276,11 +387,12 @@ pulmonary circulation. I. Single-vessel model. <I>J Appl Physiol</I>
 Younes M. Distensibility and pressure-flow relationship of the
 pulmonary circulation. II. Multibranched model. <I>J Appl Physiol</I>
 1990;68: 1514-1527.</P>
-<P STYLE="margin-bottom: 0.84cm">3.&nbsp;&nbsp;&nbsp; Bshouty Z. <SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">Vascular
+<P STYLE="margin-bottom: 0.84cm">3.&nbsp;&nbsp;&nbsp; Bshouty Z.
+<SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">Vascular
 compromise and hemodynamics in pulmonary arterial hypertension: Model
 predictions. </SPAN></SPAN><SPAN LANG="en-US"><I><SPAN STYLE="font-weight: normal">Can
-Resp J</SPAN></I></SPAN><SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">
-(in press)</SPAN></SPAN></P>
+Resp J</SPAN></I></SPAN> <SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">(in
+press)</SPAN></SPAN></P>
 <P>4.&nbsp;&nbsp;&nbsp; Smith JC, Mitzner W. Analysis of pulmonary
 vascular interdependence in excised dog lobes. <I>J Appl Physiol</I>
 1980;48(3):450-67.</P>
@@ -288,10 +400,9 @@ vascular interdependence in excised dog lobes. <I>J Appl Physiol</I>
 Rooholamini SA, Wexler L. Pressure-diameter relations of small blood
 vessels in isolated dog lung. <I>Microvasc Res</I> 1970;2(1):1-12.</P>
 <P>6.&nbsp;&nbsp;&nbsp; Tawhai MH, Nash MP, Lin CL, Hoffman EA.&nbsp;
-Supine
-and prone differences in regional lung density and pleural pressure
-gradients in the human lung with constant shape.&nbsp; <I>J Appl
-Physiol</I> 2009;107(3):912-20.</P>
+Supine and prone differences in regional lung density and pleural
+pressure gradients in the human lung with constant shape.&nbsp; <I>J
+Appl Physiol</I> 2009;107(3):912-20.</P>
 <P STYLE="margin-bottom: 0.84cm">7.&nbsp;&nbsp;&nbsp; Fung YC, Sobin
 SS. Elasticity of the pulmonary alveolar sheet. <I>Circ Res</I>
 1972;30(4):451-69.</P>
@@ -299,46 +410,46 @@ SS. Elasticity of the pulmonary alveolar sheet. <I>Circ Res</I>
 SS. Pulmonary alveolar blood flow. <I>Circ Res</I> 1972;30(4):
 470-90.</P>
 <P>9.&nbsp;&nbsp;&nbsp; Huang W, Yen RT, McLaurine M, Bledsoe G.&nbsp;
-Morphometry
-of the human pulmonary vasculature.&nbsp; <I>J Appl Physiol</I>
-1996;81(5):2123-33.</P>
-<P>10.&nbsp;&nbsp;&nbsp; Cox RH.&nbsp; Comparison
-of mechanical and chemical properties of extra- and intralobar canine
-pulmonary arteries.&nbsp; <I>Am J Physiol</I>
-1982;242(2):H245-53.</P>
-<P>11.&nbsp;&nbsp;&nbsp; al-Tinawi A, Madden JA, Dawson CA, Linehan JH, Harder
-DR, Rickaby DA.&nbsp; Distensibility
-of small arteries of the dog lung.&nbsp; <I>J Appl Physiol</I>
-1991;71(5):1714-22.</P>
-<P>12.&nbsp;&nbsp;&nbsp; Karau KL, Molthen RC, Dhyani A, Haworth ST, Hanger CC,
-Roerig DL, Johnson RH, Dawson CA.&nbsp; Pulmonary
-arterial morphometry from microfocal X-ray computed tomography.&nbsp;
-<I>Am J Physiol Heart Circ Physiol</I> 2001;281(6):H2747-56.</P>
-<P STYLE="line-height: 200%">13.&nbsp;&nbsp;&nbsp; Molthen RC, Karau KL, Dawson
-CA.&nbsp; <SPAN STYLE="text-decoration: none">Quantitative
+Morphometry of the human pulmonary vasculature.&nbsp; <I>J Appl
+Physiol</I> 1996;81(5):2123-33.</P>
+<P>10.&nbsp;&nbsp;&nbsp; Cox RH.&nbsp; Comparison of mechanical and
+chemical properties of extra- and intralobar canine pulmonary
+arteries.&nbsp; <I>Am J Physiol</I> 1982;242(2):H245-53.</P>
+<P>11.&nbsp;&nbsp;&nbsp; al-Tinawi A, Madden JA, Dawson CA, Linehan
+JH, Harder DR, Rickaby DA.&nbsp; Distensibility of small arteries of
+the dog lung.&nbsp; <I>J Appl Physiol</I> 1991;71(5):1714-22.</P>
+<P>12.&nbsp;&nbsp;&nbsp; Karau KL, Molthen RC, Dhyani A, Haworth ST,
+Hanger CC, Roerig DL, Johnson RH, Dawson CA.&nbsp; Pulmonary arterial
+morphometry from microfocal X-ray computed tomography.&nbsp; <I>Am J
+Physiol Heart Circ Physiol</I> 2001;281(6):H2747-56.</P>
+<P STYLE="line-height: 200%">13.&nbsp;&nbsp;&nbsp; Molthen RC, Karau
+KL, Dawson CA.&nbsp; <SPAN STYLE="text-decoration: none">Quantitative
 models of the rat pulmonary arterial tree morphometry applied to
-hypoxia-induced arterial remodeling.</SPAN>&nbsp; <I>J Appl
-Physiol</I> 2004;97(6):2372-84.</P>
+hypoxia-induced arterial remodeling.</SPAN>&nbsp; <I>J Appl Physiol</I>
+2004;97(6):2372-84.</P>
 <P STYLE="line-height: 200%">14.&nbsp;&nbsp;&nbsp; <SPAN STYLE="text-decoration: none">al-Tinawi
-A</SPAN>, <SPAN STYLE="text-decoration: none">Clough
-AV</SPAN>, <SPAN STYLE="text-decoration: none">Harder
-DR</SPAN>, <SPAN STYLE="text-decoration: none">Linehan
-JH</SPAN>, <SPAN STYLE="text-decoration: none">Rickaby
-DA</SPAN>, <SPAN STYLE="text-decoration: none">Dawson
-CA</SPAN>.&nbsp; Distensibility of small veins of the dog lung.&nbsp;
-<SPAN STYLE="text-decoration: none"><I>J
+A</SPAN>, <SPAN STYLE="text-decoration: none">Clough AV</SPAN>,
+<SPAN STYLE="text-decoration: none">Harder DR</SPAN>, <SPAN STYLE="text-decoration: none">Linehan
+JH</SPAN>, <SPAN STYLE="text-decoration: none">Rickaby DA</SPAN>,
+<SPAN STYLE="text-decoration: none">Dawson CA</SPAN>.&nbsp;
+Distensibility of small veins of the dog lung.&nbsp; <SPAN STYLE="text-decoration: none"><I>J
 Appl Physiol</I></SPAN> 1992;73(5):2158-65.</P>
-<P>15.&nbsp;&nbsp;&nbsp; Galetke W, Feier C, Muth T, Ruehle KH, Borsch-Galetke E,
-Randerath W.&nbsp; Reference
-values for dynamic and static pulmonary compliance in men.&nbsp;
-<I>Respir Med</I> 2007;101(8):1783-9.</P>
-<P STYLE="line-height: 200%">16.&nbsp;&nbsp;&nbsp; Jegier W, Sekelj P, Auld PA,
-Simpson R, McGregor M.&nbsp; <SPAN STYLE="text-decoration: none">The
+<P>15.&nbsp;&nbsp;&nbsp; Galetke W, Feier C, Muth T, Ruehle KH,
+Borsch-Galetke E, Randerath W.&nbsp; Reference values for dynamic and
+static pulmonary compliance in men.&nbsp; <I>Respir Med</I>
+2007;101(8):1783-9.</P>
+<P STYLE="line-height: 200%">16.&nbsp;&nbsp;&nbsp; Jegier W, Sekelj
+P, Auld PA, Simpson R, McGregor M.&nbsp; <SPAN STYLE="text-decoration: none">The
 relation between cardiac output and body size.</SPAN>&nbsp; <I>Br
 Heart J</I> 1963;25:425-30.</P>
-<P STYLE="line-height: 200%">17.&nbsp;&nbsp;&nbsp; Hakim TS,
-Michel RP, Chang HK.&nbsp; <SPAN STYLE="text-decoration: none">Partitioning
+<P STYLE="line-height: 200%">17.&nbsp;&nbsp;&nbsp; Hakim TS, Michel
+RP, Chang HK.&nbsp; <SPAN STYLE="text-decoration: none">Partitioning
 of pulmonary vascular resistance in dogs by arterial and venous
 occlusion.</SPAN>&nbsp; <I>J Appl Physiol</I> 1982;52(3):710-5.</P>
+<P STYLE="line-height: 200%">18. Lemmens HJ, Brodsky JB, Bernstein
+DP. Estimating ideal body weight &ndash; a new formula. <I>Obes Surg.</I>
+2005 Aug;15(7):1082-3.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
 </BODY>
 </HTML>
