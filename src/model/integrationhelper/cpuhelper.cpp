@@ -67,51 +67,51 @@ void CpuIntegrationHelper::integrateWithDimentions(Vessel::Type t,
 	segmentedFlowVessel(v_ptr[index(gen, idx)], &calc_dim);
 }
 
-double CpuIntegrationHelper::rigidFlowVessel(Vessel &vein)
+double CpuIntegrationHelper::rigidFlowVessel(Vessel &v)
 {
 	/* NOTE: calc_dim is assumed empty, if supplied */
 	const double hct = Hct();
-	double Rin = vein.R;
-	double Pin = vein.pressure_in;
-	const double Pout = vein.pressure_out;
+	double Rin = v.R;
+	double Pin = v.pressure_in;
+	const double Pout = v.pressure_out;
 
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
 	if (isnan(Pout) || isnan(Pin))
 		return 0.0;
 
-	double Ptm = 1.35951002636 * ((Pin+Pout)/2.0 - vein.tone);
+	double Ptm = 1.35951002636 * ((Pin+Pout)/2.0 - v.tone);
 	double Rs;
 
 	/* First segment is slightly different from others, so we pull it out */
 	/* First 1/5th of generations is outside the lung - use different equation */
 
 	// check if vessel is closed
-	if (vein.D < 0.1) {
-		vein.D_calc = 0.0;
-		vein.D = 0.0;
-		vein.Dmin = 0.0;
-		vein.Dmax = 0.0;
+	if (v.D < 0.1) {
+		v.D_calc = 0.0;
+		v.D = 0.0;
+		v.Dmin = 0.0;
+		v.Dmax = 0.0;
 
 		//			if (calc_dim)
 		//				std::fill_n(calc_dim->begin(), nSums, 0.0);
 
-		vein.viscosity_factor = std::numeric_limits<double>::infinity();
-		vein.volume = 0;
-		vein.R = std::numeric_limits<double>::infinity();
+		v.viscosity_factor = std::numeric_limits<double>::infinity();
+		v.volume = 0;
+		v.R = std::numeric_limits<double>::infinity();
 		return Rin > 1e100 ? 0 : 10.0;
 	}
 
-	Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
-	      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
+	Ptm = Ptm - v.Ppl - v.perivascular_press_a -
+	      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
 
-	const double dL =  vein.length;
+	const double dL =  v.length;
 
 	// min diameter is always first segment
-	vein.viscosity_factor = 0.0;
-	vein.volume = 0.0;
+	v.viscosity_factor = 0.0;
+	v.volume = 0.0;
 	double D = 0.0;
 	if( Ptm < 0 ) {
-		Rs = -Ptm/( 1.35951002636 * vein.flow ); // Starling Resistor
+		Rs = -Ptm/( 1.35951002636 * v.flow ); // Starling Resistor
 	}
 	else {
 		double new_Pin = Pin;
@@ -119,58 +119,58 @@ double CpuIntegrationHelper::rigidFlowVessel(Vessel &vein)
 		do {
 			old_Pin = new_Pin;
 			double avg_P = (new_Pin + Pout) / 2.0;
-			Ptm = 1.35951002636 * ( avg_P - vein.tone );
-			Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
-			      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
+			Ptm = 1.35951002636 * ( avg_P - v.tone );
+			Ptm = Ptm - v.Ppl - v.perivascular_press_a -
+			      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
 
-			const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
-			D = vein.D / sqrt(inv_A);
+			const double inv_A = (1.0 + v.b * exp( v.c * Ptm )) / 0.99936058722097668220 / v.a;
+			D = v.D / sqrt(inv_A);
 			const double vf = viscosityFactor(D, hct);
-			Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
-			vein.viscosity_factor = vf;
+			Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * v.vessel_ratio;
+			v.viscosity_factor = vf;
 
-			new_Pin = Pout + vein.flow * Rs;
+			new_Pin = Pout + v.flow * Rs;
 			new_Pin = (new_Pin + old_Pin) / 2.0;
 		} while (fabs(new_Pin - old_Pin)/old_Pin > Tlrns());
 	}
 
 	//		if (calc_dim) {
-	//			calc_dim->push_back(vein.Dmin);
-	//			calc_dim->push_back(vein.Dmin);
+	//			calc_dim->push_back(v.Dmin);
+	//			calc_dim->push_back(v.Dmin);
 	//		}
 
-	vein.volume = M_PI/4.0 * sqr(D) * dL;
-	vein.Dmax = D; // max diameter is always last segment
-	vein.Dmin = D;
-	vein.D_calc = D;
+	v.volume = M_PI/4.0 * sqr(D) * dL;
+	v.Dmax = D; // max diameter is always last segment
+	v.Dmin = D;
+	v.D_calc = D;
 
-	vein.volume = vein.volume / (1e9*vein.vessel_ratio); // um**3 => uL, and correct for real number of vessels
-	vein.R = Rs;
-	// vein.R = K1 * vein.R + K2 * Rin;
-	vein.last_delta_R = fabs(Rin-vein.R)/Rin;
+	v.volume = v.volume / (1e9*v.vessel_ratio); // um**3 => uL, and correct for real number of vessels
+	v.R = Rs;
+	// v.R = K1 * v.R + K2 * Rin;
+	v.last_delta_R = fabs(Rin-v.R)/Rin;
 
-	return vein.last_delta_R;
+	return v.last_delta_R;
 }
 
-double CpuIntegrationHelper::segmentedFlowVessel(Vessel &vein)
+double CpuIntegrationHelper::segmentedFlowVessel(Vessel &v)
 {
-	return segmentedFlowVessel(vein, NULL);
+	return segmentedFlowVessel(v, NULL);
 }
 
-double CpuIntegrationHelper::segmentedFlowVessel(Vessel &vein,
+double CpuIntegrationHelper::segmentedFlowVessel(Vessel &v,
                                                  std::vector<double> *calc_dim)
 {
 	/* NOTE: calc_dim is assumed empty, if supplied */
 	const double hct = Hct();
 	double Rtot = 0.0;
-	double Rin = vein.R;
-	double P = vein.pressure_out; // pressure to the right (LAP) of the vessel
+	double Rin = v.R;
+	double P = v.pressure_out; // pressure to the right (LAP) of the vessel
 
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
 	if (isnan(P))
 		return 0.0;
 
-	double Ptm = 1.35951002636 * ( P - vein.tone );
+	double Ptm = 1.35951002636 * ( P - v.tone );
 	double Rs;
 	double D_integral = 0.0;
 
@@ -178,63 +178,63 @@ double CpuIntegrationHelper::segmentedFlowVessel(Vessel &vein,
 	/* First 1/5th of generations is outside the lung - use different equation */
 
 	// check if vessel is closed
-	if (vein.D < 0.1) {
-		vein.D_calc = vein.D = 0.0;
-		vein.Dmax = vein.Dmin = vein.D;
+	if (v.D < 0.1) {
+		v.D_calc = v.D = 0.0;
+		v.Dmax = v.Dmin = v.D;
 
 		if (calc_dim)
 			std::fill_n(calc_dim->begin(), nSums, 0.0);
 
-		vein.viscosity_factor = std::numeric_limits<double>::infinity();
-		vein.volume = 0;
-		vein.R = std::numeric_limits<double>::infinity();
+		v.viscosity_factor = std::numeric_limits<double>::infinity();
+		v.volume = 0;
+		v.R = std::numeric_limits<double>::infinity();
 		return Rin > 1e100 ? 0 : 10.0;
 	}
 
-	Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
-	      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
+	Ptm = Ptm - v.Ppl - v.perivascular_press_a -
+	      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
 
-	const double dL =  vein.length / (double)nSums;
+	const double dL =  v.length / (double)nSums;
 
 	// min diameter is always first segment
-	vein.viscosity_factor = 0.0;
-	vein.volume = 0.0;
+	v.viscosity_factor = 0.0;
+	v.volume = 0.0;
 	if( Ptm < 0 ) {
-		vein.Dmin = 0.0;
-		Rs = -Ptm/( 1.35951002636 * vein.flow ); // Starling Resistor
+		v.Dmin = 0.0;
+		Rs = -Ptm/( 1.35951002636 * v.flow ); // Starling Resistor
 	}
 	else {
-		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
-		double area = vein.a / vein.max_a;
+		const double inv_A = (1.0 + v.b * exp( v.c * Ptm )) / 0.99936058722097668220 / v.a;
+		double area = v.a / v.max_a;
 		double A = ((1/inv_A - 1.0) * area + 1.0)*area;
-		vein.Dmin = vein.D * sqrt(A);
+		v.Dmin = v.D * sqrt(A);
 
-		//vein.Dmin = vein.D / sqrt(inv_A);
-		const double vf = viscosityFactor(vein.Dmin, hct);
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(vein.Dmin)) * vein.vessel_ratio;
-		vein.viscosity_factor += vf;
-		vein.volume += M_PI/4.0 * sqr(vein.Dmin) * dL;
+		//v.Dmin = v.D / sqrt(inv_A);
+		const double vf = viscosityFactor(v.Dmin, hct);
+		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(v.Dmin)) * v.vessel_ratio;
+		v.viscosity_factor += vf;
+		v.volume += M_PI/4.0 * sqr(v.Dmin) * dL;
 
 		if (calc_dim)
-			calc_dim->push_back(vein.Dmin);
+			calc_dim->push_back(v.Dmin);
 	}
 
-	D_integral = vein.Dmin;
-	P = P + vein.flow * Rs;
+	D_integral = v.Dmin;
+	P = P + v.flow * Rs;
 	Rtot = Rs;
 
 	double D=0.0;
 	for( int j=1; j<nSums; j++ ) {
-		Ptm = 1.35951002636 * ( P - vein.tone );
+		Ptm = 1.35951002636 * ( P - v.tone );
 
-		Ptm = Ptm - vein.Ppl - vein.perivascular_press_a -
-		      vein.perivascular_press_b * exp( vein.perivascular_press_c * ( Ptm - vein.Ppl ));
+		Ptm = Ptm - v.Ppl - v.perivascular_press_a -
+		      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
 
 		// corrected to Ptp=0, Ptm=35 cmH2O
-		const double inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
-		const double area = vein.a / vein.max_a;
+		const double inv_A = (1.0 + v.b * exp( v.c * Ptm )) / 0.99936058722097668220 / v.a;
+		const double area = v.a / v.max_a;
 		const double A = ((1/inv_A - 1.0) * area + 1.0)*area;
-		D = vein.D * sqrt(A);
+		D = v.D * sqrt(A);
 
 		D_integral += D;
 		const double vf = viscosityFactor(D, hct);
@@ -242,23 +242,23 @@ double CpuIntegrationHelper::segmentedFlowVessel(Vessel &vein,
 		if (calc_dim)
 			calc_dim->push_back(D);
 
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
-		vein.viscosity_factor += vf;
-		vein.volume += M_PI/4.0 * sqr(D) * dL;
+		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * v.vessel_ratio;
+		v.viscosity_factor += vf;
+		v.volume += M_PI/4.0 * sqr(D) * dL;
 
-		P = P + vein.flow * Rs;
+		P = P + v.flow * Rs;
 		Rtot += Rs;
 	}
-	vein.viscosity_factor /= nSums;
-	vein.Dmax = D; // max diameter is always last segment
-	vein.D_calc = D_integral / nSums;
+	v.viscosity_factor /= nSums;
+	v.Dmax = D; // max diameter is always last segment
+	v.D_calc = D_integral / nSums;
 
-	vein.volume = vein.volume / (1e9*vein.vessel_ratio); // um**3 => uL, and correct for real number of vessels
-	vein.R = Rtot;
-	// vein.R = K1 * vein.R + K2 * Rin;
-	vein.last_delta_R = fabs(Rin-vein.R)/Rin;
+	v.volume = v.volume / (1e9*v.vessel_ratio); // um**3 => uL, and correct for real number of vessels
+	v.R = Rtot;
+	// v.R = K1 * v.R + K2 * Rin;
+	v.last_delta_R = fabs(Rin-v.R)/Rin;
 
-	return vein.last_delta_R;
+	return v.last_delta_R;
 }
 
 double CpuIntegrationHelper::vesselIntegration(double(CpuIntegrationHelper::* func)(Vessel&))

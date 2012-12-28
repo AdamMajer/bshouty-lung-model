@@ -32,9 +32,9 @@ public:
 	                             std::vector<double> &calc_dim);
 
 protected:
-	double rigidFlowVessel(Vessel &vessel);
-	double segmentedFlowVessel(Vessel &vein);
-	double segmentedFlowVessel(Vessel &vein,
+	double rigidFlowVessel(Vessel &v);
+	double segmentedFlowVessel(Vessel &v);
+	double segmentedFlowVessel(Vessel &v,
 	                           std::vector<double> *calc_dim);
 
 	double vesselIntegration(double(CpuIntegrationHelper::* func)(Vessel&));
