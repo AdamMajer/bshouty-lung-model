@@ -56,8 +56,8 @@ inline float viscosityFactor(float D, float Hct)
 
 __kernel void rigidVesselFlow(
 		float hct, float tlrns,
-		__global __read_only struct Vessel *v,
-		__global __write_only struct Result *result)
+		__global struct Vessel *v,
+		__global struct Result *result)
 {
 	/* NOTE: calc_dim is assumed empty, if supplied */
 	const size_t vessel_index = get_global_id(0) + get_global_id(1)*WIDTH;
@@ -131,8 +131,8 @@ __kernel void rigidVesselFlow(
 
 __kernel void segmentedVesselFlow(
                 float hct,
-                __global __read_only struct Vessel *v, 
-                __global __write_only struct Result *result)
+                __global struct Vessel *v, 
+                __global struct Result *result)
 {
 	const size_t vessel_index = get_global_id(0) + get_global_id(1)*WIDTH;
 	const struct Vessel vein = v[vessel_index];
