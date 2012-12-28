@@ -41,8 +41,8 @@ struct Vessel
 	double length_factor; // adjustment to vessel Ptp
 	double viscosity_factor; // in cP (mPa*s)
 
-	double max_a;
-	double a,b,c;
+	double max_a; // FIXME: !!
+	double gamma,phi,c;
 	double tone;
 
 	double GP; // cmH2O, gravity factor corrected for transducer position

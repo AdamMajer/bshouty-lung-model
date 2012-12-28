@@ -216,8 +216,8 @@ void OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
 		CL_Vessel &c = cl_vessels[i];
 
 		c.max_a = v.max_a;
-		c.a = v.a;
-		c.b = v.b;
+		c.gamma = v.gamma;
+		c.phi = v.phi;
 		c.c = v.c;
 		c.flow = v.flow;
 		c.GP = v.GP;

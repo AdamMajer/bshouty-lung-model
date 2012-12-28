@@ -13,13 +13,18 @@
   <property name="windowTitle">
    <string>Vessel</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">font: 10pt;</string>
+  </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="label_2">
      <property name="font">
       <font>
-       <weight>75</weight>
-       <bold>true</bold>
+       <pointsize>10</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -39,12 +44,6 @@
    </item>
    <item row="2" column="0">
     <widget class="QGroupBox" name="groupBox">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
      <property name="title">
       <string>Baseline Parameters</string>
      </property>
@@ -54,12 +53,6 @@
       </property>
       <item row="0" column="0">
        <widget class="QLabel" name="label">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
         <property name="text">
          <string>D (μm)</string>
         </property>
@@ -75,12 +68,12 @@
       <item row="1" column="0">
        <widget class="QLabel" name="a_label">
         <property name="text">
-         <string>A</string>
+         <string>γ</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="a">
+       <widget class="QLineEdit" name="gamma">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Parameter describing the change in vessel cross-sectional area as a function of transmural pressure (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tm&lt;/span&gt;) according to the following relationship Area=1/&lt;span style=&quot; font-weight:600;&quot;&gt;[A&lt;/span&gt;+B*e^-(C*P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tm&lt;/span&gt;)].&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -89,12 +82,12 @@
       <item row="2" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>B</string>
+         <string>Φ</string>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="b">
+       <widget class="QLineEdit" name="phi">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Parameter describing the change in vessel cross-sectional area as a function of transmural pressure (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tm&lt;/span&gt;) according to the following relationship Area=1/&lt;span style=&quot; font-weight:600;&quot;&gt;[&lt;/span&gt;A+&lt;span style=&quot; font-weight:600;&quot;&gt;B&lt;/span&gt;*e^-(C*P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tm&lt;/span&gt;)].&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -130,12 +123,6 @@
       </item>
       <item row="5" column="0">
        <widget class="QLabel" name="label_10">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
         <property name="text">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -181,12 +168,6 @@ p, li { white-space: pre-wrap; }
    </item>
    <item row="2" column="1">
     <widget class="QGroupBox" name="groupBox_2">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
      <property name="title">
       <string>Calculated Parameters</string>
      </property>
@@ -210,7 +191,7 @@ p, li { white-space: pre-wrap; }
       <item row="1" column="2">
        <widget class="QLabel" name="label_52">
         <property name="text">
-         <string>b</string>
+         <string>Φ</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -218,7 +199,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="1" column="3">
-       <widget class="QLabel" name="cb">
+       <widget class="QLabel" name="cphi">
         <property name="styleSheet">
          <string notr="true">font-weight: bold;</string>
         </property>
@@ -350,7 +331,7 @@ p, li { white-space: pre-wrap; }
       <item row="0" column="2">
        <widget class="QLabel" name="label_15">
         <property name="text">
-         <string>a</string>
+         <string>γ</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -358,7 +339,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="0" column="3">
-       <widget class="QLabel" name="ca">
+       <widget class="QLabel" name="cgamma">
         <property name="styleSheet">
          <string notr="true">font-weight: bold;</string>
         </property>
@@ -674,8 +655,8 @@ p, li { white-space: pre-wrap; }
  </customwidgets>
  <tabstops>
   <tabstop>D</tabstop>
-  <tabstop>a</tabstop>
-  <tabstop>b</tabstop>
+  <tabstop>gamma</tabstop>
+  <tabstop>phi</tabstop>
   <tabstop>c</tabstop>
   <tabstop>gp</tabstop>
   <tabstop>ptp</tabstop>

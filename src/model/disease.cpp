@@ -324,8 +324,8 @@ void Disease::processVessel(Vessel &v, QScriptValue &global, QScriptValue &f, in
 	global.setProperty("gen", gen);
 	global.setProperty("vessel_idx", ves_no);
 	SET_PROPERTY(D);
-	SET_PROPERTY(a);
-	SET_PROPERTY(b);
+	SET_PROPERTY(gamma);
+	SET_PROPERTY(phi);
 	SET_PROPERTY(c);
 	SET_PROPERTY(tone);
 	SET_PROPERTY(GP);
@@ -338,8 +338,8 @@ void Disease::processVessel(Vessel &v, QScriptValue &global, QScriptValue &f, in
 	if (!callScript(f))
 		return;
 
-	GET_PROPERTY(a);
-	GET_PROPERTY(b);
+	GET_PROPERTY(gamma);
+	GET_PROPERTY(phi);
 	GET_PROPERTY(c);
 	GET_PROPERTY(tone);
 	GET_PROPERTY(GP);

@@ -35,15 +35,15 @@ VesselDlg::VesselDlg(Vessel::Type type,
 	ui->setupUi( this );
 
 	ui->D->setText(doubleToString(v.D));
-	ui->a->setText(doubleToString(v.a));
-	ui->b->setText(doubleToString(v.b));
+	ui->gamma->setText(doubleToString(v.gamma));
+	ui->phi->setText(doubleToString(v.phi));
 	ui->c->setText(doubleToString(v.c));
 	ui->tone->setText(doubleToString(v.tone));
 
 	QValidator *validator = new QRegExpValidator(QRegExp(numeric_validator_rx), this);
 	ui->D->setValidator(validator);
-	ui->a->setValidator(validator);
-	ui->b->setValidator(validator);
+	ui->gamma->setValidator(validator);
+	ui->phi->setValidator(validator);
 	ui->c->setValidator(validator);
 	ui->tone->setValidator(validator);
 
@@ -76,8 +76,8 @@ VesselDlg::VesselDlg(Vessel::Type type,
 	SET_DATA(length);
 	SET_DATA(vessel_ratio);
 	SET_DATA(viscosity_factor);
-	SET_DATA(a);
-	SET_DATA(b);
+	SET_DATA(gamma);
+	SET_DATA(phi);
 	SET_DATA(c);
 	SET_DATA(tone);
 	SET_DATA(perivascular_press_a);
@@ -99,8 +99,8 @@ void VesselDlg::accept()
 	QMap<QLineEdit*,double*> refs;
 
 	refs[ui->D] = &v.D;
-	refs[ui->a] = &v.a;
-	refs[ui->b] = &v.b;
+	refs[ui->gamma] = &v.gamma;
+	refs[ui->phi] = &v.phi;
 	refs[ui->c] = &v.c;
 	refs[ui->gp] = &v.GP;
 	refs[ui->ptp] = &v.Ptp;

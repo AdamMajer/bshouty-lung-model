@@ -52,8 +52,8 @@ inline double cbrt(double x) {
 bool operator==(const struct Vessel &a, const struct Vessel &b)
 {
 	return memcmp(&a, &b, sizeof(struct Vessel)) == 0 ||
-	    !(significantChange(a.a, b.a) ||
-	      significantChange(a.b, b.b) ||
+	    !(significantChange(a.gamma, b.gamma) ||
+	      significantChange(a.phi, b.phi) ||
 	      significantChange(a.c, b.c) ||
 	      significantChange(a.R, b.R) ||
 	      significantChange(a.D, b.D) ||
@@ -989,12 +989,12 @@ double Model::calibrationValue(DataType type)
 	case Model::PV_EVL_value:
 		return 5.0;
 	case Model::PA_Diam_value:
-		return 2.826222783;
+		return 1.075523817;
 	case Model::PV_Diam_value:
-		return 1.790809353;
+		return 1.354094218;
 
 	case Model::Krc:
-		return 304.798548215;
+		return 312.319202520;
 
 	case Model::Ptp_value:
 	case Model::PAP_value:
@@ -1255,12 +1255,11 @@ void Model::initVesselBaselineCharacteristics()
 		if (vessel_value_override[i])
 			continue;
 
-		// correcting area to Ptp=0, Ptm=35 cmH2O
 		//arteries[i].a = 0.2419 / 1.2045;
-		arteries[i].max_a = 2.0;
-		arteries[i].a = 2.0;
-		arteries[i].b = 8.95866; //0.0275 / 1.2045;
-		arteries[i].c = -0.060544062342;
+		arteries[i].max_a = 2.0; // FIXME!!
+		arteries[i].gamma = 1.84;
+		arteries[i].phi = 0.04; //0.0275 / 1.2045;
+		arteries[i].c = 0;
 		arteries[i].tone = 0;
 
 		arteries[i].vessel_ratio = static_cast<double>(nElements(gen_no(i))) /
@@ -1274,16 +1273,14 @@ void Model::initVesselBaselineCharacteristics()
 
 		if (isOutsideLung(i)) {
 			// correct for vessels outside the lung
-			veins[i].b = 10.0;
-			veins[i].c = -10.0;
+			veins[i].gamma = 1.85;
+			veins[i].phi = 0.0;
 		}
 		else {
-			// correcting area to Ptp=0, Ptm=35 cmH2O
-			veins[i].b = 2.4307;
-			veins[i].c = -0.2355;
+			veins[i].gamma = 1.85;
+			veins[i].phi = 0.035;
 		}
-		veins[i].max_a = 1.0;
-		veins[i].a = 1.0;
+		veins[i].max_a = 1.0; /////
 		veins[i].tone = 0;
 
 		veins[i].vessel_ratio = static_cast<double>(nElements(gen_no(i))) /
@@ -1590,8 +1587,8 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			SET_VALUE(v.length);
 			SET_VALUE(v.viscosity_factor);
 
-			SET_VALUE(v.a);
-			SET_VALUE(v.b);
+			SET_VALUE(v.gamma);
+			SET_VALUE(v.phi);
 			SET_VALUE(v.c);
 			SET_VALUE(v.tone);
 
@@ -1826,8 +1823,8 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			SET_VALUE(v.length);
 			SET_VALUE(v.viscosity_factor);
 
-			SET_VALUE(v.a);
-			SET_VALUE(v.b);
+			SET_VALUE(v.gamma);
+			SET_VALUE(v.phi);
 			SET_VALUE(v.c);
 			SET_VALUE(v.tone);
 
@@ -1873,8 +1870,8 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			GET_VALUE(v.length);
 			GET_VALUE(v.viscosity_factor);
 
-			GET_VALUE(v.a);
-			GET_VALUE(v.b);
+			GET_VALUE(v.gamma);
+			GET_VALUE(v.phi);
 			GET_VALUE(v.c);
 			GET_VALUE(v.tone);
 

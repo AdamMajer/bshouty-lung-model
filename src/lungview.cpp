@@ -547,8 +547,9 @@ void LungView::calculateVolumeOverlay(const Model &model)
 			const Vessel &art = model.artery(gen, i);
 			const Vessel &vein = model.vein(gen, i);
 
-			double art_s_max = art.a*sqr(art.D)*M_PI/4.0*art.length/art.vessel_ratio*um_to_ul;
-			double vein_s_max = vein.a*sqr(vein.D)*M_PI/4.0*vein.length/vein.vessel_ratio*um_to_ul;
+			// FIXME: !!
+			double art_s_max = 100.0; //art.a*sqr(art.D)*M_PI/4.0*art.length/art.vessel_ratio*um_to_ul;
+			double vein_s_max = 100.0; // vein.a*sqr(vein.D)*M_PI/4.0*vein.length/vein.vessel_ratio*um_to_ul;
 
 			max_art_size.push_back(art_s_max);
 			max_vein_size.push_back(vein_s_max);

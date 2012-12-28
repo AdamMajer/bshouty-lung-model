@@ -155,8 +155,8 @@ struct CL_Vessel {
 	cl_float Ppl;
 
 	cl_float max_a;
-	cl_float a;
-	cl_float b;
+	cl_float gamma;
+	cl_float phi;
 	cl_float c;
 
 	cl_float peri_a;

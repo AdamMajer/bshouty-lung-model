@@ -123,8 +123,8 @@ double CpuIntegrationHelper::rigidFlowVessel(Vessel &v)
 			Ptm = Ptm - v.Ppl - v.perivascular_press_a -
 			      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
 
-			const double inv_A = (1.0 + v.b * exp( v.c * Ptm )) / 0.99936058722097668220 / v.a;
-			D = v.D / sqrt(inv_A);
+			// const double inv_A = (1.0 + v.b * exp( v.c * Ptm )) / 0.99936058722097668220 / v.a;
+			D = v.D*v.gamma - (v.gamma-1.0)*v.D*exp(-Ptm*v.phi/(v.gamma-1.0));
 			const double vf = viscosityFactor(D, hct);
 			Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * v.vessel_ratio;
 			v.viscosity_factor = vf;
@@ -204,10 +204,14 @@ double CpuIntegrationHelper::segmentedFlowVessel(Vessel &v,
 		Rs = -Ptm/( 1.35951002636 * v.flow ); // Starling Resistor
 	}
 	else {
+		/*
 		const double inv_A = (1.0 + v.b * exp( v.c * Ptm )) / 0.99936058722097668220 / v.a;
 		double area = v.a / v.max_a;
 		double A = ((1/inv_A - 1.0) * area + 1.0)*area;
 		v.Dmin = v.D * sqrt(A);
+		*/
+
+		v.Dmin = v.D*v.gamma - (v.gamma-1.0)*v.D*exp(-Ptm*v.phi/(v.gamma-1.0));
 
 		//v.Dmin = v.D / sqrt(inv_A);
 		const double vf = viscosityFactor(v.Dmin, hct);
@@ -231,10 +235,14 @@ double CpuIntegrationHelper::segmentedFlowVessel(Vessel &v,
 		      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
 
 		// corrected to Ptp=0, Ptm=35 cmH2O
+		/*
 		const double inv_A = (1.0 + v.b * exp( v.c * Ptm )) / 0.99936058722097668220 / v.a;
 		const double area = v.a / v.max_a;
 		const double A = ((1/inv_A - 1.0) * area + 1.0)*area;
 		D = v.D * sqrt(A);
+		*/
+
+		D = v.D*v.gamma - (v.gamma-1.0)*v.D*exp(-Ptm*v.phi/(v.gamma-1.0));
 
 		D_integral += D;
 		const double vf = viscosityFactor(D, hct);
@@ -304,7 +312,7 @@ double CpuIntegrationHelper::vesselIntegrationThread(double (CpuIntegrationHelpe
 	while ((i=vein_no.fetchAndAddOrdered(1024)) < n) {
 		int max_pos = std::min(n, i+1024);
 		for (int j=i; j<max_pos; ++j)
-			ret = std::max(ret, (this->*func)(v[i]));
+			ret = std::max(ret, (this->*func)(v[j]));
 	}
 
 	return ret;
