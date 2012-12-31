@@ -128,8 +128,8 @@ QString animateDots(QString s)
 	//       are to be animated. If the first . found is not preceeded
 	//       by a '*' and not followed by another . we return unmodified string.
 	int len = s.length();
-	QChar dot = QChar::fromAscii('.');
-	QChar o = QChar::fromAscii('*');
+	QChar dot = QChar::fromLatin1('.');
+	QChar o = QChar::fromLatin1('*');
 
 	int pos = s.indexOf(dot);
 	if (pos <= 0)

@@ -101,8 +101,8 @@ CalculationResultDlg::CalculationResultDlg(QWidget *parent, const Model &m)
 	ui->vesselTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	ui->vesselTable->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-	ui->vesselTable->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
-	ui->vesselTable->horizontalHeader()->setResizeMode(1, QHeaderView::ResizeToContents);
+	ui->vesselTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+	ui->vesselTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 	ui->vesselTable->setAlternatingRowColors(true);
 }
 
