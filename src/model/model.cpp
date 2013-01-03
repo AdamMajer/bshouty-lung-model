@@ -448,43 +448,13 @@ double Model::getResult(DataType type) const
 	case PAP_value:
 		return LAP + arteries[0].flow * arteries[0].total_R;
 	case Rus_value:
-		return (getResult(PAP_value) - getResult(PciA_value)) / CO;
+		return arteries[0].partial_R;
 	case Rds_value:
-		return (getResult(PcoA_value) - LAP) / CO;
+		return veins[0].partial_R;
 	case Rm_value:
-		return (getResult(PciA_value) - getResult(PcoA_value)) / CO;
+		return veins[0].total_R - arteries[0].partial_R - veins[0].partial_R;
 	case Rt_value:
 		return (getResult(PAP_value) - LAP) / CO;
-	case PciA_value:{
-			double ret = 0.0;
-			int n = nElements( 16 );
-			int start = startIndex( 16 );
-			int end = start + n;
-			while( start < end ){
-				if (isnan(arteries[start].pressure_out))
-					n--;
-				else
-					ret += arteries[start].pressure_out;
-				start++;
-			}
-
-			return ret / n;
-		}
-	case PcoA_value:{
-			double ret = 0.0;
-			int n = nElements( 16 );
-			int start = startIndex( 16 );
-			int end = start + n;
-			while( start < end ){
-				if (isnan(veins[start].pressure_in))
-					n--;
-				else
-					ret += veins[start].pressure_in;
-				start++;
-			}
-
-			return ret / n;
-		}
 	case Tlrns_value:
 		return Tlrns;
 	case Gender_value:
@@ -665,8 +635,6 @@ bool Model::setData(DataType type, double val)
 	case Rds_value:
 	case Rm_value:
 	case Rt_value:
-	case PciA_value:
-	case PcoA_value:
 	case TotalR_value:
 		throw "Cannot set calculated values!";
 	/* For Height and Weight, we have to recalculate the entire lung baseline */
@@ -769,6 +737,9 @@ int Model::calc( int max_iter )
 	}while( !deltaR() &&
 	                ++n_iterations < max_iter &&
 	                abort_calculation==0);
+
+	partialR(Vessel::Artery, 0);
+	partialR(Vessel::Vein, 0);
 
 	modified_flag = true;
 	return n_iterations;
@@ -923,12 +894,12 @@ double Model::calibrationValue(DataType type)
 	case Model::PV_EVL_value:
 		return 5.0;
 	case Model::PA_Diam_value:
-		return 1.075523817;
+		return 1.078647510;
 	case Model::PV_Diam_value:
-		return 1.354094218;
+		return 1.357877245;
 
 	case Model::Krc:
-		return 312.319202520;
+		return 342.753065860;
 
 	case Model::Ptp_value:
 	case Model::PAP_value:
@@ -936,8 +907,6 @@ double Model::calibrationValue(DataType type)
 	case Model::Rds_value:
 	case Model::Rm_value:
 	case Model::Rt_value:
-	case Model::PciA_value:
-	case Model::PcoA_value:
 	case Model::TotalR_value:
 	case Model::DiseaseParam:
 		return std::numeric_limits<double>::quiet_NaN();
@@ -1037,6 +1006,51 @@ double Model::totalResistance(int i)
 	arteries[i].total_R = R_tot;
 	veins[i].total_R = R_tot;
 	return R_tot;
+}
+
+double Model::partialR(Vessel::Type type, int i)
+{
+	Vessel *v;
+
+	switch (type) {
+	case Vessel::Artery:
+		v = arteries;
+		break;
+	case Vessel::Vein:
+		v = veins;
+		break;
+	}
+	int gen = gen_no(i);
+	if (gen == nGenerations()) {
+		if (v[i].flow == 0.0)
+			v[i].partial_R = std::numeric_limits<double>::infinity();
+		else
+			v[i].partial_R = v[i].R;
+		return v[i].partial_R;
+	}
+
+	// not the final generation, determine connection indexes
+	int current_gen_start = startIndex( gen );
+	int next_gen_start = startIndex( gen+1 );
+
+	int connection_first = (i - current_gen_start) * 2 + next_gen_start;
+
+	// partial R calculation
+	const double R1 = partialR(type, connection_first);
+	const double R2 = partialR(type, connection_first+1);
+	double total_R;
+
+	if (isinf(R1) && isinf(R2))
+		total_R = std::numeric_limits<double>::infinity();
+	else if(isinf(R1))
+		total_R = v[i].R + R2;
+	else if(isinf(R2))
+		total_R = v[i].R + R1;
+	else
+		total_R = v[i].R + 1/(1/R1 + 1/R2);
+
+	v[i].partial_R = total_R;
+	return total_R;
 }
 
 void Model::calculateChildrenFlowPress( int i )

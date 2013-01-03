@@ -53,12 +53,15 @@ struct Vessel
 	double perivascular_press_a, perivascular_press_b, perivascular_press_c;
 
 	double total_R; // mmHg*min/l
+	double partial_R; // line total_R, but only applies to current vessel type
+	                  // only used for information purposes in final output
+
 	double pressure_in, pressure_out; // mmHg - corrected for GP
 	double flow; // l/min
 
 	double vessel_ratio; // n_model_vessels / real vessels
 
-	double cacheline_padding[5]; // padding to 256-byte cacheline boundary
+	double cacheline_padding[4]; // padding to 256-byte cacheline boundary
 };
 
 struct Capillary
@@ -89,7 +92,7 @@ public:
 	 */
 	enum DataType { Lung_Ht_value, Flow_value, LAP_value, Pal_value, Ppl_value,
 	                Ptp_value, PAP_value, Rus_value, Rds_value, Rm_value,
-	                Rt_value, PciA_value, PcoA_value, Tlrns_value,
+	                Rt_value, Tlrns_value,
 	                Vm_value, Vrv_value, Vfrc_value, Vtlc_value,
 	                Pat_Ht_value, Pat_Wt_value,
 	                TotalR_value,
@@ -236,6 +239,7 @@ protected:
 	void vascPress();
 
 	double totalResistance(int i);
+	double partialR(Vessel::Type type, int i);
 	void calculateChildrenFlowPress(int i);
 
 	double deltaCapillaryResistance(int i);

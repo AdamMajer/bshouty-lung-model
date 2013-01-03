@@ -867,8 +867,6 @@ void MainWindow::updateInputsOutputs()
 
 	ui->PAPm2->setText(doubleToString(model->getResult(Model::PAP_value)));
 	ui->PVR->setText(doubleToString(pvr));
-	ui->Pci->setText(doubleToString(model->getResult(Model::PciA_value)));
-	ui->Pco->setText(doubleToString(model->getResult(Model::PcoA_value)));
 	ui->Rus->setText(doubleToString(rus));
 	ui->Rm->setText(doubleToString(rm));
 	ui->Rds->setText(doubleToString(rds));
