@@ -175,21 +175,23 @@ void MultiModelOutput::updateView()
 	                << QPair<Model::DataType, QString>(Model::TotalR_value, "PVR")
 	                << QPair<Model::DataType, QString>(Model::PAP_value, "PAPm")
 
-	                << QPair<Model::DataType, QString>(Model::Ppl_value, "Ppl")
-	                << QPair<Model::DataType, QString>(Model::Pal_value, "Pal")
-	                << QPair<Model::DataType, QString>(Model::LAP_value, "LAP")
 	                << QPair<Model::DataType, QString>(Model::CO_value, "CO")
+	                << QPair<Model::DataType, QString>(Model::LAP_value, "LAP")
+	                << QPair<Model::DataType, QString>(Model::Pal_value, "Pal")
+	                << QPair<Model::DataType, QString>(Model::Ppl_value, "Ppl")
 //	                << QPair<Model::DataType, QString>(Model::CL_value, "CL")
-//	                << QPair<Model::DataType, QString>(Model::MV_value, "Vm")
 	                << QPair<Model::DataType, QString>(Model::PV_Diam_value, "PV Diameter")
 	                << QPair<Model::DataType, QString>(Model::PV_EVL_value, "PV EVL")
 	                << QPair<Model::DataType, QString>(Model::PA_Diam_value, "PA Diameter")
 	                << QPair<Model::DataType, QString>(Model::PA_EVL_value, "PA EVL")
-	                << QPair<Model::DataType, QString>(Model::Hct_value, "Hct")
 
 	                << QPair<Model::DataType, QString>(Model::Vtlc_value, "Vtlc")
 	                << QPair<Model::DataType, QString>(Model::Vfrc_value, "Vfrc")
 	                << QPair<Model::DataType, QString>(Model::Vrv_value, "Vrv")
+	                << QPair<Model::DataType, QString>(Model::Vm_value, "Vm")
+
+	                << QPair<Model::DataType, QString>(Model::Hct_value, "Hct")
+
 	                << QPair<Model::DataType, QString>(Model::Lung_Ht_value, "Lung Height")
 	                << QPair<Model::DataType, QString>(Model::Pat_Wt_value, "Patient Weight")
 	                << QPair<Model::DataType, QString>(Model::Pat_Ht_value, "Patient Height");
