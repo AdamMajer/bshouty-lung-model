@@ -827,7 +827,7 @@ p, li { white-space: pre-wrap; }
               </widget>
              </item>
              <item row="11" column="1">
-              <widget class="QLineEdit" name="Vm"/>
+              <widget class="ClickableLineEdit" name="Vm"/>
              </item>
              <item row="4" column="1">
               <widget class="QComboBox" name="gender">
