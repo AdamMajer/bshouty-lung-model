@@ -848,6 +848,7 @@ double Model::calibrationValue(DataType type)
 		if (fOK) {
 			/* NOTE: Stored calibration values are pre-scaled */
 			switch (type) {
+			case Model::Vm_value:
 			case Model::Vrv_value:
 			case Model::Vfrc_value:
 			case Model::Vtlc_value:
