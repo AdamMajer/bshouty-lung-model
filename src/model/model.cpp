@@ -727,16 +727,86 @@ int Model::calc( int max_iter )
 		model_reset = false;
 	}
 
-	n_iterations = 0;
-	do {
-		vascPress();
+	int capillary_pivot_pos = 0;
+	int capillary_pivot_size = numCapillaries()/2; // same operation to 2 lungs!
+	const int right_lung_offset = numCapillaries()/2;
+	int cap_difference;
 
-		int iter_prog = 10000*n_iterations/max_iter;
-		if (prog < iter_prog)
-			prog = iter_prog;
-	}while( !deltaR() &&
-	                ++n_iterations < max_iter &&
-	                abort_calculation==0);
+	n_iterations = 0;
+
+	do {
+		cap_difference = 0;
+		int iters = 0;
+
+		do {
+			qDebug() << "---- Iteration: " << iters << " -> " << n_iterations;
+			qDebug() << "PAPm: " << getResult(Model::PAP_value);
+			vascPress();
+
+			int iter_prog = 10000*iters/max_iter;
+			if (prog < iter_prog)
+				prog = iter_prog;
+
+			n_iterations++;
+		} while ((!isinf(caps[capillary_pivot_pos].R) || capillary_pivot_size<=1 || iters<1) &&
+		         !deltaR() &&
+		         (++iters < max_iter) &&
+		         abort_calculation==0);
+
+		/* When pressure into the capillaries is lower than Pal, all
+		 * capillaries will close. To fix this problem, we must manually
+		 * force-close capillaries to prevent them from oscillation.
+		 * This basically turns into a binary-search problem trying
+		 * to determine how many capillaries are really open
+		 */
+		if (Pal > 0.0) {
+			capillary_pivot_size /= 2;
+			// FIXME: nan for resistance should not happen.
+			if (isinf(caps[capillary_pivot_pos].R)) {
+				// close half of available capillaries
+				//capillary_pivot_pos += capillary_pivot_size;
+				qDebug() << "Closing : " << capillary_pivot_size;
+				for (int i=capillary_pivot_pos;
+				     i<capillary_pivot_pos+capillary_pivot_size;
+				     ++i) {
+
+					caps[i].R = std::numeric_limits<double>::infinity();
+					caps[i].open_state = 1;
+
+					caps[i+right_lung_offset].R = std::numeric_limits<double>::infinity();
+					caps[i+right_lung_offset].open_state = 1;
+				}
+				capillary_pivot_pos += capillary_pivot_size;
+
+				for (int i=capillary_pivot_pos;
+				     i<capillary_pivot_pos+capillary_pivot_size;
+				     ++i) {
+
+					caps[i].R = calibrationValue(Model::Krc);
+					caps[i+right_lung_offset].R = calibrationValue(Model::Krc);
+				}
+
+				cap_difference = capillary_pivot_size;
+			}
+			else if (capillary_pivot_pos > 0 &&
+			         artery(16, capillary_pivot_pos-1).pressure_out > Pal) {
+				// check if pressure would cause vessels higher
+				// than current pivot point to open
+				qDebug() << "Opening: " << capillary_pivot_size;
+
+				capillary_pivot_pos -= capillary_pivot_size;
+				for (int i=0; i<capillary_pivot_size; ++i) {
+					caps[capillary_pivot_pos+i].open_state = 0;
+					caps[capillary_pivot_pos+i].R = calibrationValue(Model::Krc);
+
+					caps[capillary_pivot_pos+i+right_lung_offset].open_state = 0;
+					caps[capillary_pivot_pos+i+right_lung_offset].R = calibrationValue(Model::Krc);
+				}
+
+				cap_difference = capillary_pivot_size;
+			}
+		}
+	} while (cap_difference > 0);
 
 	partialR(Vessel::Artery, 0);
 	partialR(Vessel::Vein, 0);
@@ -970,7 +1040,6 @@ void Model::vascPress()
 	calculateChildrenFlowPress( 0 );
 }
 
-
 double Model::totalResistance(int i)
 {
 	// get current generation and determine if this is final generation
@@ -1011,7 +1080,7 @@ double Model::totalResistance(int i)
 
 double Model::partialR(Vessel::Type type, int i)
 {
-	Vessel *v;
+	Vessel *v = NULL;
 
 	switch (type) {
 	case Vessel::Artery:
@@ -1057,32 +1126,60 @@ double Model::partialR(Vessel::Type type, int i)
 void Model::calculateChildrenFlowPress( int i )
 {
 	int gen = gen_no( i );
+	int current_gen_start = startIndex( gen );
 
 	// last generation, no children
-	if( gen == nGenerations())
+	if( gen == nGenerations()) {
+		/* In case when there is no flow, check if we get pressure
+		 * from accross unclosed capillary. This is just a slightly
+		 * modified version of 'backward' pressure seen below.
+		 */
+		if (arteries[i].flow == 0.0 &&
+		    !isinf(caps[i-current_gen_start].R)) {
+
+			if (isnan(arteries[i].pressure_out)) {
+				arteries[i].pressure_out = veins[i].pressure_in;
+				if (!isinf(arteries[i].R))
+					arteries[i].pressure_in = arteries[i].pressure_out;
+			}
+			else {
+				veins[i].pressure_in = arteries[i].pressure_out;
+				if (!isinf(veins[i].R))
+					veins[i].pressure_out = veins[i].pressure_in;
+			}
+		}
+
 		return;
+	}
 
 	// determine connecting indexes
-	int current_gen_start = startIndex( gen );
 	int next_gen_start = startIndex( gen+1 );
-
 	int connection_first = ( i - current_gen_start ) * 2 + next_gen_start;
 
 	// Calculate flow and pressure in children vessels based on the calculated flow and their resistances
 	for( int con=connection_first; con<=connection_first+1; con++ ){
-		if (isinf(arteries[con].R) || isinf(veins[con].R) || isinf(arteries[con].total_R)) {
-			// all vessels inside have no flow, so pressure is undefined
+		if (isinf(arteries[con].total_R)) {
+			// all vessels inside have no flow, pressure is only defined
+			// until block. Later, it is undefined.
 			arteries[con].pressure_in = arteries[i].pressure_out - (arteries[con].GP - arteries[i].GP)/1.35951002636;
 			veins[con].pressure_out = veins[i].pressure_in - (veins[con].GP - veins[i].GP)/1.35951002636;
 
 			arteries[con].flow = 0.0;
 			veins[con].flow = 0.0;
 
-			arteries[con].pressure_out = std::numeric_limits<double>::quiet_NaN();
-			veins[con].pressure_in = std::numeric_limits<double>::quiet_NaN();
-			veins[con].pressure_out = veins[i].pressure_in + (veins[con].GP - veins[i].GP)/1.35951002636;
-		}
+			arteries[con].pressure_out = arteries[con].pressure_in;
+			veins[con].pressure_in = veins[con].pressure_out;
 
+			arteries[con].pressure_out =
+			                isinf(arteries[con].R) ?
+			                        std::numeric_limits<double>::quiet_NaN() :
+			                        arteries[con].pressure_in;
+
+			veins[con].pressure_in =
+			                isinf(veins[con].R) ?
+			                        std::numeric_limits<double>::quiet_NaN() :
+			                        veins[con].pressure_out;
+		}
 		else {
 			arteries[con].pressure_in = arteries[i].pressure_out - (arteries[con].GP - arteries[i].GP)/1.35951002636;
 			veins[con].pressure_out = veins[i].pressure_in - (veins[con].GP - veins[i].GP)/1.35951002636;
@@ -1101,6 +1198,56 @@ void Model::calculateChildrenFlowPress( int i )
 	// TODO: parallelize
 	calculateChildrenFlowPress( connection_first );
 	calculateChildrenFlowPress( connection_first+1 );
+
+	// Calculate 'backward' pressure for static flow vessels since a block
+	for( int con=connection_first; con<=connection_first+1; con++ ){
+		if (arteries[i].flow == 0.0 && isnan(arteries[i].pressure_out)) {
+			arteries[i].pressure_out = arteries[con].pressure_in +
+			                           (arteries[con].GP - arteries[i].GP)/1.35951002636;
+			if (!isinf(arteries[i].R))
+				arteries[i].pressure_in = arteries[i].pressure_out;
+		}
+
+		if (veins[i].flow == 0.0 && isnan(veins[i].pressure_in)) {
+			veins[i].pressure_in = veins[con].pressure_out +
+			                       (veins[con].GP - veins[i].GP)/1.35951002636;
+			if (!isinf(veins[i].R))
+				veins[i].pressure_out = veins[i].pressure_in;
+		}
+	}
+
+	// Check if we need to recalculate forward static pressure towards a blockage
+	// This is only encoutered in multiple blockages scenario
+	for( int con=connection_first; con<=connection_first+1; con++ ){
+		bool redo_branch = false;
+
+		if (arteries[i].flow == 0.0 &&
+		    !isnan(arteries[i].pressure_out) &&
+		    isnan(arteries[con].pressure_in)) {
+
+			arteries[con].pressure_in = arteries[i].pressure_out -
+			                            (arteries[con].GP - arteries[i].GP)/1.35951002636;
+			if (!isinf(arteries[con].R)) {
+				arteries[con].pressure_out = arteries[con].pressure_in;
+				redo_branch = true;
+			}
+		}
+
+		if (veins[i].flow == 0.0 &&
+		    !isnan(veins[i].pressure_in) &&
+		    isnan(veins[con].pressure_out)) {
+
+			veins[con].pressure_out = veins[i].pressure_in -
+			                          (veins[con].GP - veins[i].GP)/1.35951002636;
+			if (!isinf(veins[con].R)) {
+				veins[con].pressure_in = veins[con].pressure_out;
+				redo_branch = true;
+			}
+		}
+
+		if (redo_branch)
+			calculateChildrenFlowPress(con);
+	}
 }
 
 double Model::deltaCapillaryResistance( int i )
@@ -1118,6 +1265,16 @@ double Model::deltaCapillaryResistance( int i )
 	const double Pin = 1.35951002636 * con_artery.pressure_out; // convert pressures from mmHg => cmH20
 	const double Pout = 1.35951002636 * con_vein.pressure_in;
 	Capillary & cap = caps[i];
+
+	if (cap.open_state == 1) {
+		cap.last_delta_R = 0.0;
+
+		if (isinf(cap.R))
+			return 0.0;
+
+		cap.R = std::numeric_limits<double>::infinity();
+		return 1.0;
+	}
 
 	double x = Pout - Pal;
 	double y = Pin - Pal;
@@ -1158,8 +1315,8 @@ double Model::deltaCapillaryResistance( int i )
 			throw "Internal capillary resistance error 2";
 	}
 
+	// Cap delta_R to 200% increase, unless the vessel is going to be really closed
 	cap.last_delta_R = fabs(cap.R-Ri)/Ri;
-
 	return cap.last_delta_R; // return different from target tolerance
 }
 
@@ -1181,6 +1338,8 @@ bool Model::deltaR()
 	const QList<QFuture<double> > &result_futures = results.futures();
 	foreach (const QFuture<double> &i, result_futures)
 		max_deviation = std::max(i.result(), max_deviation);
+
+	qDebug() << "   max cap deltaR: " << max_deviation;
 
 	int estimated_progression = 10000;
 	for (double md=max_deviation; md>Tlrns && estimated_progression>0;) {
@@ -1252,6 +1411,7 @@ void Model::initVesselBaselineResistances()
 			continue;
 
 		caps[i].R = cKrc;
+		caps[i].open_state = 0;
 	}
 }
 

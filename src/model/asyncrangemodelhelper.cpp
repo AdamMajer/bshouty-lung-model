@@ -91,7 +91,7 @@ protected:
 		for (ModelCalcList::iterator i=results.begin(); i!=results.end(); ++i) {
 			op_model_locker.lock();
 			op_model = i->second;
-			op = QtConcurrent::run(op_model, &Model::calc, 50);
+			op = QtConcurrent::run(op_model, &Model::calc, 100);
 			op_model_locker.unlock();
 
 			if (abort_flag)

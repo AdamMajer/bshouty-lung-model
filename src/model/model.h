@@ -27,6 +27,7 @@
  * these values too
  */
 extern const int nSums; // number of divisions in the integral
+const double cmH2O_per_mmHg = 1.35951002636; // cmH2O/mmHg
 
 struct Vessel
 {
@@ -71,8 +72,9 @@ struct Capillary
 	double Alpha;
 
 	double last_delta_R;
+	qint64 open_state; // 0-automatic, 1-closed
 
-	double cacheline_padding[28];
+	double cacheline_padding[27];
 };
 
 extern bool operator==(const struct Vessel &a, const struct Vessel &b);
@@ -237,6 +239,7 @@ protected:
 	void getParameters();
 	// void getKz();
 	void vascPress();
+	bool openCapillaryCheck();
 
 	double totalResistance(int i);
 	double partialR(Vessel::Type type, int i);

@@ -76,8 +76,12 @@ double CpuIntegrationHelper::rigidFlowVessel(Vessel &v)
 	const double Pout = v.pressure_out;
 
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
-	if (isnan(Pout) || isnan(Pin))
+	if (isnan(Pout) || isnan(Pin)) {
+		v.D_calc = 0.0;
+		v.Dmin = 0.0;
+		v.Dmax = 0.0;
 		return 0.0;
+	}
 
 	double Ptm = 1.35951002636 * ((Pin+Pout)/2.0 - v.tone);
 	double Rs;
@@ -154,6 +158,13 @@ double CpuIntegrationHelper::rigidFlowVessel(Vessel &v)
 
 double CpuIntegrationHelper::segmentedFlowVessel(Vessel &v)
 {
+	/* In case where flow is nil, the vessel has constant pressure
+	 * across it and then the faster algorithm is really really the same
+	 * and nSums times faster.
+	 */
+	if (v.flow == 0.0)
+		return rigidFlowVessel(v);
+
 	return segmentedFlowVessel(v, NULL);
 }
 
