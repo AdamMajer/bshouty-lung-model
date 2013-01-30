@@ -1286,8 +1286,11 @@ void Model::calculateChildrenFlowPress( int i )
 			arteries[con].pressure_in = arteries[i].pressure_out - (arteries[con].GP - arteries[i].GP)/1.35951002636;
 			veins[con].pressure_out = veins[i].pressure_in - (veins[con].GP - veins[i].GP)/1.35951002636;
 
-			const double flow =  (arteries[con].pressure_in - veins[con].pressure_out) /
-			                     arteries[con].total_R;
+			double flow = (arteries[con].pressure_in - veins[con].pressure_out) /
+			              arteries[con].total_R;;
+			if (arteries[con].pressure_in <= 0.0 || flow < 0.0)
+				flow = 0.0;
+
 			veins[con].flow = flow;
 			arteries[con].flow = flow;
 
