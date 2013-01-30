@@ -34,7 +34,7 @@ class CalibrateDlg : public QDialog
 	Q_OBJECT
 
 public:
-	enum ValueType {Krc, PA_diam, PV_diam};
+	enum ValueType {Krc, PA_diam, PV_diam, CV_diam};
 
 	CalibrateDlg(QWidget *parent);
 	~CalibrateDlg();
@@ -54,6 +54,8 @@ protected slots:
 
 protected:
 	struct CalibrationValue correctVariable(const struct CalibrationValue & value) const;
+	bool cornerVesselCorrection();
+	void setCapillaryState(CapillaryState);
 	void resetBaseModel();
 	virtual void timerEvent(QTimerEvent *ev);
 
@@ -64,6 +66,7 @@ private:
 	AsyncRangeModelHelper *model_runner;
 	double tlrns;
 	int calibration_loop_no;
+	int cv_calibration_step; // -1 = calibrated, 0 = uncalibrated, 1+ - cv calibration process
 
 	Model base_model;
 

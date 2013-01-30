@@ -67,6 +67,7 @@ const QLatin1String vein_length_ratio("/settings/calibration/veins_length"); // 
 const QLatin1String vein_diam_ratio("/settings/calibration/veins_diam"); // double
 
 const QLatin1String calibration_target_papm("/settings/calibration/target_papm"); // double
+const QLatin1String calibration_cv_target_papm("/settings/calibration/cv_target_papm"); // double
 
 // allocate and free cacheline aligned (64-byte) and page aligned memory
 void* allocateCachelineAligned(int size);

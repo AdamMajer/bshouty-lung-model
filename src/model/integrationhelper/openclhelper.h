@@ -54,6 +54,4 @@ private:
 	// used by the integration function
 	QMutex vessel_index_mutex;
 	int art_index, vein_index;
-
-	int n_elements;
 };

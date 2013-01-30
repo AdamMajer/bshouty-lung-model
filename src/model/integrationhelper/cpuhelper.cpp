@@ -309,9 +309,9 @@ double CpuIntegrationHelper::vesselIntegration(double(CpuIntegrationHelper::* fu
 double CpuIntegrationHelper::vesselIntegrationThread(double (CpuIntegrationHelper::*func)(Vessel &))
 {
 	double ret = 0.0;
-	int n = nElements();
 	int i;
 
+	int n = nArteries();
 	Vessel *v = arteries();
 	while ((i=artery_no.fetchAndAddOrdered(1024)) < n) {
 		int max_pos = std::min(n, i+1024);
@@ -319,6 +319,7 @@ double CpuIntegrationHelper::vesselIntegrationThread(double (CpuIntegrationHelpe
 			ret = std::max(ret, (this->*func)(v[j]));
 	}
 
+	n = nVeins();
 	v = veins();
 	while ((i=vein_no.fetchAndAddOrdered(1024)) < n) {
 		int max_pos = std::min(n, i+1024);

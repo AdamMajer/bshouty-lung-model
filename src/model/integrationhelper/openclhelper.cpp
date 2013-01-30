@@ -72,7 +72,6 @@ double OpenCLIntegrationHelper::segmentedVessels()
 	 */
 	QFutureSynchronizer<float> futures;
 
-	n_elements = nElements();
 	art_index = 0;
 	vein_index = 0;
 
@@ -94,7 +93,6 @@ double OpenCLIntegrationHelper::rigidVessels()
 {
 	QFutureSynchronizer<float> futures;
 
-	n_elements = nElements();
 	art_index = 0;
 	vein_index = 0;
 
@@ -125,8 +123,8 @@ float OpenCLIntegrationHelper::integrateByDevice(OpenCL_device &dev, cl_kernel k
 	 */
 
 	const struct WorkGroup group[2] = {
-	        WorkGroup(n_elements, k, arteries(), &art_index),
-	        WorkGroup(n_elements, k, veins(),    &vein_index)
+	        WorkGroup(nArteries(), k, arteries(), &art_index),
+	        WorkGroup(nVeins(),    k, veins(),    &vein_index)
 	};
 
 	try {

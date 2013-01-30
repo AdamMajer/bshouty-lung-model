@@ -27,6 +27,8 @@
 #include "ui_calibratedlg.h"
 #include <limits>
 
+#include <QDebug>
+
 CalibrateDlg::CalibrateDlg(QWidget *parent)
         : QDialog(parent),
           base_model(Model::Middle, Model::SegmentedVesselFlow)
@@ -46,6 +48,10 @@ CalibrateDlg::CalibrateDlg(QWidget *parent)
 
 	value.type = Krc;
 	value.input = base_model.getKrc();
+	calibration_values.push_back(value);
+
+	value.type = CV_diam;
+	value.input = base_model.getResult(Model::CV_Diam_value);
 	calibration_values.push_back(value);
 
 	// loads values from base model
@@ -68,6 +74,7 @@ CalibrateDlg::CalibrateDlg(QWidget *parent)
 	ui->Pal->setText(doubleToString(base_model.getResult(Model::Pal_value)));
 	ui->Ppl->setText(doubleToString(base_model.getResult(Model::Ppl_value)));
 	ui->target_PAPm->setText(doubleToString(base_model.getResult(Model::PAP_value)));
+	ui->cv_target_PAPm->setText(doubleToString(DbSettings::value(calibration_cv_target_papm, 105.0).toDouble()));
 
 	// saved or default ratios
 	config_values.insert(ui->target_rus, QPair<QLatin1String,double>(rus_ratio, 42));
@@ -135,6 +142,7 @@ void CalibrateDlg::accept()
 	                << Model::Krc
 	                << Model::Hct_value
 	                << Model::PA_EVL_value
+	                << Model::CV_Diam_value
 	                << Model::PV_EVL_value
 	                << Model::Vm_value
 	                << Model::Vrv_value
@@ -154,6 +162,7 @@ void CalibrateDlg::accept()
 	}
 
 	DbSettings::setValue(calibration_target_papm, ui->target_PAPm->text().toDouble());
+	DbSettings::setValue(calibration_cv_target_papm, ui->cv_target_PAPm->text().toDouble());
 	QDialog::accept();
 }
 
@@ -177,6 +186,9 @@ void CalibrateDlg::on_calculateButton_clicked()
 			i->target = ui->target_rm->text().toDouble() / 100.0;
 			target_total += i->target;
 			break;
+		case CV_diam:
+			i->target = ui->cv_target_PAPm->text().toDouble();
+			break;
 		}
 	}
 
@@ -186,6 +198,7 @@ void CalibrateDlg::on_calculateButton_clicked()
 		return;
 	}
 
+	cv_calibration_step = 0;
 	setCursor(Qt::WaitCursor);
 
 	ui->calculateButton->setDisabled(true);
@@ -218,14 +231,14 @@ void CalibrateDlg::on_resetButton_clicked()
 void CalibrateDlg::calculationComplete()
 {
 	// calibration loop
-	const QString status_msg = QLatin1String("Calculating ....  [ calibration loop: %2, iteration count: %1 ]");
+	QString status_msg = QLatin1String("%3   [ calibration loop: %2, iteration count: %1 ]");
 	ModelCalcList results = model_runner->output();
 	const int n_iter = results.first().first;
 
 	calibration_loop_no++;
-	ui->status->setText(status_msg
-	                    .arg(n_iter < 50 ? QString::number(n_iter) : QString("NOT converging"))
-	                    .arg(calibration_loop_no));
+	status_msg = status_msg
+	             .arg(n_iter < 50 ? QString::number(n_iter) : QString("NOT converging"))
+	             .arg(calibration_loop_no);
 
 	const Model *m = results.first().second;
 
@@ -238,10 +251,12 @@ void CalibrateDlg::calculationComplete()
 	double pa_diam = base_model.getResult(Model::PA_Diam_value);
 	double pv_diam = base_model.getResult(Model::PV_Diam_value);
 	double krc = base_model.getKrc();
+	double cv_diam = base_model.getResult(Model::CV_Diam_value);
 
 	// display numbers
 	ui->pa_diameter->setText(doubleToString(pa_diam, 9));
 	ui->pv_diameter->setText(doubleToString(pv_diam, 9));
+	ui->cv_diam->setText(doubleToString(cv_diam * 10000, 9));
 	ui->krc->setText(doubleToString(krc, 9));
 
 	ui->pap->setText(doubleToString(pap));
@@ -253,21 +268,55 @@ void CalibrateDlg::calculationComplete()
 
 	bool calibration_complete = true;
 
-	// when ratio correct, get the PAP correct
+	// first, get the PAPm correct
 	double target_pap = ui->target_PAPm->text().toDouble();
 	if (target_pap < 1.0)
 		target_pap = 15.0;
 
-	if (calibration_complete && fabs(pap-target_pap)/target_pap > tlrns) {
+	if (cv_calibration_step <= 0 &&
+	    calibration_complete &&
+	    fabs(pap-target_pap)/target_pap > tlrns) {
+
 		double diff = 1.0 + (target_pap-pap)/target_pap/2.0;
 		pa_diam /= sqrt(diff);
 		pv_diam /= sqrt(diff);
 		krc *= diff;
 
 		calibration_complete = false;
+		cv_calibration_step = 0;
 	}
 
-	// first adjust for the ratio between variables
+	// next, target Corner Vessel target diameter
+	if (calibration_complete) {
+		for(std::list<CalibrationValue>::reverse_iterator i=calibration_values.rbegin();
+		    i!=calibration_values.rend();
+		    i++) {
+
+			if (i->type != CV_diam)
+				continue;
+
+			i->current_value = pap;
+			i->input = cv_diam;
+			i->is_modified = false;
+			break;
+		}
+
+		calibration_complete = cornerVesselCorrection();
+
+		for(std::list<CalibrationValue>::reverse_iterator i=calibration_values.rbegin();
+		    i!=calibration_values.rend();
+		    i++) {
+
+			if (i->type != CV_diam)
+				continue;
+
+			cv_diam = i->input;
+			calibration_complete = calibration_complete && !i->is_modified;
+			break;
+		}
+	}
+
+	// finally, adjust for the ratio between variables
 	if (calibration_complete) {
 		for (std::list<CalibrationValue>::iterator i=calibration_values.begin();
 		     i!=calibration_values.end();
@@ -288,6 +337,8 @@ void CalibrateDlg::calculationComplete()
 				value.input = krc;
 				value.current_value = rm/pvr;
 				break;
+			case CV_diam:
+				continue;
 			}
 
 			value.is_modified = false;
@@ -303,12 +354,17 @@ void CalibrateDlg::calculationComplete()
 			case Krc:
 				krc = new_value.input;
 				break;
+			case CV_diam:
+				continue;
 			}
 
 			*i = new_value;
 
 			calibration_complete = calibration_complete && !value.is_modified;
 		}
+
+		if (!calibration_complete)
+			cv_calibration_step = 0;
 	}
 
 	if (calibration_complete) {
@@ -317,7 +373,7 @@ void CalibrateDlg::calculationComplete()
 		else {
 			ui->calculateButton->setDisabled(false);
 			ui->saveButton->setDisabled(false);
-			ui->status->setText(QLatin1String("Calibration complete."));
+			ui->status->setText(status_msg.arg(QLatin1String("Calibration complete.")));
 			activity_indication_timer.stop();
 
 			QApplication::beep();
@@ -327,10 +383,13 @@ void CalibrateDlg::calculationComplete()
 		}
 	} // if (calibration_complete)
 
+	ui->status->setText(status_msg.arg("Calculating ...."));
+
 	resetBaseModel();
 	base_model.setKrFactors(krc);
 	base_model.setData(Model::PA_Diam_value, pa_diam);
 	base_model.setData(Model::PV_Diam_value, pv_diam);
+	base_model.setData(Model::CV_Diam_value, cv_diam);
 	model_runner->deleteLater();
 	model_runner = new AsyncRangeModelHelper(base_model, this);
 	connect(model_runner, SIGNAL(calculationComplete()),
@@ -457,6 +516,70 @@ struct CalibrationValue CalibrateDlg::correctVariable(const CalibrationValue &va
 	}
 
 	return v;
+}
+
+bool CalibrateDlg::cornerVesselCorrection()
+{
+	// Corner vessel correction is a multi-step process.
+	//   1. close capillaries, recalculate
+	//   2. adjust cv_diam until target PAPm is met
+	//   3. reopen capillaries and recalculate
+
+	qDebug() << "CV:" << cv_calibration_step;
+	if (cv_calibration_step == -1) {
+		// calibration is complete
+		return true;
+	}
+
+	if (cv_calibration_step == 0) {
+		// close all capillary vessels in the model
+		setCapillaryState(Capillary_Closed);
+		cv_calibration_step = 1;
+		return false;
+	}
+
+	/* capillaries closed and recalculated, get closer to target */
+
+	// find corner vessel calibration values, they should be closer to back
+	std::list<CalibrationValue>::reverse_iterator cv_iter;
+	for (cv_iter=calibration_values.rbegin(); cv_iter!=calibration_values.rend(); cv_iter++) {
+		if (cv_iter->type == CV_diam)
+			break;
+	}
+	if (cv_iter == calibration_values.rend())
+		return true;
+
+	CalibrationValue &cv = *cv_iter;
+	if (fabs(cv.target - cv.current_value)/cv.target > tlrns) {
+		const double diff_percent = 1.0 + (cv.target - cv.current_value)/cv.target/2.0;
+		cv.input /= sqrt(diff_percent);
+		cv.is_modified = true;
+
+		qDebug() << "calibration adjustment:" << diff_percent;
+	}
+	else {
+		// reopen capillaries
+		qDebug() << "calibration finished";
+		setCapillaryState(Capillary_Auto);
+		cv_calibration_step = -1;
+	}
+
+	// even if calibration is complete, we need to recalculate for open
+	// capillaries before continuing
+	return false;
+}
+
+void CalibrateDlg::setCapillaryState(CapillaryState state)
+{
+	int n_caps = base_model.numCapillaries();
+	for (int i=0; i<n_caps; i++) {
+		Capillary c = base_model.capillary(i);
+		if (c.open_state == state)
+			continue;
+
+		c.open_state = state;
+		base_model.setCapillary(i, c);
+	}
 }
 
 void CalibrateDlg::resetBaseModel()

@@ -94,7 +94,7 @@ bool operator==(const struct Capillary &a, const struct Capillary &b)
 Model::Model(Transducer transducer_pos, IntegralType int_type)
 {
 	n_iterations = 0;
-	vessel_value_override.resize(nElements()*2 + numCapillaries(), false);
+	vessel_value_override.resize(numArteries() + numVeins() + numCapillaries(), false);
 
 	arteries = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numArteries());
 	veins = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numVeins());
@@ -135,6 +135,7 @@ Model::Model(Transducer transducer_pos, IntegralType int_type)
 	PA_diam = calibrationValue(PA_Diam_value);
 	PV_EVL = calibrationValue(PV_EVL_value);
 	PV_diam = calibrationValue(PV_Diam_value);
+	cv_diam_ratio = calibrationValue(CV_Diam_value);
 
 	CI = CO/BSAz();
 	integral_type = int_type;
@@ -211,6 +212,7 @@ Model& Model::operator =(const Model &other)
 	PA_diam = other.PA_diam;
 	PV_EVL = other.PV_EVL;
 	PV_diam = other.PV_diam;
+	cv_diam_ratio = other.cv_diam_ratio;
 
 	modified_flag = other.modified_flag;
 	model_reset = other.model_reset;
@@ -274,13 +276,18 @@ int Model::nVessels(Vessel::Type vessel_type,
 		}
 	}
 
-	if (gen_no > (unsigned)nGenerations())
-		return 0;
 
 	switch (vessel_type) {
 	case Vessel::Artery:
+		// includes corner vessels, same as last vessels
+		if (gen_no == 17)
+			gen_no = 16;
+		if (gen_no > 16)
+			break;
 		return artery_number[gen_no-1];
 	case Vessel::Vein:
+		if (gen_no > 16)
+			break;
 		return vein_number[gen_no-1];
 	}
 
@@ -288,7 +295,7 @@ int Model::nVessels(Vessel::Type vessel_type,
 }
 
 double Model::measuredDiameterRatio(Vessel::Type vessel_type,
-                                    unsigned gen_no)
+                                    unsigned gen_no) const
 {
 	static double artery_ratios[16], vein_ratios[16];
 
@@ -303,8 +310,14 @@ double Model::measuredDiameterRatio(Vessel::Type vessel_type,
 
 	switch (vessel_type) {
 	case Vessel::Artery:
+		if (gen_no == 17)
+			return cv_diam_ratio;
+		if (gen_no > 16)
+			break;
 		return artery_ratios[gen_no-1];
 	case Vessel::Vein:
+		if (gen_no > 16)
+			break;
 		return vein_ratios[gen_no-1];
 	}
 
@@ -331,8 +344,14 @@ double Model::measuredLengthRatio(Vessel::Type vessel_type,
 
 	switch (vessel_type) {
 	case Vessel::Artery:
+		if (gen_no == 17)
+			gen_no = 16; // corner vessels, same as last gen vessels
+		if (gen_no > 16)
+			break;
 		return artery_ratios[gen_no-1];
 	case Vessel::Vein:
+		if (gen_no > 16)
+			break;
 		return vein_ratios[gen_no-1];
 	}
 
@@ -411,7 +430,7 @@ void Model::setVein(int gen, int index, const Vessel & v, bool override)
 		throw "Out of bounds";
 
 	const int idx = index + startIndex(gen);
-	const int o_idx = nElements() + idx;
+	const int o_idx = numArteries() + idx;
 
 	veins[idx] = v;
 	vessel_value_override[o_idx] = vessel_value_override[o_idx] || override;
@@ -423,7 +442,7 @@ void Model::setCapillary(int index, const Capillary & c, bool override)
 	if( index < 0 || index >= nElements( 16 ))
 		throw "Out of bounds";
 
-	const int c_idx = index + nElements()*2;
+	const int c_idx = index + numArteries() + numVeins();
 
 	caps[ index ] = c;
 	vessel_value_override[c_idx] = vessel_value_override[c_idx] || override;
@@ -487,6 +506,8 @@ double Model::getResult(DataType type) const
 		return PV_EVL;
 	case PV_Diam_value:
 		return PV_diam;
+	case CV_Diam_value:
+		return cv_diam_ratio * PA_diam;
 
 	case Krc:
 		return Krc_factor;
@@ -629,6 +650,14 @@ bool Model::setData(DataType type, double val)
 			return true;
 		}
 		break;
+	case CV_Diam_value:
+		if (significantChange(cv_diam_ratio*PA_diam, val)) {
+			cv_diam_ratio = val / PA_diam;
+			initVesselBaselineResistances();
+			modified_flag = true;
+			return true;
+		}
+		break;
 	case Ptp_value:
 	case PAP_value:
 	case Rus_value:
@@ -734,6 +763,25 @@ int Model::calc( int max_iter )
 
 	n_iterations = 0;
 
+	// save artery/vein resistances, in case we need sane values after
+	// lung geometry change later on
+	std::vector<double> artery_r, vein_r;
+
+	const int n_arteries = numArteries(), n_veins = numVeins();
+	artery_r.reserve(n_arteries);
+	vein_r.reserve(n_veins);
+
+	for (int i=0; i<n_arteries; ++i)
+		artery_r.push_back(arteries[i].R);
+	for (int i=0; i<n_veins; ++i)
+		vein_r.push_back(veins[i].R);
+
+	/* It is possible that the last capillary that is opened results in all
+	 * capilaries to be closed. To remedy this situation, we allow for the
+	 * final opened capillary to be re-closed once more
+	 */
+	bool final_open = false;
+
 	do {
 		cap_difference = 0;
 		int iters = 0;
@@ -741,6 +789,11 @@ int Model::calc( int max_iter )
 		do {
 			qDebug() << "---- Iteration: " << iters << " -> " << n_iterations;
 			qDebug() << "PAPm: " << getResult(Model::PAP_value);
+
+			// Calculate total resistances for each element
+			if (isinf(totalResistance(0)))
+				break;
+
 			vascPress();
 
 			int iter_prog = 10000*iters/max_iter;
@@ -748,8 +801,7 @@ int Model::calc( int max_iter )
 				prog = iter_prog;
 
 			n_iterations++;
-		} while ((!isinf(caps[capillary_pivot_pos].R) || capillary_pivot_size<=1 || iters<1) &&
-		         !deltaR() &&
+		} while (!deltaR() &&
 		         (++iters < max_iter) &&
 		         abort_calculation==0);
 
@@ -759,22 +811,27 @@ int Model::calc( int max_iter )
 		 * This basically turns into a binary-search problem trying
 		 * to determine how many capillaries are really open
 		 */
+#if 0  /* temporary disabled to investigate corner vessels */
 		if (Pal > 0.0) {
 			capillary_pivot_size /= 2;
-			// FIXME: nan for resistance should not happen.
+
 			if (isinf(caps[capillary_pivot_pos].R)) {
 				// close half of available capillaries
-				//capillary_pivot_pos += capillary_pivot_size;
+				if (capillary_pivot_size == 0 && final_open) {
+					qDebug() << "Final was opened. Increase size to 1 to close";
+					capillary_pivot_size = 1;
+				}
+
 				qDebug() << "Closing : " << capillary_pivot_size;
 				for (int i=capillary_pivot_pos;
 				     i<capillary_pivot_pos+capillary_pivot_size;
 				     ++i) {
 
 					caps[i].R = std::numeric_limits<double>::infinity();
-					caps[i].open_state = 1;
+					caps[i].open_state = Capillary_Closed;
 
 					caps[i+right_lung_offset].R = std::numeric_limits<double>::infinity();
-					caps[i+right_lung_offset].open_state = 1;
+					caps[i+right_lung_offset].open_state = Capillary_Closed;
 				}
 				capillary_pivot_pos += capillary_pivot_size;
 
@@ -782,30 +839,46 @@ int Model::calc( int max_iter )
 				     i<capillary_pivot_pos+capillary_pivot_size;
 				     ++i) {
 
-					caps[i].R = calibrationValue(Model::Krc);
-					caps[i+right_lung_offset].R = calibrationValue(Model::Krc);
+					caps[i].R = calibrationValue(Model::Krc) * 10.0;
+					caps[i+right_lung_offset].R = calibrationValue(Model::Krc) * 10.0;
 				}
 
 				cap_difference = capillary_pivot_size;
+				final_open = false;
 			}
 			else if (capillary_pivot_pos > 0 &&
-			         artery(16, capillary_pivot_pos-1).pressure_out > Pal) {
+			         artery(16, capillary_pivot_pos-1).pressure_out*cmH2O_per_mmHg > Pal) {
 				// check if pressure would cause vessels higher
 				// than current pivot point to open
 				qDebug() << "Opening: " << capillary_pivot_size;
 
 				capillary_pivot_pos -= capillary_pivot_size;
 				for (int i=0; i<capillary_pivot_size; ++i) {
-					caps[capillary_pivot_pos+i].open_state = 0;
-					caps[capillary_pivot_pos+i].R = calibrationValue(Model::Krc);
+					caps[capillary_pivot_pos+i].open_state = Capillary_Auto;
+					caps[capillary_pivot_pos+i].R = calibrationValue(Model::Krc) * 10.0;
 
-					caps[capillary_pivot_pos+i+right_lung_offset].open_state = 0;
-					caps[capillary_pivot_pos+i+right_lung_offset].R = calibrationValue(Model::Krc);
+					caps[capillary_pivot_pos+i+right_lung_offset].open_state = Capillary_Auto;
+					caps[capillary_pivot_pos+i+right_lung_offset].R = calibrationValue(Model::Krc) * 10.0;
 				}
 
 				cap_difference = capillary_pivot_size;
+				if (capillary_pivot_size == 1) {
+					qDebug() << "##FINAL##";
+					final_open = true;
+				}
+			}
+
+			if (cap_difference > 0) {
+				// reset vessel resistances to sane values
+				// after geometry change
+				for (int i=0; i<n_arteries; ++i)
+					arteries[i].R = artery_r.at(i);
+				for (int i=0; i<n_veins; ++i)
+					veins[i].R = vein_r.at(i);
 			}
 		}
+#endif
+
 	} while (cap_difference > 0);
 
 	partialR(Vessel::Artery, 0);
@@ -970,7 +1043,10 @@ double Model::calibrationValue(DataType type)
 		return 1.357877245;
 
 	case Model::Krc:
-		return 342.753065860;
+		return 344.764245830;
+	case Model::CV_Diam_value:
+		//return 0.000460733;
+		return 0.00024777758917739494;
 
 	case Model::Ptp_value:
 	case Model::PAP_value:
@@ -993,40 +1069,45 @@ void Model::getParameters()
 	 *
 	 * Adjust length basedon Ptp
 	 */
-	int n = nElements();
+	int n = numArteries();
 	for (int i=0; i<n; i++) {
 		Vessel &art = arteries[i];
-		Vessel &vein = veins[i];
 
 		if (isOutsideLung(i)) {
 			art.perivascular_press_a = 0.0;
 			art.perivascular_press_b = 0.0;
 			art.perivascular_press_c = 0.0;
-
-			vein.perivascular_press_a = 0.0;
-			vein.perivascular_press_b = 0.0;
-			vein.perivascular_press_c = 0.0;
 		}
 		else {
 			art.perivascular_press_a = 15.0 - 0.2*art.Ptp;
 			art.perivascular_press_b = -16.0 - 0.2*art.Ptp;
 			art.perivascular_press_c = -0.013 - 0.0002*art.Ptp;
+		}
 
+		art.length *= art.length_factor;
+	}
+
+	n = numVeins();
+	for (int i=0; i<n; i++) {
+		Vessel &vein = veins[i];
+
+		if (isOutsideLung(i)) {
+			vein.perivascular_press_a = 0.0;
+			vein.perivascular_press_b = 0.0;
+			vein.perivascular_press_c = 0.0;
+		}
+		else {
 			vein.perivascular_press_a = 12.0 - 0.1*vein.Ptp;
 			vein.perivascular_press_b = -12.0 - 0.2*vein.Ptp;
 			vein.perivascular_press_c = -0.020 - 0.0002*vein.Ptp;
 		}
 
-		art.length *= art.length_factor;
 		vein.length *= vein.length_factor;
 	}
 }
 
 void Model::vascPress()
 {
-	// Calculate total resistances for each element
-	totalResistance( 0 );
-
 	// Calculate Flow (Q) and then Pressure (P) for each resistance
 	veins[0].flow = CO;
 	arteries[0].flow = CO;
@@ -1045,9 +1126,15 @@ double Model::totalResistance(int i)
 	// get current generation and determine if this is final generation
 	int gen = gen_no( i );
 	if( gen == nGenerations()){
-		double R = arteries[i].R + caps[i-startIndex(gen)].R + veins[i].R;
+		int c_idx = i - startIndex(gen);
+		int cv_idx = c_idx + startIndex(17);
+		double R = arteries[i].R +
+		           1.0 / (1.0/caps[c_idx].R + 1.0/arteries[cv_idx].R) +
+		           veins[i].R;
 		arteries[i].total_R = R;
 		veins[i].total_R = R;
+		if (isnan(R))
+			throw "ERROR";
 
 		return R;
 	}
@@ -1075,6 +1162,10 @@ double Model::totalResistance(int i)
 
 	arteries[i].total_R = R_tot;
 	veins[i].total_R = R_tot;
+
+	if (isnan(R_tot))
+		throw "ERROR";
+
 	return R_tot;
 }
 
@@ -1148,6 +1239,17 @@ void Model::calculateChildrenFlowPress( int i )
 					veins[i].pressure_out = veins[i].pressure_in;
 			}
 		}
+
+		// calculate flow in the corner vessel
+		int c_idx = i - current_gen_start;
+		int cv_idx = c_idx + startIndex(gen+1);
+		arteries[cv_idx].pressure_out = veins[i].pressure_in;
+		arteries[cv_idx].pressure_in = arteries[i].pressure_out;
+		double cap_flow = (arteries[i].pressure_out - veins[i].pressure_in) / caps[c_idx].R;
+		double cv_flow_max = std::max(0.0, arteries[i].flow - cap_flow);
+		arteries[cv_idx].flow = std::min(cv_flow_max,
+		                                 (arteries[cv_idx].pressure_in - arteries[cv_idx].pressure_out)
+		                                 / arteries[cv_idx].R);
 
 		return;
 	}
@@ -1266,7 +1368,8 @@ double Model::deltaCapillaryResistance( int i )
 	const double Pout = 1.35951002636 * con_vein.pressure_in;
 	Capillary & cap = caps[i];
 
-	if (cap.open_state == 1) {
+	switch (cap.open_state) {
+	case Capillary_Closed:
 		cap.last_delta_R = 0.0;
 
 		if (isinf(cap.R))
@@ -1274,12 +1377,15 @@ double Model::deltaCapillaryResistance( int i )
 
 		cap.R = std::numeric_limits<double>::infinity();
 		return 1.0;
+
+	case Capillary_Auto:
+		break;
 	}
 
 	double x = Pout - Pal;
 	double y = Pin - Pal;
 	const double deltaP = Pin - Pout;
-	const double Rz = getKrc() * BSA_ratio * nElements(16) / nElements(16);
+	const double Rz = getKrc() * BSA_ratio;
 
 	// constant so the function is continuous and equal to Rz at x=25, y>=25
 	const double K = 4.0*cap.Alpha*(sqr(cap.Ho) +
@@ -1291,13 +1397,17 @@ double Model::deltaCapillaryResistance( int i )
 	//   cap.R = y/con_artery.flow - x/con_artery.flow;
 	cap.R = std::numeric_limits<double>::infinity();
 
-
 	if( x < 0 ){
 		if( y > 0 ) {
 			double scaling = 25.0 / std::max(25.0, y);
 			y = std::min(25.0, y);
 			cap.R = deltaP*Rz*K*scaling/(sqr(sqr(cap.Ho+cap.Alpha*y)) -
 			                             sqr(sqr(cap.Ho)));
+		}
+		else {
+			// infinite resistance
+			cap.last_delta_R = 0.0;
+			return 0.0;
 		}
 	}
 	else if( x < 25 ){
@@ -1308,14 +1418,13 @@ double Model::deltaCapillaryResistance( int i )
 		cap.R = (y-x)*Rz*K/(sqr(sqr(cap.Ho+cap.Alpha*y)) -
 		                    sqr(sqr(cap.Ho+cap.Alpha*x)));
 	}
-	else { // x >= 25
+	else { // x >= 0
 		cap.R = Rz;
 
 		if( y < 25 )
 			throw "Internal capillary resistance error 2";
 	}
 
-	// Cap delta_R to 200% increase, unless the vessel is going to be really closed
 	cap.last_delta_R = fabs(cap.R-Ri)/Ri;
 	return cap.last_delta_R; // return different from target tolerance
 }
@@ -1328,7 +1437,7 @@ bool Model::deltaR()
 	double max_deviation = integration_helper->integrate();
 
 	// calculate resistances of capillaries
-	int n = nElements( nGenerations());
+	int n = numCapillaries();
 	QVector<int> v(n);
 	for( int i=0; i<n; i++ ) {
 		v[i] = i;
@@ -1370,8 +1479,12 @@ void Model::initVesselBaselineCharacteristics()
 		arteries[i].c = 0;
 		arteries[i].tone = 0;
 
-		arteries[i].vessel_ratio = static_cast<double>(nElements(gen_no(i))) /
-		                        nVessels(Vessel::Artery, gen_no(i));
+		int gen = gen_no(i);
+		int n_arteries = nElements(gen);
+		if (gen > 16)
+			n_arteries = nElements(16);
+		arteries[i].vessel_ratio = static_cast<double>(n_arteries) /
+		                        nVessels(Vessel::Artery, gen);
 	}
 
 	const int num_veins = numVeins();
@@ -1407,11 +1520,11 @@ void Model::initVesselBaselineResistances()
 	BSA_ratio = BSAz() / BSA(PatHt, PatWt);
 	const double cKrc = getKrc() * BSA_ratio;
 	for (int i=0; i<nCapillaries; i++) {
-		if (vessel_value_override[nElements()*2 + i])
+		if (vessel_value_override[numArteries() + numVeins() + i])
 			continue;
 
 		caps[i].R = cKrc;
-		caps[i].open_state = 0;
+		caps[i].open_state = Capillary_Auto;
 	}
 }
 
@@ -1420,6 +1533,11 @@ void Model::initVesselBaselineResistances(int gen)
 	// Get starting index and number of elements in the generation
 	int start_index = startIndex( gen );
 	int num_elements = nElements( gen );
+
+	bool is_corner_vessel = (gen == 17);
+	if (is_corner_vessel) {
+		num_elements = nElements(16);
+	}
 	int n = num_elements + start_index;
 
 	// Initialize elements in Arteries and Veins
@@ -1456,7 +1574,7 @@ void Model::initVesselBaselineResistances(int gen)
 			arteries[i].volume = 1e-9 * M_PI/4.0*art_d*art_d*arteries[i].length / art_ratio;
 		}
 
-		if (!vessel_value_override[n_arteries+i]) {
+		if (!is_corner_vessel && !vessel_value_override[n_arteries+i]) {
 			const double vein_d = 1e4 * PV_diam * measuredDiameterRatio(Vessel::Vein, gen);
 			veins[i].length = 1e4 * PV_EVL * measuredLengthRatio(Vessel::Vein, gen);
 			veins[i].D = vein_d;
@@ -1465,28 +1583,33 @@ void Model::initVesselBaselineResistances(int gen)
 			veins[i].volume = 1e-9 * M_PI/4.0*vein_d*vein_d*veins[i].length / vein_ratio;
 		}
 
-		// GP was calculated with GP=0 being top of lung
-		// then corrected based on transducer position
-		// GPz is a fraction of lung height
-		int gp_gen = gen;
-		int effective_ngen = 16-1;
-		if (gen > 1) {
-			gp_gen--;
-			vessel_no %= nElements(gp_gen);
+		if (!is_corner_vessel) {
+			// GP was calculated with GP=0 being top of lung
+			// then corrected based on transducer position
+			// GPz is a fraction of lung height
+			int gp_gen = gen;
+			int effective_ngen = 16-1;
+			if (gen > 1) {
+				gp_gen--;
+				vessel_no %= nElements(gp_gen);
+			}
+
+			const double GPz = (vessel_no*exp((effective_ngen-gp_gen+1)*M_LN2)+
+			                 exp((effective_ngen-gp_gen)*M_LN2)-1) /
+			                (exp((effective_ngen)*M_LN2) - 2);
+
+			if (!vessel_value_override[i])
+				arteries[i].GPz = GPz;
+			if (!vessel_value_override[n_arteries+i])
+				veins[i].GPz = GPz;
 		}
-
-		const double GPz = (vessel_no*exp((effective_ngen-gp_gen+1)*M_LN2)+
-		                 exp((effective_ngen-gp_gen)*M_LN2)-1) /
-		                (exp((effective_ngen)*M_LN2) - 2);
-
-		if (!vessel_value_override[i])
-			arteries[i].GPz = GPz;
-		if (!vessel_value_override[n_arteries+i])
-			veins[i].GPz = GPz;
+		else {
+			arteries[i].GPz = arteries[i-nElements(16)].GPz;
+		}
 	}
 
-	// Initialize more generations, if they exist
-	if( gen < nGenerations())
+	// Initialize more generations, if they exist, including corner vessels
+	if( gen <= nGenerations())
 		initVesselBaselineResistances(gen+1);
 }
 
@@ -1497,51 +1620,70 @@ void Model::calculateBaselineCharacteristics()
 	 * as well as global Ppl and Pal
 	 */
 
-	const int n = nElements();
-	for (int i=0; i<n; ++i) {
+	const int num_arteries = numArteries();
+	const int num_veins = numVeins();
+	for (int i=0; i<num_arteries; ++i) {
 		Vessel &art = arteries[i];
-		Vessel &vein = veins[i];
 
 		switch (trans_pos) {
 		case Top:
 			art.GP = -art.GPz*LungHt;
-			vein.GP = -vein.GPz*LungHt;
 			break;
 		case Middle:
 			art.GP = LungHt/2 - art.GPz*LungHt;
-			vein.GP = LungHt/2 - vein.GPz*LungHt;
 			break;
 		case Bottom:
 			art.GP = LungHt-art.GPz*LungHt;
-			vein.GP = LungHt-vein.GPz*LungHt;
 			break;
 		}
 
 		// for every 1 cmH2O GP, Ppl changes by 0.55
 		art.Ppl = Ppl - 0.55*art.GP;
 		art.Ptp = Pal - art.Ppl;
-		vein.Ppl = Ppl - 0.55*vein.GP;
-		vein.Ptp = Pal - vein.Ppl;
 
 		if (art.Ptp < 0)
 			art.Ptp = 0;
+
+		if (isOutsideLung(i)) {
+			art.length_factor = 1.0;
+		}
+		else {
+			art.length_factor = lengthFactor(art);
+		}
+	}
+
+	for (int i=0; i<num_veins; ++i) {
+		Vessel &vein = veins[i];
+
+		switch (trans_pos) {
+		case Top:
+			vein.GP = -vein.GPz*LungHt;
+			break;
+		case Middle:
+			vein.GP = LungHt/2 - vein.GPz*LungHt;
+			break;
+		case Bottom:
+			vein.GP = LungHt-vein.GPz*LungHt;
+			break;
+		}
+
+		// for every 1 cmH2O GP, Ppl changes by 0.55
+		vein.Ppl = Ppl - 0.55*vein.GP;
+		vein.Ptp = Pal - vein.Ppl;
+
 		if (vein.Ptp < 0)
 			vein.Ptp = 0;
 
 		if (isOutsideLung(i)) {
-			art.length_factor = 1.0;
 			vein.length_factor = 1.0;
 		}
 		else {
-			art.length_factor = lengthFactor(art);
 			vein.length_factor = lengthFactor(vein);
 		}
 	}
 
 	// Initialize capillaries
 	const int num_capillaries = numCapillaries();
-	const int num_arteries = numArteries();
-	const int num_veins = numVeins();
 	const int start_offset = startIndex(16);
 	for (int i=0; i<num_capillaries; i++) {
 		const Vessel &connected_vessel = arteries[i+start_offset];
@@ -1636,6 +1778,7 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(Hct);
 	SET_VALUE(PA_EVL);
 	SET_VALUE(PV_EVL);
+	SET_VALUE(cv_diam_ratio);
 
 	SET_VALUE(Vm);
 	SET_VALUE(Vrv);
@@ -1680,10 +1823,10 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	q.exec("DELETE FROM vessel_values WHERE offset=" + QString::number(offset));
 	q.prepare("INSERT INTO vessel_values (type, vessel_idx, key, offset, value) "
 	          "VALUES (?, ?, ?, ?, ?)");
-	int n_elements = nElements();
 	for (int type=1; type<=2; ++type) {
+		int n_elements = (type==1 ? numArteries() : numVeins());
 		for (int n=0; n<n_elements; ++n) {
-			const int override_offset = (type==1 ? n : nElements()+n);
+			const int override_offset = (type==1 ? n : numArteries()+n);
 			const Vessel &v = (type==1 ? arteries[n] : veins[n]);
 
 			if (!vessel_value_override[override_offset])
@@ -1742,11 +1885,11 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 		}
 	}
 
-	n_elements = nElements(16);
+	int n_caps = numCapillaries();
 	values.clear();
 
-	for (int n=0; n<n_elements; ++n) {
-		const int override_offset = nElements()*2+n;
+	for (int n=0; n<n_caps; ++n) {
+		const int override_offset = numArteries() + numVeins() + n;
 		const Capillary &cap = caps[n];
 
 		if (!vessel_value_override[override_offset])
@@ -1829,6 +1972,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(Hct);
 	SET_VALUE(PA_EVL);
 	SET_VALUE(PV_EVL);
+	SET_VALUE(cv_diam_ratio);
 
 	SET_VALUE(Vm);
 	SET_VALUE(Vrv);
@@ -1887,6 +2031,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	GET_VALUE(Hct);
 	GET_VALUE(PA_EVL);
 	GET_VALUE(PV_EVL);
+	GET_VALUE(cv_diam_ratio);
 
 	GET_VALUE(Vm);
 	GET_VALUE(Vrv);
@@ -1922,7 +2067,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			vessel_idx.push_back(saved_elements.value(0).toInt());
 
 		foreach (int n, vessel_idx) {
-			const int override_offset = (type==1 ? n : nElements()+n);
+			const int override_offset = (type==1 ? n : numArteries()+n);
 			Vessel &v = (type==1 ? arteries[n] : veins[n]);
 
 			vessel_value_override[override_offset] = true;
@@ -2025,7 +2170,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	foreach (int n, vessel_idx) {
 		Capillary &cap = caps[n];
 
-		vessel_value_override[nElements()*2+n] = true;
+		vessel_value_override[numArteries()+numVeins()+n] = true;
 
 		SET_VALUE(cap.R);
 		SET_VALUE(cap.Ho);

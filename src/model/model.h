@@ -65,6 +65,11 @@ struct Vessel
 	double cacheline_padding[4]; // padding to 256-byte cacheline boundary
 };
 
+enum CapillaryState {
+	Capillary_Auto,
+	Capillary_Closed
+};
+
 struct Capillary
 {
 	double R;
@@ -72,7 +77,7 @@ struct Capillary
 	double Alpha;
 
 	double last_delta_R;
-	qint64 open_state; // 0-automatic, 1-closed
+	qint64 open_state; // CapillaryState enum
 
 	double cacheline_padding[27];
 };
@@ -100,7 +105,8 @@ public:
 	                TotalR_value,
 	                Krc,
 	                Hct_value, PA_EVL_value, PA_Diam_value, PV_EVL_value, PV_Diam_value,
-		        Gender_value,
+	                Gender_value,
+	                CV_Diam_value,
 	                CO_value = Flow_value,
 	                DiseaseParam = 0xFFFF
 	};
@@ -131,8 +137,7 @@ public:
 
 	// Number of real vessels
 	int nVessels(Vessel::Type vessel_type, unsigned gen_no) const;
-
-	static double measuredDiameterRatio(Vessel::Type vessel_type, unsigned gen_no);
+	double measuredDiameterRatio(Vessel::Type vessel_type, unsigned gen_no) const;
 	static double measuredLengthRatio(Vessel::Type vessel_type, unsigned gen_no);
 
 	// starting index of first element in generation n
@@ -177,7 +182,7 @@ public:
 	static double BSA(double pat_ht, double pat_wt);
 	static double idealWeight(Gender gender, double pat_ht);
 
-	int numArteries() const { return nElements(); }
+	int numArteries() const { return nElements() + numCapillaries(); }
 	int numVeins() const { return nElements(); }
 	int numCapillaries() const { return nElements(nGenerations()); }
 
@@ -287,6 +292,7 @@ private:
 
 	/* Calibration constants */
 	double Krc_factor;
+	double cv_diam_ratio;
 
 	IntegralType integral_type;
 };

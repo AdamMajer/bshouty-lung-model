@@ -42,7 +42,8 @@ protected:
 	bool isOutsideLung(int vessel_idx) const { return model->isOutsideLung(vessel_idx); }
 	Vessel* arteries() { return model->arteries; }
 	Vessel* veins() { return model->veins; }
-	int nElements() const { return model->nElements(); }
+	int nArteries() const { return model->numArteries(); }
+	int nVeins() const { return model->numVeins(); }
 	int index(int gen, int idx) const { return model->startIndex(gen)+idx; }
 	double Hct() const { return model->Hct; }
 	double Tlrns() const { return model->Tlrns; }
