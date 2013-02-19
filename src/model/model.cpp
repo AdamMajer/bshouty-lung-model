@@ -762,26 +762,7 @@ int Model::calc( int max_iter )
 		model_reset = false;
 	}
 
-	int capillary_pivot_pos = 0;
-	int capillary_pivot_size = numCapillaries()/2; // same operation to 2 lungs!
-	const int right_lung_offset = numCapillaries()/2;
-	int cap_difference;
-
 	n_iterations = 0;
-
-	// save artery/vein resistances, in case we need sane values after
-	// lung geometry change later on
-	std::vector<double> artery_r, vein_r;
-
-	const int n_arteries = numArteries(), n_veins = numVeins();
-	artery_r.reserve(n_arteries);
-	vein_r.reserve(n_veins);
-
-	for (int i=0; i<n_arteries; ++i)
-		artery_r.push_back(arteries[i].R);
-	for (int i=0; i<n_veins; ++i)
-		vein_r.push_back(veins[i].R);
-
 	/* It is possible that the last capillary that is opened results in all
 	 * capilaries to be closed. To remedy this situation, we allow for the
 	 * final opened capillary to be re-closed once more
