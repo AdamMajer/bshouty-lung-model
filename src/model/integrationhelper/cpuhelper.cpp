@@ -115,7 +115,7 @@ double CpuIntegrationHelper::capillaryResistance(Capillary &cap)
 	 */
 	double Ptma;
 
-	if (cap.flow < 1e-50) {
+	if (isnan(cap.flow) || isnan(Ptmv) || cap.flow < 1e-50) {
 		// flow is 0, Ptma == Ptmv, R is unchanged
 		Ptma = Ptmv;
 		cap.last_delta_R = 0.0;
