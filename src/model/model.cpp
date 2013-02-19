@@ -786,7 +786,6 @@ int Model::calc( int max_iter )
 	 * capilaries to be closed. To remedy this situation, we allow for the
 	 * final opened capillary to be re-closed once more
 	 */
-	bool final_iteration = false;
 	QThreadPool *thread_pool = QThreadPool::globalInstance();
 	int ideal_thread_count = thread_pool->maxThreadCount();
 	if (ideal_thread_count<=1) {
@@ -798,110 +797,20 @@ int Model::calc( int max_iter )
 	}
 
 	do {
-		cap_difference = 0;
-		int iters = 0;
+		qDebug() << "---- Iteration: " << n_iterations << " -> " << n_iterations;
+		qDebug() << "PAPm: " << getResult(Model::PAP_value);
 
-		do {
-			qDebug() << "---- Iteration: " << iters << " -> " << n_iterations;
-			qDebug() << "PAPm: " << getResult(Model::PAP_value);
+		totalResistance(0, ideal_thread_count);
+		vascPress(ideal_thread_count);
 
-			totalResistance(0, ideal_thread_count);
-			// Calculate total resistances for each element
-			/*
-			if (iters>5 && (isinf(totalResistance(0)) ||
-			    (Pal > 0.0 && isinf(caps[capillary_pivot_pos].R))))
-				break;
-*/
-			vascPress(ideal_thread_count);
+		int iter_prog = 10000*n_iterations/max_iter;
+		if (prog < iter_prog)
+			prog = iter_prog;
 
-			int iter_prog = 10000*iters/max_iter;
-			if (prog < iter_prog)
-				prog = iter_prog;
-
-			n_iterations++;
-		} while (!deltaR(ideal_thread_count) &&
-		         (++iters < max_iter) &&
-		         abort_calculation==0);
-
-		/* When pressure into the capillaries is lower than Pal, all
-		 * capillaries will close. To fix this problem, we must manually
-		 * force-close capillaries to prevent them from oscillation.
-		 * This basically turns into a binary-search problem trying
-		 * to determine how many capillaries are really open
-		 */
-#if 0
-		/* temporary disabled to investigate corner vessels */
-		if (Pal > 0.0) {
-			capillary_pivot_size /= 2;
-
-			if (isinf(caps[capillary_pivot_pos].R)) {
-				// close half of available capillaries
-				if (capillary_pivot_size == 0 && final_iteration) {
-					qDebug() << "Final was opened. Increase size to 1 to close";
-					capillary_pivot_size = 1;
-				}
-
-				qDebug() << "Closing : " << capillary_pivot_size;
-				for (int i=capillary_pivot_pos;
-				     i<capillary_pivot_pos+capillary_pivot_size;
-				     ++i) {
-
-					caps[i].R = std::numeric_limits<double>::infinity();
-					caps[i].open_state = Capillary_Closed;
-
-					caps[i+right_lung_offset].R = std::numeric_limits<double>::infinity();
-					caps[i+right_lung_offset].open_state = Capillary_Closed;
-				}
-				capillary_pivot_pos += capillary_pivot_size;
-
-				for (int i=capillary_pivot_pos;
-				     i<capillary_pivot_pos+capillary_pivot_size;
-				     ++i) {
-
-					caps[i].R = calibrationValue(Model::Krc) * 10.0;
-					caps[i+right_lung_offset].R = calibrationValue(Model::Krc) * 10.0;
-				}
-
-				cap_difference = capillary_pivot_size;
-				if (capillary_pivot_size == 1 && !final_iteration) {
-					qDebug() << "##FINAL@@";
-					final_iteration = true;
-				}
-			}
-			else if (capillary_pivot_pos > 0 &&
-			         artery(16, capillary_pivot_pos-1).pressure_out*cmH2O_per_mmHg > Pal) {
-				// check if pressure would cause vessels higher
-				// than current pivot point to open
-				qDebug() << "Opening: " << capillary_pivot_size;
-
-				capillary_pivot_pos -= capillary_pivot_size;
-				for (int i=0; i<capillary_pivot_size; ++i) {
-					caps[capillary_pivot_pos+i].open_state = Capillary_Auto;
-					caps[capillary_pivot_pos+i].R = calibrationValue(Model::Krc) * 10.0;
-
-					caps[capillary_pivot_pos+i+right_lung_offset].open_state = Capillary_Auto;
-					caps[capillary_pivot_pos+i+right_lung_offset].R = calibrationValue(Model::Krc) * 10.0;
-				}
-
-				cap_difference = capillary_pivot_size;
-				if (capillary_pivot_size == 1 && !final_iteration) {
-					qDebug() << "##FINAL##";
-					final_iteration = true;
-				}
-			}
-
-			if (cap_difference > 0) {
-				// reset vessel resistances to sane values
-				// after geometry change
-				for (int i=0; i<n_arteries; ++i)
-					arteries[i].R = artery_r.at(i);
-				for (int i=0; i<n_veins; ++i)
-					veins[i].R = vein_r.at(i);
-			}
-		}
-#endif
-
-	} while (cap_difference > 0);
+		n_iterations++;
+	} while (!deltaR(ideal_thread_count) &&
+	         (n_iterations < max_iter) &&
+	         abort_calculation==0);
 
 	partialR(Vessel::Artery, 0);
 	partialR(Vessel::Vein, 0);
