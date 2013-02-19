@@ -51,7 +51,7 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 		int nElements = m.nElements(gen);
 		int n = m.startIndex(gen);
 
-		double cell_scaling_factor = 1.0/exp2(gen);
+		double cell_scaling_factor = 0.1/exp2(gen);
 		bool final_generation = (gen == m.nGenerations());
 
 		for (int i=0; i<nElements; ++i, ++n) {
@@ -110,7 +110,7 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 			}
 			else {
 				// Add connecting items to next generation
-				double y_offset = (gen==1) ? 20.0 : 0.0;
+				double y_offset = (gen==1) ? 200.0 : 0.0;
 
 				VesselConnectionView *art_con = new VesselConnectionView(VesselView::Artery, gen, i, y_offset);
 				VesselConnectionView *vein_con = new VesselConnectionView(VesselView::Vein, gen, i, y_offset);
@@ -129,7 +129,7 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 
 
 		// Adjust offsets for next generation
-		x_offset += 100.0 * cell_scaling_factor;
+		x_offset += 1000.0 * cell_scaling_factor;
 		y_offset /= 2.0;
 	}
 

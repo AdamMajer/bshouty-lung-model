@@ -38,7 +38,7 @@ CapillaryView::~CapillaryView()
 
 QRectF CapillaryView::boundingRect() const
 {
-	return QRectF(QPointF(80,25), QSizeF(240,150));
+	return QRectF(QPointF(800,250), QSizeF(2400,1500));
 }
 
 void CapillaryView::paint(QPainter *painter,
@@ -61,31 +61,42 @@ void CapillaryView::paint(QPainter *painter,
 	painter->fillPath(path, Qt::white);
 
 	// Draw rectangle to display text in the middle
-	if (lod > 0.5) {
-		QRectF textRect = boundingRect().adjusted(20, 10, -20, -10);
+	if (lod > 0.05) {
+		QRectF textRect = boundingRect().adjusted(200, 100, -200, -100);
 		double offset = textRect.width()/3;
 		double line_height = painter->fontMetrics().lineSpacing();
 
 		QString h = headers(lod*2);
 		QFont font = painter->font();
-		double scale_factor = textRect.height() / ((h.count(QLatin1Char('\n')) + 4) * line_height);
+		qDebug("line count: %d vs. %f", h.count(QLatin1Char('\n')), line_height);
+		double scale_factor = textRect.height() / ((h.count(QLatin1Char('\n')) + 2) * line_height);
+		qDebug("factor: %f - size %f", scale_factor, font.pointSizeF());
 
 		if (font.pointSizeF() < 0)
 			font.setPixelSize(font.pixelSize() * scale_factor);
 		else
 			font.setPointSizeF(font.pointSizeF() * scale_factor);
+		line_height *= scale_factor;
 		painter->setFont(font);
+
+		qDebug("factor: %f - size %f", scale_factor, font.pointSizeF());
 
 		painter->drawRect(textRect);
 		painter->fillRect(textRect, QColor(255, 255, 255, 220));
 		textRect.adjust(0, 0, -offset*2, 0);
-		painter->drawText(textRect.adjusted(offset, line_height, offset, 0), baselineValuesText(lod*2));
-		painter->drawText(textRect.adjusted(offset*2, line_height, offset*2, 0), calculatedValuesText(lod*2));
+		painter->drawText(textRect.adjusted(offset, line_height*1.5, offset, 0),
+		                  baselineValuesText(lod*2));
+		painter->drawText(textRect.adjusted(offset*2, line_height*1.5, offset*2, 0),
+		                  calculatedValuesText(lod*2));
 
 		font.setBold(true);
-		painter->drawText(textRect, headers(lod*2));
-		painter->drawText(textRect.adjusted(offset, 0, offset, 0), "Baseline");
-		painter->drawText(textRect.adjusted(offset*2, 0, offset*2, 0), "Calculated");
+		painter->setFont(font);
+		painter->drawText(textRect.adjusted(0, line_height*0.5, 0, 0),
+		                  headers(lod*2));
+		painter->drawText(textRect.adjusted(offset, 0, offset, 0),
+		                  "Baseline");
+		painter->drawText(textRect.adjusted(offset*2, 0, offset*2, 0),
+		                  "Calculated");
 	}
 }
 
@@ -96,11 +107,11 @@ bool CapillaryView::contains(const QPointF &point) const
 
 void CapillaryView::setupPath()
 {
-	path.moveTo(80, 100);
-	QRectF r(80, 25, 30, 150);
+	path.moveTo(800, 1000);
+	QRectF r(800, 250, 300, 1500);
 
-	QRectF vessel_view(4, 0, 30, 30);
-	for (int x=80; x<80+240; x+=50)
-		for (int y=25 + (((x-80)%100>0)?30:0); y<25+150; y+=60)
+	QRectF vessel_view(40, 0, 300, 300);
+	for (int x=800; x<800+2400; x+=500)
+		for (int y=250 + (((x-800)%1000>0)?300:0); y<250+1500; y+=600)
 			path.addEllipse(vessel_view.adjusted(x, y, x, y));
 }

@@ -142,7 +142,7 @@ void VesselView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 		return;
 
 	/* Drawing area is 100x96 */
-	QPen p(penColor(option), 3.2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
+	QPen p(penColor(option), 32, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
 	if (generation() ==1)
 		// round cap is only on the left side of 1st
 		p.setCapStyle(Qt::RoundCap);
@@ -172,7 +172,7 @@ void VesselView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	painter->scale(lod/2, lod/2);
 	draw_area = painter->transform().inverted().mapRect(draw_area);
 
-	if (lod > 0.5) {
+	if (lod > 0.05) {
 		double offset = draw_area.width()/3;
 		draw_area.adjust(0, 0, -offset*2, 0);
 		QFont font = painter->font();
@@ -201,18 +201,18 @@ void VesselView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 		painter->setFont(font);
 		line_height = painter->fontMetrics().lineSpacing();
 
-		painter->drawText(draw_area.adjusted(offset, line_height*4, offset, 0),
+		painter->drawText(draw_area.adjusted(offset, line_height*3, offset, 0),
 		                  baselineValuesText(lod),
 		                  to);
-		painter->drawText(draw_area.adjusted(offset*2, line_height*4, offset*2, 0),
+		painter->drawText(draw_area.adjusted(offset*2, line_height*3, offset*2, 0),
 		                  calculatedValuesText(lod),
 		                  to);
 
 		font.setBold(true);
 		painter->setFont(font);
-		painter->drawText(draw_area.adjusted(0,line_height*3,0,0), header_str, to);
-		painter->drawText(draw_area.adjusted(offset,line_height*3,offset,0), "Baseline", to);
-		painter->drawText(draw_area.adjusted(offset*2,line_height*3,offset*2,0), "Calculated", to);
+		painter->drawText(draw_area.adjusted(0,line_height*2,0,0), header_str, to);
+		painter->drawText(draw_area.adjusted(offset,line_height*2,offset,0), "Baseline", to);
+		painter->drawText(draw_area.adjusted(offset*2,line_height*2,offset*2,0), "Calculated", to);
 	}
 }
 
@@ -237,7 +237,7 @@ QString VesselView::headers(Type type, bool) const
 		                         "GP\nPTP\nTone\nFlow (μL/s)\nPin\nPout\n\n"
 		                         "Length (μm)\nD0 (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)");
 	case Capillary:
-		return QLatin1String("\nR\nAlpha\nHo\n- - -") + headers(Artery, false);
+		return QLatin1String("\nR\nAlpha\nHo\nFlow\n- - -") + headers(Artery, false);
 	case CornerVessel:
 	case Connection:
 		break;
@@ -293,6 +293,7 @@ QString VesselView::baselineValuesText(Type type, bool) const
 		value_list << doubleToString(baseline_cap->R);
 		value_list << doubleToString(baseline_cap->Alpha);
 		value_list << doubleToString(baseline_cap->Ho);
+		value_list << QString::null;
 		value_list << "- - - ";
 		value_list << baselineValuesText(CornerVessel, false);
 		break;
@@ -350,6 +351,7 @@ QString VesselView::calculatedValuesText(Type type, bool) const
 		value_list << doubleToString(cap->R);
 		value_list << doubleToString(cap->Alpha);
 		value_list << doubleToString(cap->Ho);
+		value_list << doubleToString(cap->flow * 1e6/60); // L/min => uL/s
 		value_list << " - - -";
 		value_list << calculatedValuesText(CornerVessel, false);
 		break;
@@ -363,12 +365,12 @@ QString VesselView::calculatedValuesText(Type type, bool) const
 
 void VesselView::setupPath()
 {
-	top = QLineF(QPointF(20,32*2), QPointF(80,32*2));
-	bottom = QLineF(QPointF(20,64*2), QPointF(80,64*2));
+	top = QLineF(QPointF(200,320*2), QPointF(800,320*2));
+	bottom = QLineF(QPointF(200,640*2), QPointF(800,640*2));
 
-	fill = QRectF(QPointF(20, 32*2), QPointF(80, 64*2));
+	fill = QRectF(QPointF(200, 320*2), QPointF(800, 640*2));
 	if (generation() == 1)
-		fill.adjust(-1.6, 0, 1, 0);
+		fill.adjust(-16, 0, 10, 0);
 	else
-		fill.adjust(-1, 0, 1, 0);
+		fill.adjust(-10, 0, 10, 0);
 }

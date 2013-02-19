@@ -34,7 +34,7 @@ VesselConnectionView::~VesselConnectionView()
 
 QRectF VesselConnectionView::boundingRect() const
 {
-	return QRectF(QPointF(80,16*2-5-y_split), QPointF(110,80*2+5+y_split));
+	return QRectF(QPointF(800,160*2-50-y_split), QPointF(1100,800*2+50+y_split));
 }
 
 void VesselConnectionView::paint(QPainter *painter,
@@ -77,7 +77,7 @@ void VesselConnectionView::paint(QPainter *painter,
 	                   << QGradientStop(0.55, semi_transparent_color)
 	                   << QGradientStop(1, transparent_color));
 
-	painter->setPen(QPen(penColor(option), 3.2/2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
+	painter->setPen(QPen(penColor(option), 32/2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 	painter->drawPath(path);
 
 	if (isClearBg()) {
@@ -91,26 +91,26 @@ void VesselConnectionView::paint(QPainter *painter,
 
 void VesselConnectionView::setupPath()
 {
-	path.moveTo(QPointF(80,32*2-3.2/4.0)); // draw bottom arm outline
-	path.cubicTo(QPointF(95, 32*2), QPointF(100, 16*2-y_split), QPointF(110,16*2-y_split));
-	path.moveTo(QPointF(80,32*2));
-	path.cubicTo(QPointF(95, 32*2), QPointF(100, 16*2-y_split), QPointF(110,16*2-y_split));
+	path.moveTo(QPointF(800,320*2-32/4.0)); // draw bottom arm outline
+	path.cubicTo(QPointF(950, 320*2), QPointF(1000, 160*2-y_split), QPointF(1100,160*2-y_split));
+	path.moveTo(QPointF(800,320*2));
+	path.cubicTo(QPointF(950, 320*2), QPointF(1000, 160*2-y_split), QPointF(1100,160*2-y_split));
 
-	path.moveTo(QPointF(80,64*2+3.2/4.0)); // draw top arm outline
-	path.cubicTo(QPointF(95, 64*2), QPointF(100, 80*2+y_split), QPointF(110,80*2+y_split));
+	path.moveTo(QPointF(800,640*2+32/4.0)); // draw top arm outline
+	path.cubicTo(QPointF(950, 640*2), QPointF(1000, 800*2+y_split), QPointF(1100,800*2+y_split));
 
-	path.moveTo(QPointF(110,32*2-y_split)); // middle
-	path.cubicTo(QPointF(105, 32*2-y_split), QPointF(95, 48*2), QPointF(85,48*2));
-	path.cubicTo(QPointF(95, 48*2), QPointF(100, 64*2+y_split), QPointF(110,64*2+y_split));
+	path.moveTo(QPointF(1100,320*2-y_split)); // middle
+	path.cubicTo(QPointF(1050, 320*2-y_split), QPointF(950, 480*2), QPointF(850,480*2));
+	path.cubicTo(QPointF(950, 480*2), QPointF(1000, 640*2+y_split), QPointF(1100,640*2+y_split));
 
 
-	fill.moveTo(QPointF(80,32*2));
-	fill.cubicTo(QPointF(95, 32*2), QPointF(100, 16*2-y_split), QPointF(110,16*2-y_split));
-	fill.lineTo(QPointF(110,32*2-y_split));
-	fill.cubicTo(QPointF(105, 32*2-y_split), QPointF(95, 48*2), QPointF(85,48*2));
-	fill.cubicTo(QPointF(95, 48*2), QPointF(100, 64*2+y_split), QPointF(110,64*2+y_split));
-	fill.lineTo(QPointF(110, 80*2+y_split));
-	fill.cubicTo(QPointF(100, 80*2+y_split), QPointF(95, 64*2), QPointF(80,64*2));
+	fill.moveTo(QPointF(800,320*2));
+	fill.cubicTo(QPointF(950, 320*2), QPointF(1000, 160*2-y_split), QPointF(1100,160*2-y_split));
+	fill.lineTo(QPointF(1100,320*2-y_split));
+	fill.cubicTo(QPointF(1050, 320*2-y_split), QPointF(950, 480*2), QPointF(850,480*2));
+	fill.cubicTo(QPointF(950, 480*2), QPointF(1000, 640*2+y_split), QPointF(1100,640*2+y_split));
+	fill.lineTo(QPointF(1100, 800*2+y_split));
+	fill.cubicTo(QPointF(1000, 800*2+y_split), QPointF(950, 640*2), QPointF(800,640*2));
 	fill.closeSubpath();
 
 //	path_top.lineTo(points[5]);

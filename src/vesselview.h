@@ -41,7 +41,7 @@ public:
 	           const Vessel *b_cv=0, const Vessel *cv=0);
 	~VesselView();
 
-	double minLOD() const { return 0.025; }
+	double minLOD() const { return 0.0025; }
 	int generation() const { return gen; }
 	int vesselIndex() const { return idx; }
 	virtual int type() const { return v_type; }
