@@ -24,8 +24,9 @@
 #include <math.h>
 
 
-CapillaryView::CapillaryView(const ::Capillary *baseline, const ::Capillary *cap, int idx)
-        : VesselView(baseline, cap, VesselView::Capillary, -1, idx)
+CapillaryView::CapillaryView(const ::Capillary *baseline, const ::Capillary *cap,
+                             const ::Vessel *cv_baseline, const ::Vessel *cv, int idx)
+        : VesselView(baseline, cap, VesselView::Capillary, -1, idx, cv_baseline, cv)
 {
 	setupPath();
 }
@@ -65,15 +66,23 @@ void CapillaryView::paint(QPainter *painter,
 		double offset = textRect.width()/3;
 		double line_height = painter->fontMetrics().lineSpacing();
 
+		QString h = headers(lod*2);
+		QFont font = painter->font();
+		double scale_factor = textRect.height() / ((h.count(QLatin1Char('\n')) + 4) * line_height);
+
+		if (font.pointSizeF() < 0)
+			font.setPixelSize(font.pixelSize() * scale_factor);
+		else
+			font.setPointSizeF(font.pointSizeF() * scale_factor);
+		painter->setFont(font);
+
 		painter->drawRect(textRect);
 		painter->fillRect(textRect, QColor(255, 255, 255, 220));
 		textRect.adjust(0, 0, -offset*2, 0);
 		painter->drawText(textRect.adjusted(offset, line_height, offset, 0), baselineValuesText(lod*2));
 		painter->drawText(textRect.adjusted(offset*2, line_height, offset*2, 0), calculatedValuesText(lod*2));
 
-		QFont font = painter->font();
 		font.setBold(true);
-		painter->setFont(font);
 		painter->drawText(textRect, headers(lod*2));
 		painter->drawText(textRect.adjusted(offset, 0, offset, 0), "Baseline");
 		painter->drawText(textRect.adjusted(offset*2, 0, offset*2, 0), "Calculated");

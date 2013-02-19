@@ -38,6 +38,7 @@
 #include <limits>
 
 #include <QSettings>
+#include <QTime>
 
 /* No accuracy benefit above 128. Speed is not compromised at 128 (on 16 core machine!) */
 const int nSums = 128; // number of divisions in the integral
@@ -390,7 +391,7 @@ double Model::idealWeight(Gender gender, double pat_ht)
 
 const Vessel& Model::artery( int gen, int index ) const
 {
-	if( gen <= 0 || index < 0 || gen > 16 || index >= nElements( gen ))
+	if( gen <= 0 || index < 0 || gen > 17 || index >= nElements( gen ))
 		throw "Out of bounds";
 
 	return arteries[ index + startIndex( gen )];
@@ -414,7 +415,7 @@ const Capillary& Model::capillary( int index ) const
 
 void Model::setArtery(int gen, int index, const Vessel & v, bool override)
 {
-	if( gen <= 0 || index < 0 || gen > 16 || index >= nElements( gen ))
+	if( gen <= 0 || index < 0 || gen > 17 || index >= nElements( gen ))
 		throw "Out of bounds";
 
 	const int idx = index + startIndex(gen);
@@ -443,8 +444,13 @@ void Model::setCapillary(int index, const Capillary & c, bool override)
 		throw "Out of bounds";
 
 	const int c_idx = index + numArteries() + numVeins();
-
 	caps[ index ] = c;
+
+	caps[index].F = 1.0 + 25*caps[index].Alpha;
+	caps[index].F3 = caps[index].F*caps[index].F*caps[index].F;
+	caps[index].F4 = caps[index].F*caps[index].F*caps[index].F*caps[index].F;
+	caps[index].Krc = Krc_factor;
+
 	vessel_value_override[c_idx] = vessel_value_override[c_idx] || override;
 	modified_flag = true;
 }
@@ -780,7 +786,16 @@ int Model::calc( int max_iter )
 	 * capilaries to be closed. To remedy this situation, we allow for the
 	 * final opened capillary to be re-closed once more
 	 */
-	bool final_open = false;
+	bool final_iteration = false;
+	QThreadPool *thread_pool = QThreadPool::globalInstance();
+	int ideal_thread_count = thread_pool->maxThreadCount();
+	if (ideal_thread_count<=1) {
+		thread_pool->reserveThread();
+		thread_pool->reserveThread();
+		thread_pool->reserveThread();
+		thread_pool->reserveThread();
+		ideal_thread_count=4;
+	}
 
 	do {
 		cap_difference = 0;
@@ -790,18 +805,21 @@ int Model::calc( int max_iter )
 			qDebug() << "---- Iteration: " << iters << " -> " << n_iterations;
 			qDebug() << "PAPm: " << getResult(Model::PAP_value);
 
+			totalResistance(0, ideal_thread_count);
 			// Calculate total resistances for each element
-			if (isinf(totalResistance(0)))
+			/*
+			if (iters>5 && (isinf(totalResistance(0)) ||
+			    (Pal > 0.0 && isinf(caps[capillary_pivot_pos].R))))
 				break;
-
-			vascPress();
+*/
+			vascPress(ideal_thread_count);
 
 			int iter_prog = 10000*iters/max_iter;
 			if (prog < iter_prog)
 				prog = iter_prog;
 
 			n_iterations++;
-		} while (!deltaR() &&
+		} while (!deltaR(ideal_thread_count) &&
 		         (++iters < max_iter) &&
 		         abort_calculation==0);
 
@@ -811,13 +829,14 @@ int Model::calc( int max_iter )
 		 * This basically turns into a binary-search problem trying
 		 * to determine how many capillaries are really open
 		 */
-#if 0  /* temporary disabled to investigate corner vessels */
+#if 0
+		/* temporary disabled to investigate corner vessels */
 		if (Pal > 0.0) {
 			capillary_pivot_size /= 2;
 
 			if (isinf(caps[capillary_pivot_pos].R)) {
 				// close half of available capillaries
-				if (capillary_pivot_size == 0 && final_open) {
+				if (capillary_pivot_size == 0 && final_iteration) {
 					qDebug() << "Final was opened. Increase size to 1 to close";
 					capillary_pivot_size = 1;
 				}
@@ -844,7 +863,10 @@ int Model::calc( int max_iter )
 				}
 
 				cap_difference = capillary_pivot_size;
-				final_open = false;
+				if (capillary_pivot_size == 1 && !final_iteration) {
+					qDebug() << "##FINAL@@";
+					final_iteration = true;
+				}
 			}
 			else if (capillary_pivot_pos > 0 &&
 			         artery(16, capillary_pivot_pos-1).pressure_out*cmH2O_per_mmHg > Pal) {
@@ -862,9 +884,9 @@ int Model::calc( int max_iter )
 				}
 
 				cap_difference = capillary_pivot_size;
-				if (capillary_pivot_size == 1) {
+				if (capillary_pivot_size == 1 && !final_iteration) {
 					qDebug() << "##FINAL##";
-					final_open = true;
+					final_iteration = true;
 				}
 			}
 
@@ -1038,15 +1060,14 @@ double Model::calibrationValue(DataType type)
 	case Model::PV_EVL_value:
 		return 5.0;
 	case Model::PA_Diam_value:
-		return 1.078647510;
+		return 1.078684028;
 	case Model::PV_Diam_value:
-		return 1.357877245;
+		return 1.358196542;
 
 	case Model::Krc:
-		return 344.764245830;
+		return 217116.065107119;
 	case Model::CV_Diam_value:
-		//return 0.000460733;
-		return 0.00024777758917739494;
+		return 0.0002672574699;
 
 	case Model::Ptp_value:
 	case Model::PAP_value:
@@ -1106,7 +1127,7 @@ void Model::getParameters()
 	}
 }
 
-void Model::vascPress()
+void Model::vascPress(int ideal_threads)
 {
 	// Calculate Flow (Q) and then Pressure (P) for each resistance
 	veins[0].flow = CO;
@@ -1118,10 +1139,10 @@ void Model::vascPress()
 	veins[0].pressure_in = LAP + veins[0].flow * veins[0].R;
 	veins[0].pressure_out = LAP;
 
-	calculateChildrenFlowPress( 0 );
+	calculateChildrenFlowPress(0, ideal_threads);
 }
 
-double Model::totalResistance(int i)
+double Model::totalResistance(int i, int ideal_threads)
 {
 	// get current generation and determine if this is final generation
 	int gen = gen_no( i );
@@ -1133,8 +1154,6 @@ double Model::totalResistance(int i)
 		           veins[i].R;
 		arteries[i].total_R = R;
 		veins[i].total_R = R;
-		if (isnan(R))
-			throw "ERROR";
 
 		return R;
 	}
@@ -1146,9 +1165,21 @@ double Model::totalResistance(int i)
 	int connection_first = (i - current_gen_start) * 2 + next_gen_start;
 
 	// Add the connecting resistances in parallel
-	// TODO: parallelize
-	const double R1 = totalResistance(connection_first);
-	const double R2 = totalResistance(connection_first+1);
+	double R1, R2;
+	if (ideal_threads > 1) {
+		QFuture<double> r1 = QtConcurrent::run(this, &Model::totalResistance,
+		                                       connection_first, ideal_threads/2);
+		QFuture<double> r2 = QtConcurrent::run(this, &Model::totalResistance,
+		                                       connection_first+1, ideal_threads/2);
+
+		R1 = r1.result();
+		R2 = r2.result();
+	}
+	else {
+		R1 = totalResistance(connection_first, ideal_threads/2);
+		R2 = totalResistance(connection_first+1, ideal_threads/2);
+	}
+
 	double R_tot;
 
 	if (isinf(R1) && isinf(R2))
@@ -1162,9 +1193,6 @@ double Model::totalResistance(int i)
 
 	arteries[i].total_R = R_tot;
 	veins[i].total_R = R_tot;
-
-	if (isnan(R_tot))
-		throw "ERROR";
 
 	return R_tot;
 }
@@ -1214,7 +1242,7 @@ double Model::partialR(Vessel::Type type, int i)
 	return total_R;
 }
 
-void Model::calculateChildrenFlowPress( int i )
+void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 {
 	int gen = gen_no( i );
 	int current_gen_start = startIndex( gen );
@@ -1245,12 +1273,15 @@ void Model::calculateChildrenFlowPress( int i )
 		int cv_idx = c_idx + startIndex(gen+1);
 		arteries[cv_idx].pressure_out = veins[i].pressure_in;
 		arteries[cv_idx].pressure_in = arteries[i].pressure_out;
-		double cap_flow = (arteries[i].pressure_out - veins[i].pressure_in) / caps[c_idx].R;
-		double cv_flow_max = std::max(0.0, arteries[i].flow - cap_flow);
+
+		caps[c_idx].pressure_in = cmH2O_per_mmHg*arteries[i].pressure_out - Pal;
+		caps[c_idx].pressure_out = cmH2O_per_mmHg*veins[i].pressure_in - Pal;
+		caps[c_idx].flow = (arteries[i].pressure_out - veins[i].pressure_in) / caps[c_idx].R;
+
+		double cv_flow_max = std::max(0.0, arteries[i].flow - caps[c_idx].flow);
 		arteries[cv_idx].flow = std::min(cv_flow_max,
 		                                 (arteries[cv_idx].pressure_in - arteries[cv_idx].pressure_out)
 		                                 / arteries[cv_idx].R);
-
 		return;
 	}
 
@@ -1301,8 +1332,21 @@ void Model::calculateChildrenFlowPress( int i )
 
 	// Now, calculate the same thing for child generations
 	// TODO: parallelize
-	calculateChildrenFlowPress( connection_first );
-	calculateChildrenFlowPress( connection_first+1 );
+	if (ideal_threads>1) {
+		QFuture<void> f1 = QtConcurrent::run(
+		                           this, &Model::calculateChildrenFlowPress,
+		                           connection_first, ideal_threads/2);
+		QFuture<void> f2 = QtConcurrent::run(
+		                           this, &Model::calculateChildrenFlowPress,
+		                           connection_first+1, ideal_threads/2);
+
+		f1.waitForFinished();
+		f2.waitForFinished();
+	}
+	else {
+		calculateChildrenFlowPress(connection_first, 0);
+		calculateChildrenFlowPress(connection_first+1, 0);
+	}
 
 	// Calculate 'backward' pressure for static flow vessels since a block
 	for( int con=connection_first; con<=connection_first+1; con++ ){
@@ -1351,108 +1395,34 @@ void Model::calculateChildrenFlowPress( int i )
 		}
 
 		if (redo_branch)
-			calculateChildrenFlowPress(con);
+			calculateChildrenFlowPress(con, ideal_threads);
 	}
 }
 
-double Model::deltaCapillaryResistance( int i )
-{
-	const int gen_start = startIndex( nGenerations());
-	const Vessel & con_artery = arteries[gen_start+i];
-	const Vessel & con_vein = veins[gen_start+i];
-
-	if (isnan(con_artery.pressure_out) || isnan(con_vein.pressure_in)) {
-		// pressure is undefined, no flow
-		return 0;
-	}
-
-	const double Ri = caps[i].R;
-	const double Pin = 1.35951002636 * con_artery.pressure_out; // convert pressures from mmHg => cmH20
-	const double Pout = 1.35951002636 * con_vein.pressure_in;
-	Capillary & cap = caps[i];
-
-	switch (cap.open_state) {
-	case Capillary_Closed:
-		cap.last_delta_R = 0.0;
-
-		if (isinf(cap.R))
-			return 0.0;
-
-		cap.R = std::numeric_limits<double>::infinity();
-		return 1.0;
-
-	case Capillary_Auto:
-		break;
-	}
-
-	double x = Pout - Pal;
-	double y = Pin - Pal;
-	const double deltaP = Pin - Pout;
-	const double Rz = getKrc() * BSA_ratio;
-
-	// constant so the function is continuous and equal to Rz at x=25, y>=25
-	const double K = 4.0*cap.Alpha*(sqr(cap.Ho) +
-	                                3*75*cap.Alpha*(25.0*25.0/3.0*sqr(cap.Alpha) +
-	                                                cap.Ho*(25.0+cap.Ho)));
-
-	// capillary closed if x<0 && y<0. This gets reset to different value
-	// for other conditions. Old formula was not continuous
-	//   cap.R = y/con_artery.flow - x/con_artery.flow;
-	cap.R = std::numeric_limits<double>::infinity();
-
-	if( x < 0 ){
-		if( y > 0 ) {
-			double scaling = 25.0 / std::max(25.0, y);
-			y = std::min(25.0, y);
-			cap.R = deltaP*Rz*K*scaling/(sqr(sqr(cap.Ho+cap.Alpha*y)) -
-			                             sqr(sqr(cap.Ho)));
-		}
-		else {
-			// infinite resistance
-			cap.last_delta_R = 0.0;
-			return 0.0;
-		}
-	}
-	else if( x < 25 ){
-		if( y < 0 )
-			throw "Internal capillary resistance error 1";
-
-		y = std::min(y, 25.0);
-		cap.R = (y-x)*Rz*K/(sqr(sqr(cap.Ho+cap.Alpha*y)) -
-		                    sqr(sqr(cap.Ho+cap.Alpha*x)));
-	}
-	else { // x >= 0
-		cap.R = Rz;
-
-		if( y < 25 )
-			throw "Internal capillary resistance error 2";
-	}
-
-	cap.last_delta_R = fabs(cap.R-Ri)/Ri;
-	return cap.last_delta_R; // return different from target tolerance
-}
-
-bool Model::deltaR()
+bool Model::deltaR(int ideal_threads)
 {
 	// integrate resistance of veins and arteries
-	QFutureSynchronizer<double> results;
+	double max_vessel_deviation = integration_helper->integrate();
+	double max_cap_deviation = integration_helper->capillaryResistances();
+	int cap_iteration = 0;
 
-	double max_deviation = integration_helper->integrate();
+	qDebug() << "   max vessel deltaR: " << max_vessel_deviation;
+	qDebug() << "   max cap deltaR:    " << max_cap_deviation;
+	while (max_cap_deviation/max_vessel_deviation > 20.0 && cap_iteration < 500) {
+		// unstable capillaries, simply adjust flow and recalculate
+		// capillaries until deviation is reduced.
+		vascPress(ideal_threads);
+		max_cap_deviation = integration_helper->capillaryResistances();
+		cap_iteration++;
 
-	// calculate resistances of capillaries
-	int n = numCapillaries();
-	QVector<int> v(n);
-	for( int i=0; i<n; i++ ) {
-		v[i] = i;
-		results.addFuture(QtConcurrent::run(this, &Model::deltaCapillaryResistance, v[i]));
+		qDebug() << "    +++++  max cap deltaR: " << max_cap_deviation;
 	}
 
-	const QList<QFuture<double> > &result_futures = results.futures();
-	foreach (const QFuture<double> &i, result_futures)
-		max_deviation = std::max(i.result(), max_deviation);
+	qDebug() << "   max cap deltaR: " << max_cap_deviation;
 
-	qDebug() << "   max cap deltaR: " << max_deviation;
-
+	// do not end iterations when capillaries are still ununstable
+	double max_deviation = std::max(cap_iteration>0 ? Tlrns*100.0 : 0.0,
+	                                std::max(max_vessel_deviation, max_cap_deviation));
 	int estimated_progression = 10000;
 	for (double md=max_deviation; md>Tlrns && estimated_progression>0;) {
 		estimated_progression /= 2;
@@ -1688,6 +1658,9 @@ void Model::calculateBaselineCharacteristics()
 	// Initialize capillaries
 	const int num_capillaries = numCapillaries();
 	const int start_offset = startIndex(16);
+
+	Capillary cap;
+	cap.Ho = 2.5;
 	for (int i=0; i<num_capillaries; i++) {
 		const Vessel &connected_vessel = arteries[i+start_offset];
 		if (vessel_value_override[num_arteries + num_veins + i])
@@ -1695,8 +1668,9 @@ void Model::calculateBaselineCharacteristics()
 
 		double cap_ppl = Ppl - 0.55*connected_vessel.GP;
 		double cap_ptp = Pal - cap_ppl;
-		caps[i].Alpha = 0.073+0.2*exp(-0.141*cap_ptp);
-		caps[i].Ho = 2.5;
+		cap.Alpha = 0.073+0.2*exp(-0.141*cap_ptp);
+
+		setCapillary(i, cap, false);
 	}
 }
 
@@ -2171,9 +2145,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 		vessel_idx.push_back(saved_elements.value(0).toInt());
 
 	foreach (int n, vessel_idx) {
-		Capillary &cap = caps[n];
-
-		vessel_value_override[numArteries()+numVeins()+n] = true;
+		Capillary cap;
 
 		SET_VALUE(cap.R);
 		SET_VALUE(cap.Ho);
@@ -2198,6 +2170,8 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 		GET_VALUE(cap.R);
 		GET_VALUE(cap.Ho);
 		GET_VALUE(cap.Alpha);
+
+		setCapillary(n, cap);
 
 		progress_value += div_per_vessel;
 		while (progress && progress_value - current_value > 1.0) {

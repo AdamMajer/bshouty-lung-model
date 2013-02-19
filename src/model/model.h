@@ -75,11 +75,20 @@ struct Capillary
 	double R;
 	double Ho;
 	double Alpha;
+	double flow;
+
+	// precalculated values used in ::capillaryResistance() function
+	double F;     // (1.0 + 25.0*cap.Alpha)
+	double F3;    // F^3
+	double F4;    // F^4
+	double Krc;   // Krc_factor
+
+	double pressure_in, pressure_out; // in cmH2O, corrected for GP and Pal
 
 	double last_delta_R;
 	qint64 open_state; // CapillaryState enum
 
-	double cacheline_padding[27];
+	double cacheline_padding[20];
 };
 
 extern bool operator==(const struct Vessel &a, const struct Vessel &b);
@@ -243,15 +252,15 @@ protected:
 
 	void getParameters();
 	// void getKz();
-	void vascPress();
+	void vascPress(int ideal_threads);
 	bool openCapillaryCheck();
 
-	double totalResistance(int i);
+	double totalResistance(int i, int ideal_threads);
 	double partialR(Vessel::Type type, int i);
-	void calculateChildrenFlowPress(int i);
+	void calculateChildrenFlowPress(int i, int ideal_threads);
 
-	double deltaCapillaryResistance(int i);
-	bool deltaR();
+	double calcDeltaCapillaryResistance();
+	bool deltaR(int ideal_threads);
 
 	void initVesselBaselineCharacteristics();
 	void initVesselBaselineResistances();

@@ -35,6 +35,8 @@ public:
 	virtual double segmentedVessels() = 0;
 	virtual double rigidVessels() = 0;
 
+	virtual double capillaryResistances() = 0;
+
 	virtual bool isAvailable() const { return true; }
 	virtual bool hasErrors() const { return false; }
 
@@ -42,8 +44,10 @@ protected:
 	bool isOutsideLung(int vessel_idx) const { return model->isOutsideLung(vessel_idx); }
 	Vessel* arteries() { return model->arteries; }
 	Vessel* veins() { return model->veins; }
+	Capillary* capillaries() { return model->caps; }
 	int nArteries() const { return model->numArteries(); }
 	int nVeins() const { return model->numVeins(); }
+	int nCaps() const { return model->numCapillaries(); }
 	int index(int gen, int idx) const { return model->startIndex(gen)+idx; }
 	double Hct() const { return model->Hct; }
 	double Tlrns() const { return model->Tlrns; }

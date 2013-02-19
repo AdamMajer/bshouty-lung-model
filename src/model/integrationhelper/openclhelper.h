@@ -32,6 +32,9 @@ public:
 
 	virtual double segmentedVessels();
 	virtual double rigidVessels();
+
+	virtual double capillaryResistances() { return 0.0;}
+
 	virtual bool isAvailable() const { return is_available; }
 	virtual bool hasErrors() const { return has_errors; }
 

@@ -31,10 +31,14 @@ public:
 	enum Type { Artery = UserType+1,
 		    Vein = UserType+2,
 		    Capillary = UserType+3,
-		    Connection = UserType+4
+		    Connection = UserType+4,
+
+		    CornerVessel
 	          };
 
-	VesselView(const void *baseline_data, const void *vessel_data, Type type, int gen, int index);
+	VesselView(const void *baseline_data, const void *vessel_data,
+	           Type type, int gen, int index,
+	           const Vessel *b_cv=0, const Vessel *cv=0);
 	~VesselView();
 
 	double minLOD() const { return 0.025; }
@@ -56,8 +60,11 @@ public:
 
 protected:
 	QString headers(double lod) const;
+	QString headers(Type type, bool) const;
 	QString baselineValuesText(double lod) const;
+	QString baselineValuesText(Type type, bool) const;
 	QString calculatedValuesText(double lod) const;
+	QString calculatedValuesText(Type type, bool) const;
 	QString valuesText(const void *s) const;
 	void setupPath();
 
@@ -72,6 +79,7 @@ private:
 
 	const ::Capillary *cap, *baseline_cap;
 	const Vessel *vessel, *baseline_vessel;
+	const Vessel *cv, *baseline_cv;
 	QString vessel_title;
 };
 

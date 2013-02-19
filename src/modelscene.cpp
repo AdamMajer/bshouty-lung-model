@@ -93,6 +93,8 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 				// Add Capillaries
 				CapillaryView *c = new CapillaryView(&baseline.capillary(i),
 				                                     &m.capillary(i),
+				                                     &baseline.artery(m.nGenerations()+1, i),
+				                                     &m.artery(m.nGenerations()+1, i),
 				                                     i);
 
 				c->setTransform(scale * art_offset);
@@ -262,6 +264,7 @@ QRectF ModelScene::vesselRect(VesselView::Type type, int gen, int idx)
 		vessel = caps[idx].v;
 		break;
 	case VesselView::Connection:
+	case VesselView::CornerVessel:
 		break;
 	}
 

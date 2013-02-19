@@ -67,6 +67,152 @@ void CpuIntegrationHelper::integrateWithDimentions(Vessel::Type t,
 	segmentedFlowVessel(v_ptr[index(gen, idx)], &calc_dim);
 }
 
+double CpuIntegrationHelper::capillaryResistances()
+{
+	QFutureSynchronizer<double> threads;
+	int thread_count = QThread::idealThreadCount();
+	if (thread_count < 1)
+		thread_count = 4;
+
+	cap_no = 0;
+
+	while (thread_count--)
+		threads.addFuture(
+		        QtConcurrent::run(this,
+		                &CpuIntegrationHelper::capillaryThread));
+
+	threads.waitForFinished();
+
+	double max_deviation = 0;
+	foreach (QFuture<double> future, threads.futures())
+		max_deviation = qMax(max_deviation, future.result());
+
+	return max_deviation;
+}
+
+double CpuIntegrationHelper::capillaryResistance(Capillary &cap)
+{
+	const double Ri = cap.R;
+	const double & Ptmv = cap.pressure_out;
+
+	switch (cap.open_state) {
+	case Capillary_Closed:
+		cap.last_delta_R = 0.0;
+
+		if (isinf(cap.R))
+			return 0.0;
+
+		cap.R = std::numeric_limits<double>::infinity();
+		return 1.0;
+
+	case Capillary_Auto:
+		break;
+	}
+
+
+	/* Calculate pressure in as a function of constant flow and pressure out.
+	 * Based on this, calculate R
+	 */
+	double Ptma;
+
+	if (cap.flow < 1e-50) {
+		// flow is 0, Ptma == Ptmv, R is unchanged
+		Ptma = Ptmv;
+		cap.last_delta_R = 0.0;
+		return 0.0;
+	}
+	else if (Ptmv >= 25.0) {
+		// entire flow in max opened capillaries
+		Ptma = Ptmv + cap.flow*cap.Krc/cap.F3;
+	}
+	else {
+		const double Fout = sqr(sqr(1+cap.Alpha*std::max(0.0, Ptmv)));
+		const double effective_flow = cap.flow / (1.0 - 0.1 + 0.1*exp(-std::min(-0.0, Ptmv)/(2*5.3*5.3)));
+		Ptma = (sqrt(sqrt(4*cap.Alpha*effective_flow*cap.Krc + Fout)) - 1.0)/cap.Alpha;
+		if (Ptma > 25.0) {
+			// flow in region where part of the capillary is maximally open
+			// and part of it is less than maximally open.
+			Ptma = (effective_flow*cap.Krc - (cap.F4 - Fout)/(4*cap.Alpha))/cap.F3 + 25.0;
+		}
+	}
+
+	if (Ptma < Ptmv)
+		throw "error";
+
+	// calculate effective resistance based on the pressures
+	cap.R = (Ptma - Ptmv) / cap.flow;
+
+	if (Ri > 1e10 && cap.R > Ri && Ptmv < 0) {
+		// capillary is effectively closed
+		cap.R = std::numeric_limits<double>::infinity();
+		cap.last_delta_R = 1.0;
+		return 1.0;
+	}
+
+#if 0
+	double old_P;
+	do {
+		old_P = Ptma;
+		double x = Ptmv - Pal;
+		double y = Ptma - Pal;
+		const double deltaP = Ptma - Ptmv;
+		const double Rz = getKrc() * BSA_ratio;
+
+		// constant so the function is continuous and equal to Rz at x=25, y>=25
+		const double K = 4.0*cap.Alpha*(sqr(cap.Ho) +
+		                                3*75*cap.Alpha*(25.0*25.0/3.0*sqr(cap.Alpha) +
+		                                                cap.Ho*(25.0+cap.Ho)));
+
+		// capillary closed if x<0 && y<0. This gets reset to different value
+		// for other conditions. Old formula was not continuous
+		//   cap.R = y/con_artery.flow - x/con_artery.flow;
+		cap.R = std::numeric_limits<double>::infinity();
+
+		if( x < 0 ){
+			if( y > 0 ) {
+				double scaling = 25.0 / std::max(25.0, y);
+				y = std::min(25.0, y);
+				cap.R = deltaP*Rz*K*scaling/(sqr(sqr(cap.Ho+cap.Alpha*y)) -
+				                             sqr(sqr(cap.Ho)));
+			}
+			else {
+				// infinite resistance
+				cap.last_delta_R = 0.0;
+				return 0.0;
+			}
+		}
+		else if( x < 25 ){
+			if( y < 0 )
+				throw "Internal capillary resistance error 1";
+
+			y = std::min(y, 25.0);
+			cap.R = (y-x)*Rz*K/(sqr(sqr(cap.Ho+cap.Alpha*y)) -
+			                    sqr(sqr(cap.Ho+cap.Alpha*x)));
+		}
+		else { // x >= 0
+			cap.R = Rz;
+
+			if( y < 25 )
+				throw "Internal capillary resistance error 2";
+		}
+
+		if (isnan(cap.R)) {
+			printf("test\n");
+			cap.R = std::numeric_limits<double>::infinity();
+		}
+		Ptma = Ptmv + cap.R*cap.flow;
+	} while (false &&
+	         fabs(Ptma - old_P)/Ptma > Tlrns &&
+	         !isinf(cap.R) &&
+	         cap.flow > 0.0);
+
+	// cap.R = cap.R * 0.2 + Ri * 0.8;
+#endif
+
+	cap.last_delta_R = fabs(cap.R-Ri)/Ri;
+	return cap.last_delta_R; // return different from target tolerance
+}
+
 double CpuIntegrationHelper::rigidFlowVessel(Vessel &v)
 {
 	/* NOTE: calc_dim is assumed empty, if supplied */
@@ -302,7 +448,6 @@ double CpuIntegrationHelper::vesselIntegration(double(CpuIntegrationHelper::* fu
 	foreach (QFuture<double> future, threads.futures())
 		max_deviation = qMax(max_deviation, future.result());
 
-	qDebug("max deviation from CPU integration: %f", max_deviation);
 	return max_deviation;
 }
 
@@ -329,3 +474,20 @@ double CpuIntegrationHelper::vesselIntegrationThread(double (CpuIntegrationHelpe
 
 	return ret;
 }
+
+double CpuIntegrationHelper::capillaryThread()
+{
+	double ret = 0.0;
+	int i;
+
+	int n = nCaps();
+	Capillary *c = capillaries();
+
+	while ((i=cap_no.fetchAndAddOrdered(1024)) < n) {
+		int max_pos = std::min(n, i+1024);
+		for (int j=i; j<max_pos; ++j)
+			ret = std::max(ret, capillaryResistance(c[j]));
+	}
+	return ret;
+}
+

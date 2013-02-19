@@ -607,6 +607,8 @@ void CalibrateDlg::resetBaseModel()
 	for (QMap<Model::DataType,QLineEdit*>::const_iterator i=v.begin(); i!=v.end(); ++i) {
 		base_model.setData(i.key(), i.value()->text().toDouble());
 	}
+
+	base_model.setIntegralType(Model::RigidVesselFlow);
 }
 
 void CalibrateDlg::timerEvent(QTimerEvent *ev)

@@ -24,7 +24,8 @@ struct Capillary;
 class CapillaryView : public VesselView
 {
 public:
-	CapillaryView(const ::Capillary *baseline, const ::Capillary *cap, int idx);
+	CapillaryView(const ::Capillary *baseline, const ::Capillary *cap,
+	               const ::Vessel *cv_baseline, const ::Vessel *cv, int idx);
 	~CapillaryView();
 
 	virtual QRectF boundingRect() const;

@@ -25,10 +25,14 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
+#include <exception>
+
 
 VesselView::VesselView(const void *baseline_data, const void *vessel_or_cap,
-                       VesselView::Type t, int g, int i)
-        : v_type(t), gen(g), idx(i)
+                       VesselView::Type t, int g, int i,
+                       const Vessel *baseline_corner, const Vessel *corner)
+        : v_type(t), gen(g), idx(i),
+          cv(corner), baseline_cv(baseline_corner)
 {
 	setAcceptHoverEvents(true);
 	is_clear_bg = false;
@@ -40,6 +44,10 @@ VesselView::VesselView(const void *baseline_data, const void *vessel_or_cap,
 	case Capillary:
 		cap = static_cast<const ::Capillary*>(vessel_or_cap);
 		baseline_cap = static_cast<const ::Capillary*>(baseline_data);
+
+		// FIXME: use seperate constructor for capillaries and veins
+		if (baseline_cv == NULL || cv == NULL)
+			throw "NULL corner vessels for capillaries";
 		break;
 	case Vein:
 		vessel = static_cast<const ::Vessel*>(vessel_or_cap);
@@ -50,6 +58,7 @@ VesselView::VesselView(const void *baseline_data, const void *vessel_or_cap,
 		baseline_vessel = static_cast<const ::Vessel*>(baseline_data);
 		break;
 	case Connection:
+	case CornerVessel:
 		break;
 	}
 
@@ -76,6 +85,7 @@ QString VesselView::vesselToStringTitle(Type type, int gen, int idx)
 	case Artery:
 		return t.arg(idx_from_bottom).arg(gen_count).arg("Artery").arg(vessel_side);
 	case Connection:
+	case CornerVessel:
 		break;
 	}
 
@@ -167,12 +177,14 @@ void VesselView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 		draw_area.adjust(0, 0, -offset*2, 0);
 		QFont font = painter->font();
 		QTextOption to(Qt::AlignLeft);
+		QString header_str = headers(lod);
 
 		to.setWrapMode(QTextOption::NoWrap);
 
-		// scale the font to allow a minimum of 23 (+4 for title) lines of text to be displayed
 		double line_height = painter->fontMetrics().lineSpacing();
-		double scale_factor = draw_area.height() / (27.0 * line_height);
+		if (type() == Capillary)
+			qDebug() << "# headers" << header_str.count(QLatin1Char('\n'));
+		double scale_factor = draw_area.height() / ((header_str.count(QLatin1Char('\n')) + 4) * line_height);
 
 		if (font.pointSizeF() < 0)
 			font.setPixelSize(font.pixelSize() * scale_factor);
@@ -198,7 +210,7 @@ void VesselView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 		font.setBold(true);
 		painter->setFont(font);
-		painter->drawText(draw_area.adjusted(0,line_height*3,0,0), headers(lod), to);
+		painter->drawText(draw_area.adjusted(0,line_height*3,0,0), header_str, to);
 		painter->drawText(draw_area.adjusted(offset,line_height*3,offset,0), "Baseline", to);
 		painter->drawText(draw_area.adjusted(offset*2,line_height*3,offset*2,0), "Calculated", to);
 	}
@@ -213,14 +225,22 @@ QString VesselView::headers(double lod) const
 {
 	Q_UNUSED(lod);
 
-	switch (type()) {
+	return headers((Type)type(), false);
+}
+
+QString VesselView::headers(Type type, bool) const
+{
+	switch (type) {
 	case Artery:
 	case Vein:
 		return QString::fromUtf8("\nR\nγ\nφ\nC\nPeri. a\nPeri. b\nPeri. c\n\n"
 		                         "GP\nPTP\nTone\nFlow (μL/s)\nPin\nPout\n\n"
 		                         "Length (μm)\nD0 (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)");
 	case Capillary:
-		return QLatin1String("\nR\nAlpha\nHo");
+		return QLatin1String("\nR\nAlpha\nHo\n- - -") + headers(Artery, false);
+	case CornerVessel:
+	case Connection:
+		break;
 	}
 
 	return QString();
@@ -230,38 +250,54 @@ QString VesselView::baselineValuesText(double lod) const
 {
 	Q_UNUSED(lod);
 
-	QStringList value_list;
+	return baselineValuesText((Type)type(), false);
+}
 
-	switch (type()) {
+QString VesselView::baselineValuesText(Type type, bool) const
+{
+	QStringList value_list;
+	const Vessel *v = baseline_vessel;
+
+	if (type == CornerVessel) {
+		v = baseline_cv;
+	}
+
+	switch (type) {
 	case Artery:
 	case Vein:
-		value_list << doubleToString(baseline_vessel->R);
-		value_list << doubleToString(baseline_vessel->gamma);
-		value_list << doubleToString(baseline_vessel->phi);
-		value_list << doubleToString(baseline_vessel->c);
+	case CornerVessel:
+		value_list << doubleToString(v->R);
+		value_list << doubleToString(v->gamma);
+		value_list << doubleToString(v->phi);
+		value_list << doubleToString(v->c);
 		value_list << QString::null;
 		value_list << QString::null;
 		value_list << QString::null;
 		value_list << QString::null;
-		value_list << doubleToString(baseline_vessel->GP);
-		value_list << doubleToString(baseline_vessel->Ptp);
-		value_list << doubleToString(baseline_vessel->tone);
+		value_list << doubleToString(v->GP);
+		value_list << doubleToString(v->Ptp);
+		value_list << doubleToString(v->tone);
 		value_list << QString::null;
 		value_list << QString::null;
 		value_list << QString::null;
 		value_list << QString::null;
-		value_list << doubleToString(baseline_vessel->length);
-		value_list << doubleToString(baseline_vessel->D);
+		value_list << doubleToString(v->length);
+		value_list << doubleToString(v->D);
 		value_list << QString::null;
 		value_list << QString::null;
 		value_list << QString::null;
 		value_list << QString::null;
-		value_list << doubleToString(baseline_vessel->volume);
+		value_list << doubleToString(v->volume);
 		break;
 	case Capillary:
 		value_list << doubleToString(baseline_cap->R);
 		value_list << doubleToString(baseline_cap->Alpha);
 		value_list << doubleToString(baseline_cap->Ho);
+		value_list << "- - - ";
+		value_list << baselineValuesText(CornerVessel, false);
+		break;
+
+	case Connection:
 		break;
 	}
 
@@ -272,38 +308,53 @@ QString VesselView::calculatedValuesText(double lod) const
 {
 	Q_UNUSED(lod);
 
-	QStringList value_list;
+	return calculatedValuesText((Type)type(), false);
+}
 
-	switch (type()) {
+QString VesselView::calculatedValuesText(Type type, bool) const
+{
+	QStringList value_list;
+	const Vessel *v = vessel;
+
+	if (type == CornerVessel) {
+		v = cv;
+	}
+	switch (type) {
 	case Artery:
 	case Vein:
-		value_list << doubleToString(vessel->R);
-		value_list << doubleToString(vessel->gamma);
-		value_list << doubleToString(vessel->phi);
-		value_list << doubleToString(vessel->c);
-		value_list << doubleToString(vessel->perivascular_press_a);
-		value_list << doubleToString(vessel->perivascular_press_b);
-		value_list << doubleToString(vessel->perivascular_press_c);
+	case CornerVessel:
+		value_list << doubleToString(v->R);
+		value_list << doubleToString(v->gamma);
+		value_list << doubleToString(v->phi);
+		value_list << doubleToString(v->c);
+		value_list << doubleToString(v->perivascular_press_a);
+		value_list << doubleToString(v->perivascular_press_b);
+		value_list << doubleToString(v->perivascular_press_c);
 		value_list << QString::null;
-		value_list << doubleToString(vessel->GP);
-		value_list << doubleToString(vessel->Ptp);
-		value_list << doubleToString(vessel->tone);
-		value_list << doubleToString(vessel->flow * 1e6/60); // L/min => uL/s
-		value_list << doubleToString(vessel->pressure_in);
-		value_list << doubleToString(vessel->pressure_out);
+		value_list << doubleToString(v->GP);
+		value_list << doubleToString(v->Ptp);
+		value_list << doubleToString(v->tone);
+		value_list << doubleToString(v->flow * 1e6/60); // L/min => uL/s
+		value_list << doubleToString(v->pressure_in);
+		value_list << doubleToString(v->pressure_out);
 		value_list << QString::null;
-		value_list << doubleToString(vessel->length);
-		value_list << doubleToString(vessel->D);
-		value_list << doubleToString(vessel->D_calc);
-		value_list << doubleToString(vessel->Dmin);
-		value_list << doubleToString(vessel->Dmax);
-		value_list << doubleToString(vessel->viscosity_factor);
-		value_list << doubleToString(vessel->volume);
+		value_list << doubleToString(v->length);
+		value_list << doubleToString(v->D);
+		value_list << doubleToString(v->D_calc);
+		value_list << doubleToString(v->Dmin);
+		value_list << doubleToString(v->Dmax);
+		value_list << doubleToString(v->viscosity_factor);
+		value_list << doubleToString(v->volume);
 		break;
 	case Capillary:
 		value_list << doubleToString(cap->R);
 		value_list << doubleToString(cap->Alpha);
 		value_list << doubleToString(cap->Ho);
+		value_list << " - - -";
+		value_list << calculatedValuesText(CornerVessel, false);
+		break;
+
+	case Connection:
 		break;
 	}
 

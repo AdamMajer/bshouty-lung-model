@@ -31,7 +31,10 @@ public:
 	                             int gen, int idx,
 	                             std::vector<double> &calc_dim);
 
+	virtual double capillaryResistances();
+
 protected:
+	static double capillaryResistance(Capillary &cap);
 	double rigidFlowVessel(Vessel &v);
 	double segmentedFlowVessel(Vessel &v);
 	double segmentedFlowVessel(Vessel &v,
@@ -40,5 +43,7 @@ protected:
 	double vesselIntegration(double(CpuIntegrationHelper::* func)(Vessel&));
 	double vesselIntegrationThread(double(CpuIntegrationHelper::* func)(Vessel&));
 
-	QAtomicInt artery_no, vein_no;
+	double capillaryThread();
+
+	QAtomicInt artery_no, vein_no, cap_no;
 };
