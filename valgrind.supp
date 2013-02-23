@@ -1,4 +1,68 @@
 {
+   "GTK init"
+   Memcheck:Cond
+   ...
+   obj:/usr/lib/x86_64-linux-gnu/libgtk-x11-2.0.so.0.2400.10
+   fun:g_closure_invoke
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.3200.4
+   fun:g_signal_emit_valist
+   ...
+}
+
+{
+   "GTK errors"
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libgtk-x11-2.0.so.0.2400.10
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.3200.4
+   fun:g_signal_emit_valist
+   fun:g_signal_emit_by_name
+   fun:g_object_set_valist
+   fun:g_object_set
+   obj:/usr/local/Qt-5.0.2/lib/libQt5Widgets.so.5.0.2
+   fun:_ZN13QStyleFactory6createERK7QString
+   fun:_ZN12QApplication5styleEv
+   fun:_ZN19QApplicationPrivate10initializeEv
+   fun:_ZN19QApplicationPrivate9constructEv
+   fun:main
+}
+
+{
+   "More GTK errors"
+   Memcheck:Cond
+   ...
+   obj:/usr/lib/x86_64-linux-gnu/libgtk-x11-2.0.so.0.2400.10
+   fun:g_closure_invoke
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.3200.4
+   fun:g_signal_emit_valist
+   fun:g_signal_emit
+   obj:/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0.3200.4
+   fun:g_object_thaw_notify
+   fun:gtk_adjustment_configure
+   obj:/usr/local/Qt-5.0.2/lib/libQt5Widgets.so.5.0.2
+   ...
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   ...
+   obj:/usr/lib/x86_64-linux-gnu/libgdk-x11-2.0.so.0.2400.10
+   fun:g_main_context_dispatch
+   obj:/lib/x86_64-linux-gnu/libglib-2.0.so.0.3200.4
+   fun:g_main_context_iteration
+   fun:_ZN20QEventDispatcherGlib13processEventsE6QFlagsIN10QEventLoop17ProcessEventsFlagEE
+   fun:_ZN10QEventLoop4execE6QFlagsINS_17ProcessEventsFlagEE
+   fun:_ZN16QCoreApplication4execEv
+   fun:main
+}
+
+
+
+
+
+
+
+{
    <insert_a_suppression_name_here>
    Memcheck:Addr4
    obj:/usr/lib/x86_64-linux-gnu/libfontconfig.so.1.4.4
