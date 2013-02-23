@@ -1221,7 +1221,6 @@ void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 	}
 
 	// Now, calculate the same thing for child generations
-	// TODO: parallelize
 	if (ideal_threads>1) {
 		QFuture<void> f1 = QtConcurrent::run(
 		                           this, &Model::calculateChildrenFlowPress,
@@ -1551,6 +1550,8 @@ void Model::calculateBaselineCharacteristics()
 
 	Capillary cap;
 	cap.Ho = 2.5;
+	cap.R = 3500.0;
+	cap.open_state = Capillary_Auto;
 	for (int i=0; i<num_capillaries; i++) {
 		const Vessel &connected_vessel = arteries[i+start_offset];
 		if (vessel_value_override[num_arteries + num_veins + i])
