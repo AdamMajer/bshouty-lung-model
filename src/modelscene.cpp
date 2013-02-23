@@ -42,6 +42,8 @@ ModelScene::ModelScene(const Model &base, const Model &mod, QObject *parent)
 	veins = new VesselItem[m.numVeins()];
 	caps = new VesselItem[m.numCapillaries()];
 
+	setItemIndexMethod(QGraphicsScene::NoIndex);
+
 	double x_offset = 0;
 	double y_offset = 96;
 
