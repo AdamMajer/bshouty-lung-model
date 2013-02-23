@@ -41,8 +41,8 @@ public:
 	void setAbort() {
 		abort_flag = 1;
 
-		if (!op.isFinished() && op_model != 0) {
-			QMutexLocker lock(&op_model_locker);
+		QMutexLocker lock(&op_model_locker);
+		if (op_model != NULL) {
 			op_model->setAbort();
 		}
 	}
@@ -50,7 +50,7 @@ public:
 	/* Thread safe */
 	int completedAmount() {
 		op_model_locker.lock();
-		int model_progress = op.isFinished() ? 0 : op_model->progress();
+		int model_progress = (op_model==NULL) ? 0 : op_model->progress();
 		op_model_locker.unlock();
 
 		int n_models = total_models;
@@ -91,14 +91,9 @@ protected:
 		for (ModelCalcList::iterator i=results.begin(); i!=results.end(); ++i) {
 			op_model_locker.lock();
 			op_model = i->second;
-			op = QtConcurrent::run(op_model, &Model::calc, 100);
 			op_model_locker.unlock();
 
-			if (abort_flag)
-				op_model->setAbort();
-			op.waitForFinished();
-
-			i->first = op.result();
+			i->first = op_model->calc();
 			++completed_models; // inc completed models
 
 			if (abort_flag)
@@ -136,7 +131,6 @@ protected:
 	const Model &base_model;
 	ModelCalcList results;
 
-	QFuture<int> op;
 	QMutex op_model_locker;
 	Model *op_model;
 
