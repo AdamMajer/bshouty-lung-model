@@ -473,7 +473,7 @@ void DiseaseModel::loadVersion1Db(QSqlDatabase db)
 
 	while (disease_query.next()) {
 		const int disease_id = disease_query.value(0).toInt();
-		Disease disease(disease_query.value(1).toString());
+		Disease disease = Disease::fromString(disease_query.value(1).toString());
 		std::vector<Range> params;
 
 		param_query.addBindValue(disease_id);

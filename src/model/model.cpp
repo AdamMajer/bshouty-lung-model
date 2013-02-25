@@ -2082,7 +2082,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	dis.clear();
 	while (q.next()) {
 		int disease_id = q.value(0).toInt();
-		Disease disease(q.value(1).toString());
+		Disease disease = Disease::fromString(q.value(1).toString());
 
 		params.addBindValue(disease_id);
 		params.exec();

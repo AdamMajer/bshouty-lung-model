@@ -76,7 +76,7 @@ void DiseaseListDlg::on_editButton_clicked()
 	dlg.setReadOnly(disease.isReadOnly());
 
 	if (dlg.exec() == QDialog::Accepted && dlg.script() != disease.script()) {
-		Disease d(dlg.script());
+		Disease d = Disease::fromString(dlg.script());
 
 		if (d.isValid()) {
 			Disease::deleteDisease(disease.id());
@@ -91,7 +91,7 @@ void DiseaseListDlg::on_newButton_clicked()
 {
 	ScriptEditDlg dlg(sample_function_js, this);
 	if (dlg.exec() == QDialog::Accepted) {
-		Disease d(dlg.script());
+		Disease d = Disease::fromString(dlg.script());
 		d.save();
 
 		addDisease(d);

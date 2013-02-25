@@ -35,7 +35,7 @@ class Disease;
 class Model;
 struct Vessel;
 struct Parameter;
-typedef QList<Disease> DiseaseList;
+typedef std::vector<Disease> DiseaseList;
 
 struct Parameter {
 	QString name, desc;
@@ -56,7 +56,6 @@ struct Parameter {
 class Disease
 {
 public:
-	Disease(const QString &script);
 	Disease(const Disease &other);
 
 	Disease& operator =(const Disease &other);
@@ -83,11 +82,14 @@ public:
 	bool isReadOnly() const;
 	int paramCount() const { return parameters.size(); }
 
+	static Disease fromString(const QString &script);
 	static DiseaseList allDiseases();
 	static bool deleteDisease(int id);
 	static void swapDisease(int first, int second);
 
 protected:
+	Disease(const QString &script);
+
 	void processArtery(Model &m, QScriptValue &global, QScriptValue &f, int gen, int ves_no);
 	void processVein(Model &m, QScriptValue &global, QScriptValue &f, int gen, int ves_no);
 	void processVessel(Vessel &v, QScriptValue &global, QScriptValue &f, int gen, int ves_no);

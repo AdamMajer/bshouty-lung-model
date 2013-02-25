@@ -25,9 +25,15 @@
 #include "model.h"
 #include <QDebug>
 
-static bool diseases_loaded;
-static int int_disease_id;
-static DiseaseList all_diseases;
+namespace {
+
+bool diseases_loaded = false;
+int int_disease_id = 0;
+DiseaseList all_diseases;
+QScriptEngine *e = NULL;
+
+}
+
 
 Disease::Disease(const QString &s)
         : program(s)
@@ -45,8 +51,10 @@ Disease::Disease(const QString &s)
 	is_readonly = false;
 
 	/* Parse the script and extract name, description, and paramters */
-	QScriptEngine e;
-	QScriptValue prog = e.evaluate(program);
+	if (e == NULL) {
+		e = new QScriptEngine;
+	}
+	QScriptValue prog = e->evaluate(program);
 	QScriptValue v = prog.property("name");
 	if (v.isFunction()) {
 		v = v.call();
@@ -91,9 +99,7 @@ Disease::Disease(const QString &s)
 		}
 	}
 
-
 	script_id = ++int_disease_id;
-	all_diseases.push_back(*this);
 }
 
 Disease::Disease(const Disease &o)
@@ -274,6 +280,18 @@ bool Disease::isReadOnly() const
 	return is_readonly || script_id<0;
 }
 
+Disease Disease::fromString(const QString &script)
+{
+	Disease d(script);
+
+	DiseaseList::const_iterator i = std::find(all_diseases.begin(), all_diseases.end(), d);
+	if (all_diseases.end() == i) {
+		all_diseases.push_back(d);
+	}
+
+	return d;
+}
+
 DiseaseList Disease::allDiseases()
 {
 	if (!diseases_loaded)
@@ -412,7 +430,7 @@ void Disease::loadAllDiseases()
 	int max_id = 0;
 	while (q.next()) {
 		/* Parse script and pushes default values to back of the list */
-		Disease(q.value(2).toString());
+		Disease::fromString(q.value(2).toString());
 
 		/* Fetch the object that was stored on the list, and modify it */
 		Disease &d = all_diseases.back();
