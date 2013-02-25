@@ -24,6 +24,7 @@ class DiseaseParamDelegate : public QStyledItemDelegate
 {
 public:
 	DiseaseParamDelegate(QObject *parent=0);
+	virtual ~DiseaseParamDelegate();
 
 	virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option,
 	                              const QModelIndex &index) const;

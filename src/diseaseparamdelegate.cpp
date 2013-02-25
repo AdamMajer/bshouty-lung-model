@@ -33,6 +33,13 @@ DiseaseParamDelegate::DiseaseParamDelegate(QObject *parent)
 	setItemEditorFactory(f);
 }
 
+DiseaseParamDelegate::~DiseaseParamDelegate()
+{
+	QItemEditorFactory *f = itemEditorFactory();
+	setItemEditorFactory(NULL);
+	delete f;
+}
+
 QWidget* DiseaseParamDelegate::createEditor(QWidget *parent,
                                             const QStyleOptionViewItem &option,
                                             const QModelIndex &index) const

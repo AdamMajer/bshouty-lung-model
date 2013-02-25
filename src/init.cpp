@@ -186,7 +186,9 @@ int main( int argc, char *argv[])
 	w->show();
 	app.connect( &app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
 	int ret = app.exec();
+
 	delete w;
+	delete cl;
 
 	db.exec("VACUUM");
 	db.close();
