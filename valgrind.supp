@@ -18,12 +18,10 @@
    fun:g_signal_emit_by_name
    fun:g_object_set_valist
    fun:g_object_set
-   obj:/usr/local/Qt-5.0.2/lib/libQt5Widgets.so.5.0.2
+   ...
    fun:_ZN13QStyleFactory6createERK7QString
    fun:_ZN12QApplication5styleEv
-   fun:_ZN19QApplicationPrivate10initializeEv
-   fun:_ZN19QApplicationPrivate9constructEv
-   fun:main
+   ...
 }
 
 {
