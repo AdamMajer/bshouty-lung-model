@@ -14,11 +14,11 @@ OBJECTS_DIR = build/obj
 
 SRC_DIR = src
 
+INCLUDEPATH += 3rdparty/include
 INCLUDEPATH += $${SRC_DIR}
 
 win32 {
 	LIBS += -lshell32
-	INCLUDEPATH += "C:/Program Files (x86)/AMD APP/include"
 
 	# Visual Studio compiler flags so we get debugging symbols files in release mode
 	!contains(QMAKE_COMPILER_DEFINES, __GNUC__) {
