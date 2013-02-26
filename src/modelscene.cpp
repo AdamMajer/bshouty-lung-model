@@ -321,7 +321,7 @@ void ModelScene::setVisibleRect(const QRectF &r, const QRect &screen_r)
 
 			vessel_rect[i].gen = std::max(1,
 			                              std::min(16,
-			                                       int(log2(200.0/(100-x)))));
+			                                       int(log(200.0/(100-x))/M_LN2)));
 		}
 	}
 
