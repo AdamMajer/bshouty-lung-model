@@ -208,10 +208,9 @@ Range Disease::paramRange(int n) const
 #define SET_GLOBAL_PROPERTY(a) global.setProperty("lung_"#a, model.getResult(Model::a##_value))
 void Disease::processModel(Model &model)
 {
-	QScriptEngine e;
-	QScriptValue p = e.evaluate(program);
+	QScriptValue p = e->evaluate(program);
 
-	QScriptValue global = e.globalObject();
+	QScriptValue global = e->globalObject();
 	QScriptValue artery_function = p.property("artery", QScriptValue::ResolveLocal);
 	QScriptValue vein_function = p.property("vein", QScriptValue::ResolveLocal);
 	QScriptValue cap_function = p.property("cap", QScriptValue::ResolveLocal);
