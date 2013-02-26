@@ -121,7 +121,6 @@ typedef struct _opencl_device
 	cl_kernel rigidVesselKernel;
 
 	cl_mem mem_vein_buffer;
-	cl_mem mem_pressures;
 	cl_mem mem_results;
 
 	cl_device_type    device_type;

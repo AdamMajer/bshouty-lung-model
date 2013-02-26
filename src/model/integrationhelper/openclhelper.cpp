@@ -18,11 +18,11 @@
  */
 
 #include "openclhelper.h"
+#include "cpuhelper.h"
 #include <QtConcurrentRun>
 #include <QFutureSynchronizer>
 #include <QDebug>
 #include <QFile>
-
 
 struct WorkGroup {
 	int n_elements;
@@ -58,11 +58,13 @@ OpenCLIntegrationHelper::OpenCLIntegrationHelper(Model *model)
 	catch (opencl_exception e) {
 		is_available = false;
 	}
+
+	cpu_helper = new CpuIntegrationHelper(model, Model::SegmentedVesselFlow);
 }
 
 OpenCLIntegrationHelper::~OpenCLIntegrationHelper()
 {
-
+	delete cpu_helper;
 }
 
 double OpenCLIntegrationHelper::segmentedVessels()
@@ -110,6 +112,11 @@ double OpenCLIntegrationHelper::rigidVessels()
 	return ret;
 }
 
+double OpenCLIntegrationHelper::capillaryResistances()
+{
+	return cpu_helper->capillaryResistances();
+}
+
 float OpenCLIntegrationHelper::integrateByDevice(OpenCL_device &dev, cl_kernel k)
 {
 	struct CL_Vessel *cl_vessel = dev.cl_vessel;
@@ -151,12 +158,14 @@ float OpenCLIntegrationHelper::processWorkGroup(
 	cl_int err;
 	float ret = 0.0;
 
+	const int elements_per_function = (dev.device_type == CL_DEVICE_TYPE_GPU) ? 102400 : 1024;
+
 	/* Careful with locks. The lock is locked before and at end of loop!. */
 	vessel_index_mutex.lock();
 	while (*w.vessel_idx < w.n_elements) {
 		int idx = *w.vessel_idx;
 		int n;
-		n = (w.n_elements-idx > 1024) ? 1024 : w.n_elements-idx;
+		n = (w.n_elements-idx > elements_per_function) ? elements_per_function : w.n_elements-idx;
 		*w.vessel_idx += n;
 		vessel_index_mutex.unlock();
 

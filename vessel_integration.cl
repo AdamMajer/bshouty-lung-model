@@ -10,8 +10,8 @@ struct Vessel {
 	float Ppl;
 
 	float max_a;
-	float a;
-	float b;
+	float gamma;
+	float phi;
 	float c;
 
 	float peri_a;
@@ -103,6 +103,7 @@ __kernel void rigidVesselFlow(
 		float new_Pin = Pin;
 		float old_Pin;
 		
+		//for (int i=0; i<8; i++) {
 		do {
 			old_Pin = new_Pin;
 			float avg_P = (new_Pin + Pout) / 2.0;
@@ -110,8 +111,9 @@ __kernel void rigidVesselFlow(
 			Ptm = Ptm - vein.Ppl - vein.peri_a -
 			      vein.peri_b * exp( vein.peri_c * ( Ptm - vein.Ppl ));
 
-			const float inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
-			D = vein.D * rsqrt(inv_A);
+			// const float inv_A = (1.0 + vein.b * exp( vein.c * Ptm )) / 0.99936058722097668220 / vein.a;
+			// D = vein.D * rsqrt(inv_A);
+			D = vein.D*vein.gamma - (vein.gamma-1.0)*vein.D*exp(-Ptm*vein.phi/(vein.gamma-1.0));
 			vf = viscosityFactor(D, hct);
 			Rs = 128*Kr/M_PI * vf * vein.len / sqr(sqr(D)) * vein.vessel_ratio;
 
@@ -169,10 +171,11 @@ __kernel void segmentedVesselFlow(
 		Rs = -Ptm/( 1.35951002636 * vein.flow ); // Starling Resistor
 	}
 	else {
-		const float inv_A = (1.0 + vein.b*exp(vein.c*Ptm)) / 0.99936058722097668220 / vein.a;
-		const float area = vein.a / vein.max_a;
-		const float A = ((1/inv_A - 1.0) * area + 1.0)*area;
-		D = vein.D * sqrt(A);
+		//const float inv_A = (1.0 + vein.b*exp(vein.c*Ptm)) / 0.99936058722097668220 / vein.a;
+		//const float area = vein.a / vein.max_a;
+		//const float A = ((1/inv_A - 1.0) * area + 1.0)*area;
+		//D = vein.D * sqrt(A);
+		D = vein.D*vein.gamma - (vein.gamma-1.0)*vein.D*exp(-Ptm*vein.phi/(vein.gamma-1.0));
 		const float vf = viscosityFactor(D, hct);
 		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
 		
@@ -189,10 +192,11 @@ __kernel void segmentedVesselFlow(
 		Ptm_i = 1.35951002636 * ( Pout - vein.tone );
 		Ptm = Ptm_i - vein.Ppl - vein.peri_a - vein.peri_b * exp( vein.peri_c * ( Ptm_i - vein.Ppl ));
 
-		const float inv_A = (1.0 + vein.b*exp(vein.c*Ptm)) / 0.99936058722097668220 / vein.a;
-		const float area = vein.a / vein.max_a;
-		const float A = ((1/inv_A - 1.0) * area + 1.0)*area;
-		D = vein.D * sqrt(A);
+		//const float inv_A = (1.0 + vein.b*exp(vein.c*Ptm)) / 0.99936058722097668220 / vein.a;
+		//const float area = vein.a / vein.max_a;
+		//const float A = ((1/inv_A - 1.0) * area + 1.0)*area;
+		//D = vein.D * sqrt(A);
+		D = vein.D*vein.gamma - (vein.gamma-1.0)*vein.D*exp(-Ptm*vein.phi/(vein.gamma-1.0));
 		const float vf = viscosityFactor(D, hct);
 		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
 

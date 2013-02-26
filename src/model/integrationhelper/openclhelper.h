@@ -24,6 +24,7 @@
 
 struct OpenCLIntegrationData;
 struct WorkGroup;
+class CpuIntegrationHelper;
 class OpenCLIntegrationHelper : public AbstractIntegrationHelper
 {
 public:
@@ -33,7 +34,7 @@ public:
 	virtual double segmentedVessels();
 	virtual double rigidVessels();
 
-	virtual double capillaryResistances() { return 0.0;}
+	virtual double capillaryResistances();
 
 	virtual bool isAvailable() const { return is_available; }
 	virtual bool hasErrors() const { return has_errors; }
@@ -57,4 +58,5 @@ private:
 	// used by the integration function
 	QMutex vessel_index_mutex;
 	int art_index, vein_index;
+	CpuIntegrationHelper *cpu_helper; // used for capillaries
 };

@@ -93,7 +93,6 @@ OpenCL::OpenCL()
 OpenCL::~OpenCL()
 {
 	foreach (const OpenCL_device &d, opencl_devices) {
-		opencl.clReleaseMemObject(d.mem_pressures);
 		opencl.clReleaseMemObject(d.mem_results);
 		opencl.clReleaseMemObject(d.mem_vein_buffer);
 
@@ -302,15 +301,13 @@ void OpenCL::addDevice(cl_platform_id platform_id, cl_device_id device_id)
 	dev.rigidVesselKernel = opencl.clCreateKernel(dev.program, "rigidVesselFlow", &err);
 	errorCheck(err);
 
-	dev.mem_vein_buffer = opencl.clCreateBuffer(dev.context, CL_MEM_READ_ONLY, sizeof(CL_Vessel)*4*256, NULL, &err);
+	dev.mem_vein_buffer = opencl.clCreateBuffer(dev.context, CL_MEM_READ_ONLY, sizeof(CL_Vessel)*4*256*100, NULL, &err);
 	cl->errorCheck(err);
-	dev.mem_pressures = opencl.clCreateBuffer(dev.context, CL_MEM_READ_ONLY, sizeof(float)*4*256, NULL, &err);
-	cl->errorCheck(err);
-	dev.mem_results = opencl.clCreateBuffer(dev.context, CL_MEM_WRITE_ONLY, sizeof(CL_Result)*4*256, NULL, &err);
+	dev.mem_results = opencl.clCreateBuffer(dev.context, CL_MEM_WRITE_ONLY, sizeof(CL_Result)*4*256*100, NULL, &err);
 	cl->errorCheck(err);
 
-	dev.integration_workspace = (CL_Result*)allocPageAligned(sizeof(CL_Result)*1024);
-	dev.cl_vessel = (CL_Vessel*)allocPageAligned(sizeof(CL_Vessel)*1024);
+	dev.integration_workspace = (CL_Result*)allocPageAligned(sizeof(CL_Result)*102400);
+	dev.cl_vessel = (CL_Vessel*)allocPageAligned(sizeof(CL_Vessel)*102400);
 
 	opencl_devices.push_back(dev);
 }
