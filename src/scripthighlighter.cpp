@@ -40,7 +40,7 @@ static QStringList reserved_words = QStringList()
 static QStringList lung_vars = QStringList()
         << "gen" << "vessel_idx" << "n_gen"
         // Vessel Parameters
-        << "R" << "a" << "b" << "c" << "tone"
+        << "R" << "gamma" << "phi" << "c" << "tone"
         << "GP" << "Ppl" << "Ptp" << "Kz"
         << "perivascular_press_a" << "perivascular_press_b" << "perivascular_press_c"
         << "Alpha" << "Ho"
