@@ -67,6 +67,8 @@ protected:
 	virtual bool viewportEvent(QEvent *event);
 	virtual void wheelEvent(QWheelEvent *event);
 
+	virtual void paintEvent(QPaintEvent *event);
+
 	void drawGenLabel(QPainter *p, QRect r, int gen);
 	void drawOverlay(QPainter *p, const QRectF &r);
 	void drawOverlayLegend(QPainter *p, const QRectF &r);

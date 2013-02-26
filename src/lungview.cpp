@@ -23,6 +23,7 @@
 #include <QWheelEvent>
 #include "lungview.h"
 #include "modelscene.h"
+#include <typeinfo>
 
 LungView::LungView(QWidget *parent)
 	: QGraphicsView(parent),
@@ -255,6 +256,23 @@ void LungView::wheelEvent(QWheelEvent *event)
 	}
 	else
 		QGraphicsView::wheelEvent(event);
+}
+
+void LungView::paintEvent(QPaintEvent *event)
+{
+	// calculate which vessels to show
+	const QRect v = viewport()->rect();
+	const QRectF tv = mapToScene(v).boundingRect();
+
+	try {
+		dynamic_cast<ModelScene&>(*scene()).setVisibleRect(tv, v);
+	}
+	catch (std::bad_cast c) {
+
+	}
+
+	// draw
+	QGraphicsView::paintEvent(event);
 }
 
 void LungView::drawGenLabel(QPainter *p, QRect r, int gen)

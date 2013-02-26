@@ -47,6 +47,12 @@ public:
 	QRectF generationRect(int n) const;
 	QRectF vesselRect(VesselView::Type type, int gen, int idx);
 
+	// FIXME: Qt QGraphicsView draw index is broken so we have to
+	// emulate an index with this function, hiding/unhiding elements
+	// as they come into view.
+	// IF you need multiple views of the scene, this needs to be disabled!
+	void setVisibleRect(const QRectF &r, const QRect &screen_r);
+
 public slots:
 	void updateModelValues();
 

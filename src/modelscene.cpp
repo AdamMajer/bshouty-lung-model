@@ -277,6 +277,108 @@ QRectF ModelScene::vesselRect(VesselView::Type type, int gen, int idx)
 	return vessel->transform().mapRect(vessel->boundingRect());
 }
 
+void ModelScene::setVisibleRect(const QRectF &r, const QRect &screen_r)
+{
+	double min_generation = 4;
+	double h_scaling = r.width() / screen_r.width();
+	for (int i=4; i<=m.nGenerations(); ++i) {
+		if (vesselRect(VesselView::Artery, i, 0).width() < 4.0*h_scaling)
+			break;
+
+		min_generation++;
+	}
+
+	struct {
+		double x, y;
+		VesselView::Type type;
+		int gen;
+	} vessel_rect[2]; // top-left, and bottom-right visible vessels
+
+	vessel_rect[0].x = r.left() - r.width()*0.5;
+	vessel_rect[0].y = r.top() - r.height()*0.5 + 10;
+	vessel_rect[1].x = r.right() + r.width()*0.5;
+	vessel_rect[1].y = r.bottom() + r.height()*0.5 + 10;
+
+	for (int i=0; i<2; ++i) {
+		double & x = vessel_rect[i].x;
+		double & y = vessel_rect[i].y;
+
+		if (y > 48.0)
+			y = std::max(48.0, y-20.0);
+
+		if (x < 0.0) {
+			vessel_rect[i].type = VesselView::Artery;
+			vessel_rect[i].gen = 1;
+		}
+		else {
+			if (x < 100.0) {
+				vessel_rect[i].type = VesselView::Artery;
+			}
+			else {
+				vessel_rect[i].type = VesselView::Vein;
+				x = -(x - 200.0);
+			}
+
+			vessel_rect[i].gen = std::max(1,
+			                              std::min(16,
+			                                       int(log2(200.0/(100-x)))));
+		}
+	}
+
+	int n_elements = m.nElements();
+	int drawn_items = 0;
+
+	int gen_no = 1;
+	int idx = 0;
+	int gen_elements = m.nElements(gen_no);
+	for (int i=0; i<n_elements; ++i, ++idx) {
+		if (idx >= gen_elements) {
+			idx = 0;
+			gen_no++;
+			gen_elements = m.nElements(gen_no);
+		}
+
+		bool artery_visible =
+		                min_generation > gen_no &&
+
+		                vessel_rect[0].type == VesselView::Artery &&
+		                vessel_rect[0].gen <= gen_no &&
+		                ( vessel_rect[1].type == VesselView::Vein ||
+		                  vessel_rect[1].gen >= gen_no ) &&
+
+		                idx >= int(vessel_rect[0].y / 96.0 * gen_elements) &&
+		                idx <= int(vessel_rect[1].y / 96.0 * gen_elements)+1;
+
+		bool vein_visible =
+		                min_generation > gen_no &&
+
+		                ( vessel_rect[0].type == VesselView::Artery ||
+		                  vessel_rect[0].gen >= gen_no ) &&
+		                vessel_rect[1].type == VesselView::Vein &&
+		                vessel_rect[1].gen <= gen_no &&
+
+		                idx >= int(vessel_rect[0].y / 96.0 * gen_elements) &&
+		                idx <= int(vessel_rect[1].y / 96.0 * gen_elements)+1;
+
+		VesselItem &art = arteries[i];
+		if (art.v->isVisible() != artery_visible) {
+			art.v->setVisible(artery_visible);
+			if (art.con)
+				art.con->setVisible(artery_visible);
+		}
+
+		VesselItem &vein = veins[i];
+		if (vein.v->isVisible() != vein_visible) {
+			vein.v->setVisible(vein_visible);
+			if (vein.con)
+				vein.con->setVisible(vein_visible);
+		}
+
+		if (gen_no == 16)
+			caps[idx].v->setVisible(vein_visible || artery_visible);
+	}
+}
+
 void ModelScene::updateModelValues()
 {
 	/* Show correct transducer */
