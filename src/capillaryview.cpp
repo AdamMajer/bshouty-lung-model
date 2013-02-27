@@ -69,7 +69,7 @@ void CapillaryView::paint(QPainter *painter,
 		QString h = headers(lod*2);
 		QFont font = painter->font();
 		qDebug("line count: %d vs. %f", h.count(QLatin1Char('\n')), line_height);
-		double scale_factor = textRect.height() / ((h.count(QLatin1Char('\n')) + 2) * line_height);
+		double scale_factor = textRect.height() / ((h.count(QLatin1Char('\n')) + 3) * line_height);
 		qDebug("factor: %f - size %f", scale_factor, font.pointSizeF());
 
 		if (font.pointSizeF() < 0)
