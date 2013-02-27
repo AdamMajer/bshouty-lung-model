@@ -83,7 +83,7 @@ void CapillaryView::paint(QPainter *painter,
 
 		painter->drawRect(textRect);
 		painter->fillRect(textRect, QColor(255, 255, 255, 220));
-		textRect.adjust(0, 0, -offset*2, 0);
+		textRect.adjust(10, 0, -offset*2, 0);
 		painter->drawText(textRect.adjusted(offset, line_height*1.5, offset, 0),
 		                  baselineValuesText(lod*2));
 		painter->drawText(textRect.adjusted(offset*2, line_height*1.5, offset*2, 0),
@@ -91,7 +91,7 @@ void CapillaryView::paint(QPainter *painter,
 
 		font.setBold(true);
 		painter->setFont(font);
-		painter->drawText(textRect.adjusted(0, line_height*0.5, 0, 0),
+		painter->drawText(textRect.adjusted(10, line_height*0.5, 0, 0),
 		                  headers(lod*2));
 		painter->drawText(textRect.adjusted(offset, 0, offset, 0),
 		                  "Baseline");

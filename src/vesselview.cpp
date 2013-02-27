@@ -166,7 +166,7 @@ void VesselView::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 		painter->fillRect(fill, gradient);
 	}
 
-	QRectF draw_area = painter->transform().mapRect(fill.adjusted(3, 3, -3, -3));
+	QRectF draw_area = painter->transform().mapRect(fill.adjusted(30, 30, -30, -30));
 	painter->resetTransform();
 	lod /= 2;
 	painter->scale(lod/2, lod/2);
