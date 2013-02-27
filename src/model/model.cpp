@@ -42,7 +42,8 @@
 
 /* No accuracy benefit above 128. Speed is not compromised at 128 (on 16 core machine!) */
 const int nSums = 128; // number of divisions in the integral
-const QLatin1String vessel_ini("data/vessel.ini");
+const QLatin1String vessel_ini_relative("data/vessel.ini");
+#define vessel_ini (qApp->applicationDirPath() + "/" + vessel_ini_relative)
 
 #if defined(Q_OS_WIN32) && !defined(__GNUC__)
 inline double cbrt(double x) {
