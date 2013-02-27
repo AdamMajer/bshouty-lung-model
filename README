@@ -2,10 +2,31 @@ Build Prerequisite
 ===================
 
   + Qt 4.8.0 or later
-  + OpenCL headers
   + SQLite (including Qt plugin)
 
 OpenCL is not required for runtime operation.
+
+
+
+Distribution
+============
+
+To distribute as a ZIP archive (windows), the following files are
+required (specific subdirectories, if specifed),
+
+  bshouty_model.exe
+  vessel_integration.cl
+  data/*
+
+from compiler,
+  C/C++ runtimes from the compiler you are using. Use Dependency Walker
+  to find compiler's DLLs if you don't know which files to include here.
+
+from Qt4 directory,
+  QtGui4.dll
+  QtCore4.dll
+  QtSQL4.dll
+  sqldrivers/qsqlite4.dll
 
 
 
