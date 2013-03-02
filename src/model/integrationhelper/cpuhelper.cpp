@@ -149,66 +149,6 @@ double CpuIntegrationHelper::capillaryResistance(Capillary &cap)
 		return 1.0;
 	}
 
-#if 0
-	double old_P;
-	do {
-		old_P = Ptma;
-		double x = Ptmv - Pal;
-		double y = Ptma - Pal;
-		const double deltaP = Ptma - Ptmv;
-		const double Rz = getKrc() * BSA_ratio;
-
-		// constant so the function is continuous and equal to Rz at x=25, y>=25
-		const double K = 4.0*cap.Alpha*(sqr(cap.Ho) +
-		                                3*75*cap.Alpha*(25.0*25.0/3.0*sqr(cap.Alpha) +
-		                                                cap.Ho*(25.0+cap.Ho)));
-
-		// capillary closed if x<0 && y<0. This gets reset to different value
-		// for other conditions. Old formula was not continuous
-		//   cap.R = y/con_artery.flow - x/con_artery.flow;
-		cap.R = std::numeric_limits<double>::infinity();
-
-		if( x < 0 ){
-			if( y > 0 ) {
-				double scaling = 25.0 / std::max(25.0, y);
-				y = std::min(25.0, y);
-				cap.R = deltaP*Rz*K*scaling/(sqr(sqr(cap.Ho+cap.Alpha*y)) -
-				                             sqr(sqr(cap.Ho)));
-			}
-			else {
-				// infinite resistance
-				cap.last_delta_R = 0.0;
-				return 0.0;
-			}
-		}
-		else if( x < 25 ){
-			if( y < 0 )
-				throw "Internal capillary resistance error 1";
-
-			y = std::min(y, 25.0);
-			cap.R = (y-x)*Rz*K/(sqr(sqr(cap.Ho+cap.Alpha*y)) -
-			                    sqr(sqr(cap.Ho+cap.Alpha*x)));
-		}
-		else { // x >= 0
-			cap.R = Rz;
-
-			if( y < 25 )
-				throw "Internal capillary resistance error 2";
-		}
-
-		if (isnan(cap.R)) {
-			printf("test\n");
-			cap.R = std::numeric_limits<double>::infinity();
-		}
-		Ptma = Ptmv + cap.R*cap.flow;
-	} while (false &&
-	         fabs(Ptma - old_P)/Ptma > Tlrns &&
-	         !isinf(cap.R) &&
-	         cap.flow > 0.0);
-
-	// cap.R = cap.R * 0.2 + Ri * 0.8;
-#endif
-
 	cap.last_delta_R = fabs(cap.R-Ri)/Ri;
 	return cap.last_delta_R; // return different from target tolerance
 }
