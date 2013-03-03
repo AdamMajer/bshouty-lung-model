@@ -777,7 +777,7 @@ void MainWindow::modifyVein(int gen, int idx)
 	Vessel v(baseline->vein(gen, idx));
 	VesselDlg dlg(Vessel::Vein, v, model->vein(gen,idx), dims, isVesselPtpReadOnly(), this);
 	if (dlg.exec() == QDialog::Accepted)
-		baseline->setArtery(gen, idx, v);
+		baseline->setVein(gen, idx, v);
 }
 
 void MainWindow::modifyCap(int idx)
