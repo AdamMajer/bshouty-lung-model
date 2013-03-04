@@ -1144,6 +1144,9 @@ void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 		 * from accross unclosed capillary. This is just a slightly
 		 * modified version of 'backward' pressure seen below.
 		 */
+		const int c_idx = i - current_gen_start;
+		const int cv_idx = c_idx + startIndex(gen+1);
+
 		if (arteries[i].flow == 0.0 &&
 		    !isinf(caps[i-current_gen_start].R)) {
 
@@ -1157,22 +1160,24 @@ void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 				if (!isinf(veins[i].R))
 					veins[i].pressure_out = veins[i].pressure_in;
 			}
+
+			caps[c_idx].flow = 0.0;
+			arteries[cv_idx].flow = 0.0;
 		}
+		else {
+			// calculate flow in the corner vessel
+			arteries[cv_idx].pressure_out = veins[i].pressure_in;
+			arteries[cv_idx].pressure_in = arteries[i].pressure_out;
 
-		// calculate flow in the corner vessel
-		int c_idx = i - current_gen_start;
-		int cv_idx = c_idx + startIndex(gen+1);
-		arteries[cv_idx].pressure_out = veins[i].pressure_in;
-		arteries[cv_idx].pressure_in = arteries[i].pressure_out;
+			caps[c_idx].pressure_in = cmH2O_per_mmHg*arteries[i].pressure_out - Pal;
+			caps[c_idx].pressure_out = cmH2O_per_mmHg*veins[i].pressure_in - Pal;
+			caps[c_idx].flow = (arteries[i].pressure_out - veins[i].pressure_in) / caps[c_idx].R;
 
-		caps[c_idx].pressure_in = cmH2O_per_mmHg*arteries[i].pressure_out - Pal;
-		caps[c_idx].pressure_out = cmH2O_per_mmHg*veins[i].pressure_in - Pal;
-		caps[c_idx].flow = (arteries[i].pressure_out - veins[i].pressure_in) / caps[c_idx].R;
-
-		double cv_flow_max = std::max(0.0, arteries[i].flow - caps[c_idx].flow);
-		arteries[cv_idx].flow = std::min(cv_flow_max,
-		                                 (arteries[cv_idx].pressure_in - arteries[cv_idx].pressure_out)
-		                                 / arteries[cv_idx].R);
+			double cv_flow_max = std::max(0.0, arteries[i].flow - caps[c_idx].flow);
+			arteries[cv_idx].flow = std::min(cv_flow_max,
+			                                 (arteries[cv_idx].pressure_in - arteries[cv_idx].pressure_out)
+			                                 / arteries[cv_idx].R);
+		}
 		return;
 	}
 
@@ -1210,7 +1215,7 @@ void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 
 			double flow = (arteries[con].pressure_in - veins[con].pressure_out) /
 			              arteries[con].total_R;;
-			if (arteries[con].pressure_in <= 0.0 || flow < 0.0)
+			if (arteries[con].pressure_in <= 0.0 || flow < 0.0 || isnan(flow))
 				flow = 0.0;
 
 			veins[con].flow = flow;

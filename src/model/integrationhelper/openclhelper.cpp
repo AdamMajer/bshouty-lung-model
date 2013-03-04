@@ -169,9 +169,9 @@ float OpenCLIntegrationHelper::processWorkGroup(
 		*w.vessel_idx += n;
 		vessel_index_mutex.unlock();
 
-		assignVessels(cl_vessel_buf, w.vessels+idx, n);
+		int real_vessels = assignVessels(cl_vessel_buf, w.vessels+idx, n);
 		err = f.clEnqueueWriteBuffer(dev.queue, dev.mem_vein_buffer, CL_FALSE,
-		                             0, sizeof(CL_Vessel)*n, cl_vessel_buf,
+		                             0, sizeof(CL_Vessel)*real_vessels, cl_vessel_buf,
 		                             0, NULL, NULL);
 		cl->errorCheck(err);
 		int kernel_arg_no = 0;
@@ -188,17 +188,17 @@ float OpenCLIntegrationHelper::processWorkGroup(
 
 		size_t dims[2];
 		dims[0] = 32;
-		dims[1] = (n+31)/32; // only need 1 "extra" dimention if n is not a multiple of 32
+		dims[1] = (real_vessels+31)/32; // only need 1 "extra" dimention if n is not a multiple of 32
 		err = f.clEnqueueNDRangeKernel(dev.queue, w.kernel, 2, NULL, dims, NULL, 0, NULL, NULL);
 		cl->errorCheck(err);
 
 		err = f.clEnqueueReadBuffer(dev.queue, dev.mem_results, CL_TRUE,
-		                            0, sizeof(CL_Result)*n, ret_values_buf,
+		                            0, sizeof(CL_Result)*real_vessels, ret_values_buf,
 		                            0, NULL, NULL);
 		cl->errorCheck(err);
 
 		updateResults(ret_values_buf, w.vessels+idx, n);
-		for (int i=0; i<n; ++i) {
+		for (int i=0; i<real_vessels; ++i) {
 			if (isinf(ret_values_buf[i].R) || isnan(ret_values_buf[i].R)) {
 				qDebug("INF");
 			}
@@ -214,13 +214,18 @@ float OpenCLIntegrationHelper::processWorkGroup(
 	return ret;
 }
 
-void OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
+int OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
                                             const Vessel *vessels,
                                             int n)
 {
+	// returns actual number to be executed
+	int total_vessels = 0;
 	for (int i=0; i<n; ++i) {
 		const Vessel &v = vessels[i];
-		CL_Vessel &c = cl_vessels[i];
+		CL_Vessel &c = cl_vessels[total_vessels];
+
+		if (v.flow <= 1e-50 || isnan(v.pressure_in) || isnan(v.pressure_out))
+			continue;
 
 		c.max_a = v.max_a;
 		c.gamma = v.gamma;
@@ -241,16 +246,24 @@ void OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
 		c.len = v.length;
 
 		c.vessel_ratio = v.vessel_ratio;
+
+		total_vessels++;
 	}
+
+	return total_vessels;
 }
 
 void OpenCLIntegrationHelper::updateResults(const CL_Result *cl_vessels,
                                             Vessel *vessels,
                                             int n)
 {
+	int idx = 0;
 	for (int i=0; i<n; ++i) {
 		Vessel &v = vessels[i];
-		const CL_Result &r = cl_vessels[i];
+		const CL_Result &r = cl_vessels[idx];
+
+		if (v.flow <= 1e-50 || isnan(v.pressure_in) || isnan(v.pressure_out))
+			continue;
 
 		v.R = r.R;
 		v.last_delta_R = r.delta_R;
@@ -259,5 +272,7 @@ void OpenCLIntegrationHelper::updateResults(const CL_Result *cl_vessels,
 		v.Dmin = r.Dmin;
 		v.viscosity_factor = r.viscosity_factor;
 		v.volume = r.vol;
+
+		idx++;
 	}
 }

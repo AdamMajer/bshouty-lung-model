@@ -162,7 +162,7 @@ double CpuIntegrationHelper::rigidFlowVessel(Vessel &v)
 	const double Pout = v.pressure_out;
 
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
-	if (isnan(Pout) || isnan(Pin)) {
+	if (v.flow == 0.0 || isnan(Pout) || isnan(Pin)) {
 		v.D_calc = 0.0;
 		v.Dmin = 0.0;
 		v.Dmax = 0.0;
@@ -264,7 +264,7 @@ double CpuIntegrationHelper::segmentedFlowVessel(Vessel &v,
 	double P = v.pressure_out; // pressure to the right (LAP) of the vessel
 
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
-	if (isnan(P))
+	if (v.flow == 0.0 || isnan(P))
 		return 0.0;
 
 	double Ptm = 1.35951002636 * ( P - v.tone );

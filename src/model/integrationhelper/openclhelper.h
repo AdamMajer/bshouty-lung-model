@@ -45,7 +45,7 @@ protected:
 	                       OpenCL_device &dev,
 	                       struct CL_Vessel *cl_vessel_buf,
 	                       struct CL_Result *ret_values_buf);
-	static void assignVessels(struct CL_Vessel*, const Vessel*, int n);
+	static int assignVessels(struct CL_Vessel*, const Vessel*, int n);
 	static void updateResults(const struct CL_Result*, Vessel*, int n);
 
 private:
