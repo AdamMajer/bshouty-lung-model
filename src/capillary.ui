@@ -41,7 +41,7 @@
    <item row="2" column="1">
     <widget class="QLineEdit" name="ho">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capillary Sheet thickness (in microm).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capillary Sheet thickness (in microm) at a Transmural Pressure (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;cap&lt;/span&gt;-P&lt;span style=&quot; vertical-align:sub;&quot;&gt;al&lt;/span&gt;) of zero.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </item>

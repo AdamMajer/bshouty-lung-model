@@ -185,8 +185,6 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->PatHtModLabel->setVisible(false);
 	ui->PatWtModLabel->setVisible(false);
 	ui->lungHtModLabel->setVisible(false);
-	ui->CLRangeLabel->setVisible(false);
-	ui->CORangeLabel->setVisible(false);
 	ui->PalModLabel->setVisible(false);
 	ui->PplModLabel->setVisible(false);
 	ui->pv_params_label->setVisible(false);
@@ -1259,7 +1257,6 @@ void MainWindow::patHtWtChanged()
 	                      wt_range.sequenceCount() > 1;
 
 	ui->CO->setDisabled(is_range);
-	animateLabelVisibility(ui->CORangeLabel, is_range);
 
 	bool data_modified = false;
 	if (ht_range.sequenceCount() == 1) {
