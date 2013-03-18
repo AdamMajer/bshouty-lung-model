@@ -31,6 +31,8 @@ VesselDlg::VesselDlg(Vessel::Type type,
                      QWidget *parent)
         :QDialog(parent), v(vessel)
 {
+	Q_UNUSED(type);
+
 	ui = new Ui::VesselDlg;
 	ui->setupUi( this );
 

@@ -549,7 +549,7 @@ void LungView::calculateVolumeOverlay(const Model &model)
 	// mean is 50% of max volume
 	// stddev is 25% of max volume
 	//   -> scale is 0-100% of max volume
-	const double um_to_ul = 1e-9; // um^3 => ul
+	// const double um_to_ul = 1e-9; // um^3 => ul
 	const int n_gen = model.nGenerations();
 	std::vector<double> max_art_size, max_vein_size;
 	double mean=1.0, stddev=1.0;

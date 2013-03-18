@@ -68,6 +68,7 @@
 
 #ifdef Q_OS_UNIX
 # include <unistd.h>
+# include <sys/sysinfo.h>
 #endif
 
 
@@ -380,7 +381,9 @@ void MainWindow::updateResults()
 	unsigned long long n_models = 1;
 	unsigned long long total_memory = 0xFFFFFFFFFFFFFFFFULL;
 	unsigned long long total_ram = total_memory;
-	const unsigned long long memory_per_model = baseline->nElements()*20*sizeof(double); // 19 elemnts+capilaries
+	const unsigned long long memory_per_model =
+	                (baseline->numArteries() + baseline->numVeins())*sizeof(Vessel) +
+	                baseline->numCapillaries()*sizeof(Capillary); // 19 elemnts+capilaries
 
 	for(QList<QPair<Model::DataType, Range> >::const_iterator i=data_ranges.begin();
 	    i!=data_ranges.end();
@@ -410,13 +413,19 @@ void MainWindow::updateResults()
 		}
 	}
 
-#ifdef Q_OS_WIN32
+#if defined(Q_OS_WIN32)
 	MEMORYSTATUSEX mem;
 
 	mem.dwLength = sizeof(mem);
 	if (GlobalMemoryStatusEx(&mem)) {
 		total_ram = mem.ullTotalPhys;
 		total_memory = total_ram + mem.ullAvailPageFile;
+	}
+#elif defined(Q_OS_LINUX)
+	struct sysinfo si;
+	if (sysinfo(&si) == 0) {
+		total_ram = si.totalram;
+		total_memory = si.totalswap + total_ram;
 	}
 #else
 #warning "FIXME: Memory size not available on this platform."

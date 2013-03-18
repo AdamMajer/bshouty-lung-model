@@ -60,6 +60,9 @@ void TransducerView::paint(QPainter *painter,
                            const QStyleOptionGraphicsItem *option,
                            QWidget *widget)
 {
+	Q_UNUSED(option);
+	Q_UNUSED(widget);
+
 	const QRectF r = boundingRect().adjusted(1.5, 1.5, -1.5, -1.5);
 	painter->setPen(QPen(Qt::black, 1.5, Qt::SolidLine, Qt::FlatCap));
 	painter->drawEllipse(r);

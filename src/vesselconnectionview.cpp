@@ -41,6 +41,8 @@ void VesselConnectionView::paint(QPainter *painter,
                                  const QStyleOptionGraphicsItem *option,
                                  QWidget *widget)
 {
+	Q_UNUSED(widget);
+
 	double lod = option->levelOfDetailFromTransform(painter->transform());
 	if (lod < minLOD())
 		return;

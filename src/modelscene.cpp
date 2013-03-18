@@ -326,7 +326,6 @@ void ModelScene::setVisibleRect(const QRectF &r, const QRect &screen_r)
 	}
 
 	int n_elements = m.nElements();
-	int drawn_items = 0;
 
 	int gen_no = 1;
 	int idx = 0;

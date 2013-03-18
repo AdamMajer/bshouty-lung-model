@@ -73,7 +73,8 @@ CompromiseModel* CompromiseModel::clone() const
 
 int CompromiseModel::calc(int max_iter)
 {
-	if (slew_disease_idx == -1 || slew_disease_idx>=dis.size())
+	if (slew_disease_idx == -1 ||
+	    slew_disease_idx >= static_cast<int>(dis.size()))
 		return -1; // disease not specified
 
 	double param_value;

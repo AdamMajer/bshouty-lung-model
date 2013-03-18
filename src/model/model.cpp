@@ -525,7 +525,7 @@ double Model::getResult(DataType type) const
 		const int dis_no = diseaseNo(type);
 		const int param_no = diseaseParamNo(type);
 
-		if (dis_no < dis.size())
+		if (dis_no < static_cast<int>(dis.size()))
 			return dis.at(dis_no).parameterValue(param_no);
 	}
 
@@ -720,7 +720,7 @@ bool Model::setData(DataType type, double val)
 		const int dis_no = diseaseNo(type);
 		const int param_no = diseaseParamNo(type);
 
-		if (dis_no < dis.size()) {
+		if (dis_no < static_cast<int>(dis.size())) {
 			dis[dis_no].setParameter(param_no, val);
 			return true;
 		}
