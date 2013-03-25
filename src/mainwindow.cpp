@@ -231,6 +231,12 @@ MainWindow::MainWindow(QWidget *parent)
 #else
 	ui->actionOpenCL->setEnabled(cl->isAvailable());
 #endif
+
+	/* Add shortcut texts to menu items. These cannot be readily added
+	 * in Designer because they are handled elsewhere, not via shortcuts.
+	 */
+	ui->actionZoomIn->setText(ui->actionZoomIn->text() + "\t+");
+	ui->actionZoomOut->setText(ui->actionZoomOut->text() + "\t-");
 }
 
 void MainWindow::load(const QString &filename)
