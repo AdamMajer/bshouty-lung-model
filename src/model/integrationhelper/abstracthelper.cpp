@@ -35,9 +35,9 @@ double AbstractIntegrationHelper::integrate()
 {
 	switch (solver_type) {
 	case Model::SegmentedVesselFlow:
-		return segmentedVessels();
+		return multiSegmentedVessels();
 	case Model::RigidVesselFlow:
-		return rigidVessels();
+		return singleSegmentVessels();
 	}
 
 	return 0.0;

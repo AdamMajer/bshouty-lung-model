@@ -31,8 +31,8 @@ public:
 	OpenCLIntegrationHelper(Model *model);
 	virtual ~OpenCLIntegrationHelper();
 
-	virtual double segmentedVessels();
-	virtual double rigidVessels();
+	virtual double multiSegmentedVessels();
+	virtual double singleSegmentVessels();
 
 	virtual double capillaryResistances();
 

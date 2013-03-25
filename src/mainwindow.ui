@@ -1414,7 +1414,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Segmented Vessels</string>
+    <string>Multi-Segment Vessels Vessels (128)</string>
    </property>
   </action>
   <action name="actionRigidVessels">
@@ -1422,7 +1422,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Rigid Vessels</string>
+    <string>Single-Segment Vessels</string>
    </property>
   </action>
   <action name="actionNavierStokes">

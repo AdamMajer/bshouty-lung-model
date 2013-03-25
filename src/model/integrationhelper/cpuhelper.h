@@ -25,8 +25,8 @@ class CpuIntegrationHelper : public AbstractIntegrationHelper
 public:
 	CpuIntegrationHelper(Model *model, Model::IntegralType type);
 
-	virtual double segmentedVessels();
-	virtual double rigidVessels();
+	virtual double multiSegmentedVessels();
+	virtual double singleSegmentVessels();
 	void integrateWithDimentions(Vessel::Type t,
 	                             int gen, int idx,
 	                             std::vector<double> &calc_dim);
@@ -35,10 +35,10 @@ public:
 
 protected:
 	static double capillaryResistance(Capillary &cap);
-	double rigidFlowVessel(Vessel &v);
-	double segmentedFlowVessel(Vessel &v);
-	double segmentedFlowVessel(Vessel &v,
-	                           std::vector<double> *calc_dim);
+	double singleSegmentVessel(Vessel &v);
+	double multiSegmentedFlowVessel(Vessel &v);
+	double multiSegmentedFlowVessel(Vessel &v,
+	                                std::vector<double> *calc_dim);
 
 	double vesselIntegration(double(CpuIntegrationHelper::* func)(Vessel&));
 	double vesselIntegrationThread(double(CpuIntegrationHelper::* func)(Vessel&));

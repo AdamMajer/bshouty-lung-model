@@ -32,8 +32,8 @@ public:
 	 * the maximum deviation from the pre-integration resistance value.
 	 */
 	double integrate();
-	virtual double segmentedVessels() = 0;
-	virtual double rigidVessels() = 0;
+	virtual double multiSegmentedVessels() = 0;
+	virtual double singleSegmentVessels() = 0;
 
 	virtual double capillaryResistances() = 0;
 

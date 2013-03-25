@@ -54,7 +54,7 @@ inline float viscosityFactor(float D, float Hct)
 	return (1.0 + (Mi45-1.0)*(powr((float)1.0-Hct, C)-1.0)/(powr((float)1.0-(float)0.45, C)-1.0)) / 3.2;
 }
 
-__kernel void rigidVesselFlow(
+__kernel void singleSegmentVesselFlow(
 		float hct, float tlrns,
 		__global struct Vessel *v,
 		__global struct Result *result)
@@ -131,7 +131,7 @@ __kernel void rigidVesselFlow(
 	result[vessel_index].delta_R = fabs(Rin - Rs)/Rin;
 }
 
-__kernel void segmentedVesselFlow(
+__kernel void multiSegmentedVesselFlow(
                 float hct,
                 __global struct Vessel *v, 
                 __global struct Result *result)

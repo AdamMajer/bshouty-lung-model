@@ -67,7 +67,7 @@ OpenCLIntegrationHelper::~OpenCLIntegrationHelper()
 	delete cpu_helper;
 }
 
-double OpenCLIntegrationHelper::segmentedVessels()
+double OpenCLIntegrationHelper::multiSegmentedVessels()
 {
 
 	/*
@@ -80,7 +80,7 @@ double OpenCLIntegrationHelper::segmentedVessels()
 	for (int i=0; i<n_devices; ++i) {
 		futures.addFuture(QtConcurrent::run(this,
 		        &OpenCLIntegrationHelper::integrateByDevice,
-		        d[i], d[i].segmentedVesselKernel));
+		        d[i], d[i].multiSegmentedVesselKernel));
 	}
 
 	QList<QFuture<float> > results = futures.futures();
@@ -91,7 +91,7 @@ double OpenCLIntegrationHelper::segmentedVessels()
 	return ret;
 }
 
-double OpenCLIntegrationHelper::rigidVessels()
+double OpenCLIntegrationHelper::singleSegmentVessels()
 {
 	QFutureSynchronizer<float> futures;
 
@@ -101,7 +101,7 @@ double OpenCLIntegrationHelper::rigidVessels()
 	for (int i=0; i<n_devices; ++i) {
 		futures.addFuture(QtConcurrent::run(this,
 		        &OpenCLIntegrationHelper::integrateByDevice,
-		        d[i], d[i].rigidVesselKernel));
+		        d[i], d[i].singleSegmentVesselKernel));
 	}
 
 	QList<QFuture<float> > results = futures.futures();

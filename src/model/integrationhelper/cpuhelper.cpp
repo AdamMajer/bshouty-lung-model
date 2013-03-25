@@ -46,14 +46,14 @@ CpuIntegrationHelper::CpuIntegrationHelper(Model *model, Model::IntegralType typ
 
 }
 
-double CpuIntegrationHelper::segmentedVessels()
+double CpuIntegrationHelper::multiSegmentedVessels()
 {
-	return vesselIntegration(&CpuIntegrationHelper::segmentedFlowVessel);
+	return vesselIntegration(&CpuIntegrationHelper::multiSegmentedFlowVessel);
 }
 
-double CpuIntegrationHelper::rigidVessels()
+double CpuIntegrationHelper::singleSegmentVessels()
 {
-	return vesselIntegration(&CpuIntegrationHelper::rigidFlowVessel);
+	return vesselIntegration(&CpuIntegrationHelper::singleSegmentVessel);
 }
 
 void CpuIntegrationHelper::integrateWithDimentions(Vessel::Type t,
@@ -64,7 +64,7 @@ void CpuIntegrationHelper::integrateWithDimentions(Vessel::Type t,
 	calc_dim.clear();
 	calc_dim.reserve(nSums);
 	Vessel *v_ptr = (t==Vessel::Artery) ? arteries() : veins();
-	segmentedFlowVessel(v_ptr[index(gen, idx)], &calc_dim);
+	multiSegmentedFlowVessel(v_ptr[index(gen, idx)], &calc_dim);
 }
 
 double CpuIntegrationHelper::capillaryResistances()
@@ -153,7 +153,7 @@ double CpuIntegrationHelper::capillaryResistance(Capillary &cap)
 	return cap.last_delta_R; // return different from target tolerance
 }
 
-double CpuIntegrationHelper::rigidFlowVessel(Vessel &v)
+double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 {
 	/* NOTE: calc_dim is assumed empty, if supplied */
 	const double hct = Hct();
@@ -242,20 +242,20 @@ double CpuIntegrationHelper::rigidFlowVessel(Vessel &v)
 	return v.last_delta_R;
 }
 
-double CpuIntegrationHelper::segmentedFlowVessel(Vessel &v)
+double CpuIntegrationHelper::multiSegmentedFlowVessel(Vessel &v)
 {
 	/* In case where flow is nil, the vessel has constant pressure
 	 * across it and then the faster algorithm is really really the same
 	 * and nSums times faster.
 	 */
 	if (v.flow == 0.0)
-		return rigidFlowVessel(v);
+		return singleSegmentVessel(v);
 
-	return segmentedFlowVessel(v, NULL);
+	return multiSegmentedFlowVessel(v, NULL);
 }
 
-double CpuIntegrationHelper::segmentedFlowVessel(Vessel &v,
-                                                 std::vector<double> *calc_dim)
+double CpuIntegrationHelper::multiSegmentedFlowVessel(Vessel &v,
+                                                      std::vector<double> *calc_dim)
 {
 	/* NOTE: calc_dim is assumed empty, if supplied */
 	const double hct = Hct();
