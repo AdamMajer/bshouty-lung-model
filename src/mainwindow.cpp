@@ -203,18 +203,33 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->patHt, SIGNAL(textChanged(QString)), SLOT(patHtWtChanged()));
 	connect(ui->patWt, SIGNAL(textChanged(QString)), SLOT(patHtWtChanged()));
 	connect(ui->lungHt, SIGNAL(textChanged(QString)), SLOT(vesselPtpDependenciesChanged()));
+	connect(ui->lungHt_left, SIGNAL(textChanged(QString)), SLOT(vesselPtpDependenciesChanged()));
+	connect(ui->lungHt_right, SIGNAL(textChanged(QString)), SLOT(vesselPtpDependenciesChanged()));
 	connect(ui->Pal, SIGNAL(textChanged(QString)), SLOT(vesselPtpDependenciesChanged()));
 	connect(ui->Ppl, SIGNAL(textChanged(QString)), SLOT(vesselPtpDependenciesChanged()));
 
 	connect(ui->Vm, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vm_left, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vm_right, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
 	connect(ui->Vrv, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vrv_left, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vrv_right, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
 	connect(ui->Vfrc, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vfrc_left, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vfrc_right, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
 	connect(ui->Vtlc, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vtlc_left, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vtlc_right, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
 
 	connect(ui->PA_Diameter, SIGNAL(textChanged(QString)), SLOT(vesselDimsChanged()));
 	connect(ui->PA_EVL, SIGNAL(textChanged(QString)), SLOT(vesselDimsChanged()));
 	connect(ui->PV_Diameter, SIGNAL(textChanged(QString)), SLOT(vesselDimsChanged()));
 	connect(ui->PV_EVL, SIGNAL(textChanged(QString)), SLOT(vesselDimsChanged()));
+
+	QButtonGroup *dissimilar_lungs_group = new QButtonGroup(this);
+	dissimilar_lungs_group->addButton(ui->similarLungsRadioButton, 0);
+	dissimilar_lungs_group->addButton(ui->dissimilarLungsRadioButton, 1);
+	connect(dissimilar_lungs_group, SIGNAL(buttonClicked(int)), SLOT(dissimilarLungSelection(int)));
 
 	disease_box_group = new QButtonGroup(this);
 	disease_box_group->setExclusive(false);
@@ -855,15 +870,25 @@ void MainWindow::updateInputsOutputs()
 
 	/* Read input that were set in the model */
 	GET_MODEL(Model::Lung_Ht_value, ui->lungHt);
+	GET_MODEL(Model::Lung_Ht_L_value, ui->lungHt_left);
+	GET_MODEL(Model::Lung_Ht_R_value, ui->lungHt_right);
 	GET_MODEL(Model::CO_value, ui->CO);
 	GET_MODEL(Model::LAP_value, ui->LAP);
 	GET_MODEL(Model::Pal_value, ui->Pal);
 	GET_MODEL(Model::Ppl_value, ui->Ppl);
 	GET_MODEL(Model::Tlrns_value, ui->Tolerance);
 	GET_MODEL(Model::Vm_value, ui->Vm);
+	GET_MODEL(Model::Vm_L_value, ui->Vm_left);
+	GET_MODEL(Model::Vm_R_value, ui->Vm_right);
 	GET_MODEL(Model::Vrv_value, ui->Vrv);
+	GET_MODEL(Model::Vrv_L_value, ui->Vrv_left);
+	GET_MODEL(Model::Vrv_R_value, ui->Vrv_right);
 	GET_MODEL(Model::Vfrc_value, ui->Vfrc);
+	GET_MODEL(Model::Vfrc_L_value, ui->Vfrc_left);
+	GET_MODEL(Model::Vfrc_R_value, ui->Vfrc_right);
 	GET_MODEL(Model::Vtlc_value, ui->Vtlc);
+	GET_MODEL(Model::Vtlc_L_value, ui->Vtlc_left);
+	GET_MODEL(Model::Vtlc_R_value, ui->Vtlc_right);
 	GET_MODEL(Model::Pat_Ht_value, ui->patHt);
 	GET_MODEL(Model::Pat_Wt_value, ui->patWt);
 	GET_MODEL(Model::Hct_value, ui->Hct);
@@ -927,16 +952,32 @@ QList<QPair<Model::DataType, Range> > MainWindow::fetchModelInputs() const
 	QList<QPair<Model::DataType, Range> > ret;
 
 	/* Update model inputs */
-	ADD_MODEL_RANGE(ret, Model::Lung_Ht_value, ui->lungHt);
+	if (ui->similarLungsRadioButton->isChecked()) {
+		// similar lungs
+		ADD_MODEL_RANGE(ret, Model::Lung_Ht_value, ui->lungHt);
+		ADD_MODEL_RANGE(ret, Model::Vm_value, ui->Vm);
+		ADD_MODEL_RANGE(ret, Model::Vrv_value, ui->Vrv);
+		ADD_MODEL_RANGE(ret, Model::Vfrc_value, ui->Vfrc);
+		ADD_MODEL_RANGE(ret, Model::Vtlc_value, ui->Vtlc);
+	}
+	else {
+		// dissimilar lungs
+		ADD_MODEL_RANGE(ret, Model::Lung_Ht_L_value, ui->lungHt_left);
+		ADD_MODEL_RANGE(ret, Model::Lung_Ht_R_value, ui->lungHt_right);
+		ADD_MODEL_RANGE(ret, Model::Vm_L_value, ui->Vm_left);
+		ADD_MODEL_RANGE(ret, Model::Vm_R_value, ui->Vm_right);
+		ADD_MODEL_RANGE(ret, Model::Vrv_L_value, ui->Vrv_left);
+		ADD_MODEL_RANGE(ret, Model::Vrv_R_value, ui->Vrv_right);
+		ADD_MODEL_RANGE(ret, Model::Vfrc_L_value, ui->Vfrc_left);
+		ADD_MODEL_RANGE(ret, Model::Vfrc_R_value, ui->Vfrc_right);
+		ADD_MODEL_RANGE(ret, Model::Vtlc_L_value, ui->Vtlc_left);
+		ADD_MODEL_RANGE(ret, Model::Vtlc_R_value, ui->Vtlc_right);
+	}
 	ADD_MODEL_RANGE(ret, Model::CO_value, ui->CO);
 	ADD_MODEL_RANGE(ret, Model::LAP_value, ui->LAP);
 	ADD_MODEL_RANGE(ret, Model::Pal_value, ui->Pal);
 	ADD_MODEL_RANGE(ret, Model::Ppl_value, ui->Ppl);
 	ADD_MODEL_RANGE(ret, Model::Tlrns_value, ui->Tolerance);
-	ADD_MODEL_RANGE(ret, Model::Vm_value, ui->Vm);
-	ADD_MODEL_RANGE(ret, Model::Vrv_value, ui->Vrv);
-	ADD_MODEL_RANGE(ret, Model::Vfrc_value, ui->Vfrc);
-	ADD_MODEL_RANGE(ret, Model::Vtlc_value, ui->Vtlc);
 	ADD_MODEL_RANGE(ret, Model::Pat_Ht_value, ui->patHt);
 	ADD_MODEL_RANGE(ret, Model::Pat_Wt_value, ui->patWt);
 	ADD_MODEL_RANGE(ret, Model::Hct_value, ui->Hct);
@@ -1264,6 +1305,55 @@ void MainWindow::allocateNewModel(bool propagate_diseases_to_new_model)
 	delete old_model;
 }
 
+void MainWindow::dissimilarLungSelection(int id)
+{
+	int current = ui->dissimilarLungParameterStack->currentIndex();
+
+	if (id == current)
+		return;
+
+	switch (id) {
+	case 0:    // move dissimular => similar values
+#define COPY_TEXT(name) do { \
+	ui->name->blockSignals(true); \
+	ui->name->setText(ui->name##_left->text()); \
+	ui->name->blockSignals(false); \
+	} while(false)
+
+		COPY_TEXT(lungHt);
+		COPY_TEXT(Vm);
+		COPY_TEXT(Vrv);
+		COPY_TEXT(Vtlc);
+		COPY_TEXT(Vfrc);
+#undef COPY_TEXT
+		break;
+
+	case 1:    // move similar => dissimilar values
+#define COPY_TEXT(name) do { \
+	ui->name##_left->blockSignals(true); \
+	ui->name##_right->blockSignals(true); \
+	ui->name##_left->setText(ui->name->text()); \
+	ui->name##_right->setText(ui->name->text()); \
+	ui->name##_left->blockSignals(false); \
+	ui->name##_right->blockSignals(false); \
+	} while(false)
+
+		COPY_TEXT(lungHt);
+		COPY_TEXT(Vm);
+		COPY_TEXT(Vrv);
+		COPY_TEXT(Vtlc);
+		COPY_TEXT(Vfrc);
+
+#undef COPY_TEXT
+		break;
+
+	default:
+		qDebug() << "should not happen" << __FUNCTION__ << __LINE__ << id;
+	}
+
+	ui->dissimilarLungParameterStack->setCurrentIndex(id);
+}
+
 void MainWindow::patHtWtChanged()
 {
 	const Range ht_range(ui->patHt->text());
@@ -1313,15 +1403,34 @@ void MainWindow::patHtWtChanged()
 
 void MainWindow::vesselPtpDependenciesChanged()
 {
-	const Range lung_height(ui->lungHt->text());
 	const Range ppl(ui->Ppl->text());
 	const Range pal(ui->Pal->text());
 
 	bool data_modified = false;
-	if (lung_height.sequenceCount() == 1) {
-		double val = lung_height.firstValue();
-		data_modified = baseline->setData(Model::Lung_Ht_value, val);
+
+	if (ui->similarLungsRadioButton->isChecked()) {
+		const Range lung_height(ui->lungHt->text());
+
+		if (lung_height.sequenceCount() == 1) {
+			double val = lung_height.firstValue();
+			data_modified = baseline->setData(Model::Lung_Ht_value, val) || data_modified;
+		}
 	}
+	else {
+		// dissimilar lungs!
+		const Range lh_left(ui->lungHt_left->text());
+		const Range lh_right(ui->lungHt_right->text());
+
+		if (lh_left.sequenceCount() == 1) {
+			double val = lh_left.firstValue();
+			data_modified = baseline->setData(Model::Lung_Ht_L_value, val) || data_modified;
+		}
+		if (lh_right.sequenceCount() == 1) {
+			double val = lh_right.firstValue();
+			data_modified = baseline->setData(Model::Lung_Ht_R_value, val) || data_modified;
+		}
+	}
+
 
 	if (ppl.sequenceCount() == 1) {
 		double val = ppl.firstValue();

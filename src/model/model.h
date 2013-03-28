@@ -22,6 +22,7 @@
 
 #include "disease.h"
 #include <QPair>
+#include <array>
 
 /* Defined in model.cpp, used by integration helper. OpenCL code assuses
  * these values too
@@ -106,19 +107,27 @@ public:
 	/* DiseaseParam indicates that high-dword (16-bits of the integer)
 	 * indicate Disease index in the disease list and its parameter number.
 	 */
-	enum DataType { Lung_Ht_value, Flow_value, LAP_value, Pal_value, Ppl_value,
-	                Ptp_value, PAP_value, Rus_value, Rds_value, Rm_value,
-	                Rt_value, Tlrns_value,
-	                Vm_value, Vrv_value, Vfrc_value, Vtlc_value,
-	                Pat_Ht_value, Pat_Wt_value,
-	                TotalR_value,
-	                Krc,
-	                Hct_value, PA_EVL_value, PA_Diam_value, PV_EVL_value, PV_Diam_value,
-	                Gender_value,
-	                CV_Diam_value,
-	                CO_value = Flow_value,
-	                DiseaseParam = 0xFFFF
+	enum DataType {
+		Lung_Ht_value, Flow_value, LAP_value, Pal_value, Ppl_value,
+		Ptp_value, PAP_value, Rus_value, Rds_value, Rm_value,
+		Rt_value, Tlrns_value,
+		Vm_value, Vrv_value, Vfrc_value, Vtlc_value,
+		Pat_Ht_value, Pat_Wt_value,
+		TotalR_value,
+		Krc,
+		Hct_value, PA_EVL_value, PA_Diam_value, PV_EVL_value, PV_Diam_value,
+		Gender_value,
+		CV_Diam_value,
+
+		Lung_Ht_L_value, Lung_Ht_R_value,
+		Vm_L_value, Vrv_L_value, Vfrc_L_value, Vtlc_L_value,
+		Vm_R_value, Vrv_R_value, Vfrc_R_value, Vtlc_R_value,
+
+		CO_value = Flow_value,
+		DiseaseParam = 0xFFFF
 	};
+
+	enum Lung { LeftLung=0, RightLung=1 };
 
 	enum Transducer { Top, Middle, Bottom };
 	enum Gender { Male, Female };
@@ -143,6 +152,13 @@ public:
 
 	// Number of elements in a given generation of the model
 	int nElements( unsigned n ) const { return 1 << (n-1); } // 2**(n-1)
+
+	// Lung side
+	Lung lungSide(int gen_no, int idx) const {
+		if (idx < nElements(gen_no)/2)
+			return LeftLung;
+		return RightLung;
+	}
 
 	// Number of real vessels
 	int nVessels(Vessel::Type vessel_type, unsigned gen_no) const;
@@ -267,7 +283,7 @@ protected:
 	void initVesselBaselineResistances(int gen);
 	void calculateBaselineCharacteristics();
 
-	double lengthFactor(const Vessel &v) const;
+	double lengthFactor(const Vessel &v, int lung_no) const;
 
 	virtual bool initDb(QSqlDatabase &db) const;
 	virtual bool saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress);
@@ -278,8 +294,8 @@ protected:
 	int n_iterations;
 
 private:
-	double Tlrns, LungHt, Pal, Ppl, CO, CI, LAP;
-	double Vm, Vrv, Vfrc, Vtlc;
+	double Tlrns, Pal, Ppl, CO, CI, LAP;
+	std::array<double,2> LungHt, Vm, Vrv, Vfrc, Vtlc; // [LeftLung, RightLung]
 	double PatWt, PatHt;
 	double Hct;
 	double PA_EVL, PA_diam, PV_EVL, PV_diam; // cm

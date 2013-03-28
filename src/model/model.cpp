@@ -119,7 +119,7 @@ Model::Model(Transducer transducer_pos, IntegralType int_type)
 
 	PatHt = calibrationValue(Pat_Ht_value);
 	PatWt = calibrationValue(Pat_Wt_value);
-	LungHt = calibrationValue(Lung_Ht_value);
+	LungHt.fill(calibrationValue(Lung_Ht_value));
 
 	Pal = calibrationValue(Pal_value);
 	Ppl = calibrationValue(Ppl_value);
@@ -127,10 +127,10 @@ Model::Model(Transducer transducer_pos, IntegralType int_type)
 	CO = calibrationValue(CO_value);
 	LAP = calibrationValue(LAP_value);
 
-	Vm = calibrationValue(Vm_value);
-	Vrv = calibrationValue(Vrv_value);
-	Vfrc = calibrationValue(Vfrc_value);
-	Vtlc = calibrationValue(Vtlc_value);
+	Vm.fill(calibrationValue(Vm_value));
+	Vrv.fill(calibrationValue(Vrv_value));
+	Vfrc.fill(calibrationValue(Vfrc_value));
+	Vtlc.fill(calibrationValue(Vtlc_value));
 
 	Hct = calibrationValue(Hct_value);
 	PA_EVL = calibrationValue(PA_EVL_value);
@@ -459,8 +459,11 @@ void Model::setCapillary(int index, const Capillary & c, bool override)
 double Model::getResult(DataType type) const
 {
 	switch( type ){
+	case Lung_Ht_L_value:
 	case Lung_Ht_value:
-		return LungHt;
+		return LungHt[0];
+	case Lung_Ht_R_value:
+		return LungHt[1];
 	case CO_value:
 		return CO;
 	case LAP_value:
@@ -494,14 +497,26 @@ double Model::getResult(DataType type) const
 	case DiseaseParam:
 		break;
 
+	case Vm_L_value:
 	case Vm_value:
-		return Vm * 100.0;
+		return Vm[0] * 100.0;
+	case Vrv_L_value:
 	case Vrv_value:
-		return Vrv * 100.0;
+		return Vrv[0] * 100.0;
+	case Vfrc_L_value:
 	case Vfrc_value:
-		return Vfrc * 100.0;
+		return Vfrc[0] * 100.0;
+	case Vtlc_L_value:
 	case Vtlc_value:
-		return Vtlc * 100.0;
+		return Vtlc[0] * 100.0;
+	case Vm_R_value:
+		return Vm[1] * 100.0;
+	case Vrv_R_value:
+		return Vrv[1] * 100.0;
+	case Vfrc_R_value:
+		return Vfrc[1] * 100.0;
+	case Vtlc_R_value:
+		return Vtlc[1] * 100.0;
 
 	case Hct_value:
 		return Hct * 100.0;
@@ -536,8 +551,25 @@ bool Model::setData(DataType type, double val)
 {
 	switch( type ){
 	case Lung_Ht_value:
-		if (significantChange(LungHt, val)) {
-			LungHt = val;
+		if (significantChange(LungHt[0], val) ||
+		    significantChange(LungHt[1], val)) {
+			LungHt.fill(val);
+			modified_flag = true;
+			calculateBaselineCharacteristics();
+			return true;
+		}
+		break;
+	case Lung_Ht_L_value:
+		if (significantChange(LungHt[0], val)) {
+			LungHt[0] = val;
+			modified_flag = true;
+			calculateBaselineCharacteristics();
+			return true;
+		}
+		break;
+	case Lung_Ht_R_value:
+		if (significantChange(LungHt[1], val)) {
+			LungHt[1] = val;
 			modified_flag = true;
 			calculateBaselineCharacteristics();
 			return true;
@@ -583,8 +615,9 @@ bool Model::setData(DataType type, double val)
 		break;
 	case Vm_value:
 		val /= 100.0;
-		if (significantChange(Vm, val)) {
-			Vm = val;
+		if (significantChange(Vm[0], val) ||
+		    significantChange(Vm[1], val)) {
+			Vm.fill(val);
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
@@ -592,8 +625,9 @@ bool Model::setData(DataType type, double val)
 		break;
 	case Vrv_value:
 		val /= 100.0;
-		if (significantChange(Vrv, val)) {
-			Vrv = val;
+		if (significantChange(Vrv[0], val) ||
+		    significantChange(Vrv[1], val)) {
+			Vrv.fill(val);
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
@@ -601,8 +635,9 @@ bool Model::setData(DataType type, double val)
 		break;
 	case Vfrc_value:
 		val /= 100.0;
-		if (significantChange(Vfrc, val)) {
-			Vfrc = val;
+		if (significantChange(Vfrc[0], val) ||
+		    significantChange(Vfrc[1], val)) {
+			Vfrc.fill(val);
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
@@ -610,8 +645,81 @@ bool Model::setData(DataType type, double val)
 		break;
 	case Vtlc_value:
 		val /= 100.0;
-		if (significantChange(Vtlc, val)) {
-			Vtlc = val;
+		if (significantChange(Vtlc[0], val) ||
+		    significantChange(Vtlc[1], val)) {
+			Vtlc.fill(val);
+			calculateBaselineCharacteristics();
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case Vm_L_value:
+		val /= 100.0;
+		if (significantChange(Vm[0], val)) {
+			Vm[0] = val;
+			calculateBaselineCharacteristics();
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case Vrv_L_value:
+		val /= 100.0;
+		if (significantChange(Vrv[0], val)) {
+			Vrv[0] = val;
+			calculateBaselineCharacteristics();
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case Vfrc_L_value:
+		val /= 100.0;
+		if (significantChange(Vfrc[0], val)) {
+			Vfrc[0] = val;
+			calculateBaselineCharacteristics();
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case Vtlc_L_value:
+		val /= 100.0;
+		if (significantChange(Vtlc[0], val)) {
+			Vtlc[0] = val;
+			calculateBaselineCharacteristics();
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case Vm_R_value:
+		val /= 100.0;
+		if (significantChange(Vm[1], val)) {
+			Vm[1] = val;
+			calculateBaselineCharacteristics();
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case Vrv_R_value:
+		val /= 100.0;
+		if (significantChange(Vrv[1], val)) {
+			Vrv[1] = val;
+			calculateBaselineCharacteristics();
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case Vfrc_R_value:
+		val /= 100.0;
+		if (significantChange(Vfrc[1], val)) {
+			Vfrc[1] = val;
+			calculateBaselineCharacteristics();
+			modified_flag = true;
+			return true;
+		}
+		break;
+	case Vtlc_R_value:
+		val /= 100.0;
+		if (significantChange(Vtlc[1], val)) {
+			Vtlc[1] = val;
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
@@ -905,9 +1013,17 @@ double Model::calibrationValue(DataType type)
 			/* NOTE: Stored calibration values are pre-scaled */
 			switch (type) {
 			case Model::Vm_value:
+			case Model::Vm_L_value:
+			case Model::Vm_R_value:
 			case Model::Vrv_value:
+			case Model::Vrv_L_value:
+			case Model::Vrv_R_value:
 			case Model::Vfrc_value:
+			case Model::Vfrc_L_value:
+			case Model::Vfrc_R_value:
 			case Model::Vtlc_value:
+			case Model::Vtlc_L_value:
+			case Model::Vtlc_R_value:
 			case Model::Hct_value:
 				return ret_value / 100.0;
 			default:
@@ -927,14 +1043,24 @@ double Model::calibrationValue(DataType type)
 	case Model::Pat_Wt_value:
 		return 67.375;
 	case Model::Lung_Ht_value:
+	case Model::Lung_Ht_L_value:
+	case Model::Lung_Ht_R_value:
 		return 20;
 	case Model::Vm_value:
+	case Model::Vm_L_value:
+	case Model::Vm_R_value:
 		return 0.1;
 	case Model::Vrv_value:
+	case Model::Vrv_L_value:
+	case Model::Vrv_R_value:
 		return 0.27;
 	case Model::Vfrc_value:
+	case Model::Vfrc_L_value:
+	case Model::Vfrc_R_value:
 		return 0.55;
 	case Model::Vtlc_value:
+	case Model::Vtlc_L_value:
+	case Model::Vtlc_R_value:
 		return 1.0;
 	case Model::CO_value:
 		return 3.37801294 * BSA(175.0, 67.375);
@@ -1492,16 +1618,19 @@ void Model::calculateBaselineCharacteristics()
 	const int num_veins = numVeins();
 	for (int i=0; i<num_arteries; ++i) {
 		Vessel &art = arteries[i];
+		int gen = gen_no(i);
+		int start_idx = startIndex(gen);
+		int lung_no = lungSide(gen, i-start_idx);
 
 		switch (trans_pos) {
 		case Top:
-			art.GP = -art.GPz*LungHt;
+			art.GP = -art.GPz*LungHt[lung_no];
 			break;
 		case Middle:
-			art.GP = LungHt/2 - art.GPz*LungHt;
+			art.GP = LungHt[lung_no]/2 - art.GPz*LungHt[lung_no];
 			break;
 		case Bottom:
-			art.GP = LungHt-art.GPz*LungHt;
+			art.GP = LungHt[lung_no]-art.GPz*LungHt[lung_no];
 			break;
 		}
 
@@ -1516,22 +1645,25 @@ void Model::calculateBaselineCharacteristics()
 			art.length_factor = 1.0;
 		}
 		else {
-			art.length_factor = lengthFactor(art);
+			art.length_factor = lengthFactor(art, lung_no);
 		}
 	}
 
 	for (int i=0; i<num_veins; ++i) {
 		Vessel &vein = veins[i];
+		int gen = gen_no(i);
+		int start_idx = startIndex(gen);
+		int lung_no = lungSide(gen, i-start_idx);
 
 		switch (trans_pos) {
 		case Top:
-			vein.GP = -vein.GPz*LungHt;
+			vein.GP = -vein.GPz*LungHt[lung_no];
 			break;
 		case Middle:
-			vein.GP = LungHt/2 - vein.GPz*LungHt;
+			vein.GP = LungHt[lung_no]/2 - vein.GPz*LungHt[lung_no];
 			break;
 		case Bottom:
-			vein.GP = LungHt-vein.GPz*LungHt;
+			vein.GP = LungHt[lung_no]-vein.GPz*LungHt[lung_no];
 			break;
 		}
 
@@ -1546,7 +1678,7 @@ void Model::calculateBaselineCharacteristics()
 			vein.length_factor = 1.0;
 		}
 		else {
-			vein.length_factor = lengthFactor(vein);
+			vein.length_factor = lengthFactor(vein, lung_no);
 		}
 	}
 
@@ -1571,9 +1703,9 @@ void Model::calculateBaselineCharacteristics()
 	}
 }
 
-double Model::lengthFactor(const Vessel &v) const
+double Model::lengthFactor(const Vessel &v, int lung_no) const
 {
-	const double min_ratio = 0.4 * Vtlc;
+	const double min_ratio = 0.4 * Vtlc[lung_no];
 	double len_ratio;
 
 	if (v.Ptp > 20.0)
@@ -1581,13 +1713,13 @@ double Model::lengthFactor(const Vessel &v) const
 	else if (v.Ptp > 12.5)
 		len_ratio = 0.1/7.5*(v.Ptp-12.5) + 0.9;
 	else if (v.Ptp > 5.0)
-		len_ratio = (0.9-Vfrc)/7.5*(v.Ptp-5.0) + Vfrc;
+		len_ratio = (0.9-Vfrc[lung_no])/7.5*(v.Ptp-5.0) + Vfrc[lung_no];
 	else if (v.Ptp > 3.0)
-		len_ratio = (Vfrc-Vrv)/2.0*(v.Ptp-3.0) + Vrv;
+		len_ratio = (Vfrc[lung_no]-Vrv[lung_no])/2.0*(v.Ptp-3.0) + Vrv[lung_no];
 	else
-		len_ratio = (Vrv-Vm)/3.0*v.Ptp + Vm;
+		len_ratio = (Vrv[lung_no]-Vm[lung_no])/3.0*v.Ptp + Vm[lung_no];
 
-	len_ratio = qMax(Vtlc*len_ratio, min_ratio);
+	len_ratio = qMax(Vtlc[lung_no]*len_ratio, min_ratio);
 	return cbrt(len_ratio);
 }
 
@@ -1641,7 +1773,8 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	bool ret = true;
 
 	SET_VALUE(Tlrns);
-	SET_VALUE(LungHt);
+	SET_VALUE(LungHt[0]);
+	SET_VALUE(LungHt[1]);
 	SET_VALUE(Pal);
 	SET_VALUE(Ppl);
 	SET_VALUE(CO);
@@ -1654,10 +1787,14 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(PV_EVL);
 	SET_VALUE(cv_diam_ratio);
 
-	SET_VALUE(Vm);
-	SET_VALUE(Vrv);
-	SET_VALUE(Vfrc);
-	SET_VALUE(Vtlc);
+	SET_VALUE(Vm[0]);
+	SET_VALUE(Vm[1]);
+	SET_VALUE(Vrv[0]);
+	SET_VALUE(Vrv[1]);
+	SET_VALUE(Vfrc[0]);
+	SET_VALUE(Vfrc[1]);
+	SET_VALUE(Vtlc[0]);
+	SET_VALUE(Vtlc[1]);
 
 	SET_VALUE(Krc_factor);
 
@@ -1835,7 +1972,8 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	QMap<QString,double> values;
 
 	SET_VALUE(Tlrns);
-	SET_VALUE(LungHt);
+	SET_VALUE(LungHt[0]);
+	SET_VALUE(LungHt[1]);
 	SET_VALUE(Pal);
 	SET_VALUE(Ppl);
 	SET_VALUE(CO);
@@ -1848,10 +1986,14 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	SET_VALUE(PV_EVL);
 	SET_VALUE(cv_diam_ratio);
 
-	SET_VALUE(Vm);
-	SET_VALUE(Vrv);
-	SET_VALUE(Vfrc);
-	SET_VALUE(Vtlc);
+	SET_VALUE(Vm[0]);
+	SET_VALUE(Vm[1]);
+	SET_VALUE(Vrv[0]);
+	SET_VALUE(Vrv[1]);
+	SET_VALUE(Vfrc[0]);
+	SET_VALUE(Vfrc[1]);
+	SET_VALUE(Vtlc[0]);
+	SET_VALUE(Vtlc[1]);
 
 	SET_VALUE(Krc_factor);
 
@@ -1894,7 +2036,8 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	}
 
 	GET_VALUE(Tlrns);
-	GET_VALUE(LungHt);
+	GET_VALUE(LungHt[0]);
+	GET_VALUE(LungHt[1]);
 	GET_VALUE(Pal);
 	GET_VALUE(Ppl);
 	GET_VALUE(CO);
@@ -1907,10 +2050,14 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 	GET_VALUE(PV_EVL);
 	GET_VALUE(cv_diam_ratio);
 
-	GET_VALUE(Vm);
-	GET_VALUE(Vrv);
-	GET_VALUE(Vfrc);
-	GET_VALUE(Vtlc);
+	GET_VALUE(Vm[0]);
+	GET_VALUE(Vm[1]);
+	GET_VALUE(Vrv[0]);
+	GET_VALUE(Vrv[1]);
+	GET_VALUE(Vfrc[0]);
+	GET_VALUE(Vfrc[1]);
+	GET_VALUE(Vtlc[0]);
+	GET_VALUE(Vtlc[1]);
 
 	GET_VALUE(Krc_factor);
 

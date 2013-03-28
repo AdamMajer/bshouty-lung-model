@@ -122,6 +122,8 @@ protected slots:
 	void calculationTypeButtonGroupClick(int id);
 	void allocateNewModel(bool propagate_diseases_to_new_model=true);
 
+	void dissimilarLungSelection(int id);
+
 	void patHtWtChanged();
 	void vesselPtpDependenciesChanged();
 	void globalVolumesChanged();
