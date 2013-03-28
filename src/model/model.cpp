@@ -119,7 +119,7 @@ Model::Model(Transducer transducer_pos, IntegralType int_type)
 
 	PatHt = calibrationValue(Pat_Ht_value);
 	PatWt = calibrationValue(Pat_Wt_value);
-	LungHt.fill(calibrationValue(Lung_Ht_value));
+	LungHt[0] = LungHt[1] = calibrationValue(Lung_Ht_value);
 
 	Pal = calibrationValue(Pal_value);
 	Ppl = calibrationValue(Ppl_value);
@@ -127,10 +127,10 @@ Model::Model(Transducer transducer_pos, IntegralType int_type)
 	CO = calibrationValue(CO_value);
 	LAP = calibrationValue(LAP_value);
 
-	Vm.fill(calibrationValue(Vm_value));
-	Vrv.fill(calibrationValue(Vrv_value));
-	Vfrc.fill(calibrationValue(Vfrc_value));
-	Vtlc.fill(calibrationValue(Vtlc_value));
+	Vm[0] = Vm[1] = calibrationValue(Vm_value);
+	Vrv[0] = Vrv[1] = calibrationValue(Vrv_value);
+	Vfrc[0] = Vfrc[1] = calibrationValue(Vfrc_value);
+	Vtlc[0] = Vtlc[1] = calibrationValue(Vtlc_value);
 
 	Hct = calibrationValue(Hct_value);
 	PA_EVL = calibrationValue(PA_EVL_value);
@@ -191,17 +191,19 @@ Model& Model::operator =(const Model &other)
 	// Assigns all values from other other model to the current model
 	pat_gender = other.pat_gender;
 	Tlrns = other.Tlrns;
-	LungHt = other.LungHt;
 	Pal = other.Pal;
 	Ppl = other.Ppl;
 	CO = other.CO;
 	CI = other.CI;
 	LAP = other.LAP;
 
-	Vm = other.Vm;
-	Vrv = other.Vrv;
-	Vfrc = other.Vfrc;
-	Vtlc = other.Vtlc;
+	for (int i=0; i<2; ++i) {
+		LungHt[i] = other.LungHt[i];
+		Vm[i] = other.Vm[i];
+		Vrv[i] = other.Vrv[i];
+		Vfrc[i] = other.Vfrc[i];
+		Vtlc[i] = other.Vtlc[i];
+	}
 
 	PatWt = other.PatWt;
 	PatHt = other.PatHt;
@@ -553,7 +555,7 @@ bool Model::setData(DataType type, double val)
 	case Lung_Ht_value:
 		if (significantChange(LungHt[0], val) ||
 		    significantChange(LungHt[1], val)) {
-			LungHt.fill(val);
+			LungHt[0] = LungHt[1] = val;
 			modified_flag = true;
 			calculateBaselineCharacteristics();
 			return true;
@@ -617,7 +619,7 @@ bool Model::setData(DataType type, double val)
 		val /= 100.0;
 		if (significantChange(Vm[0], val) ||
 		    significantChange(Vm[1], val)) {
-			Vm.fill(val);
+			Vm[0] = Vm[1] = val;
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
@@ -627,7 +629,7 @@ bool Model::setData(DataType type, double val)
 		val /= 100.0;
 		if (significantChange(Vrv[0], val) ||
 		    significantChange(Vrv[1], val)) {
-			Vrv.fill(val);
+			Vrv[0] = Vrv[1] = val;
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
@@ -637,7 +639,7 @@ bool Model::setData(DataType type, double val)
 		val /= 100.0;
 		if (significantChange(Vfrc[0], val) ||
 		    significantChange(Vfrc[1], val)) {
-			Vfrc.fill(val);
+			Vfrc[0] = Vfrc[1] = val;
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
@@ -647,7 +649,7 @@ bool Model::setData(DataType type, double val)
 		val /= 100.0;
 		if (significantChange(Vtlc[0], val) ||
 		    significantChange(Vtlc[1], val)) {
-			Vtlc.fill(val);
+			Vtlc[0] = Vtlc[1] = val;
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;

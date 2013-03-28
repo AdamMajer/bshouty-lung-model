@@ -22,7 +22,6 @@
 
 #include "disease.h"
 #include <QPair>
-#include <array>
 
 /* Defined in model.cpp, used by integration helper. OpenCL code assuses
  * these values too
@@ -295,7 +294,7 @@ protected:
 
 private:
 	double Tlrns, Pal, Ppl, CO, CI, LAP;
-	std::array<double,2> LungHt, Vm, Vrv, Vfrc, Vtlc; // [LeftLung, RightLung]
+	double LungHt[2], Vm[2], Vrv[2], Vfrc[2], Vtlc[2]; // [LeftLung, RightLung]
 	double PatWt, PatHt;
 	double Hct;
 	double PA_EVL, PA_diam, PV_EVL, PV_diam; // cm
