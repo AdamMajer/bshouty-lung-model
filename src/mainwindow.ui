@@ -1665,7 +1665,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Multi-Segment Vessels Vessels (128)</string>
+    <string>Multi-Segment Vessels (128)</string>
    </property>
   </action>
   <action name="actionRigidVessels">
