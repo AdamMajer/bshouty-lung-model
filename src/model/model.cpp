@@ -1079,12 +1079,15 @@ double Model::calibrationValue(DataType type)
 	case Model::PV_EVL_value:
 		return 5.0;
 	case Model::PA_Diam_value:
-		return 1.078684028;
+		return 1.144573509;
+		// return 1.078684028;
 	case Model::PV_Diam_value:
-		return 1.358196542;
+		return 1.435043415;
+		//return 1.358196542;
 
 	case Model::Krc:
-		return 217116.065107119;
+		return 347172.146206906;
+		// return 217116.065107119;
 	case Model::CV_Diam_value:
 		return 0.0002672574699;
 
@@ -1343,7 +1346,7 @@ void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 
 			double flow = (arteries[con].pressure_in - veins[con].pressure_out) /
 			              arteries[con].total_R;;
-			if (arteries[con].pressure_in <= 0.0 || flow < 0.0 || isnan(flow))
+			if (flow < 0.0 || isnan(flow))
 				flow = 0.0;
 
 			veins[con].flow = flow;

@@ -67,12 +67,18 @@ __kernel void singleSegmentVesselFlow(
 	const float Pin = vein.pressure_in;
 	const float Pout = vein.pressure_out;
 
-	// undefined pressure signals no flow (closed vessel(s) somewhere)
-	if (isnan(Pout) || isnan(Pin))
-		return;
-
 	float Ptm = 1.35951002636 * ((Pin+Pout)/2.0 - vein.tone);
 	float Rs;
+
+	if (Pout < 0.0)
+		result[vessel_index].R = INFINITY;
+
+	if (vein.flow == 0.0 || Pout < 0.0 || isnan(Pout) || isnan(Pin)) {
+		result[vessel_index].D = 0.0;
+		result[vessel_index].Dmin = 0.0;
+		result[vessel_index].Dmax = 0.0;
+		return;
+	}
 
 	/* First segment is slightly different from others, so we pull it out */
 	/* First 1/5th of generations is outside the lung - use different equation */
@@ -153,6 +159,16 @@ __kernel void multiSegmentedVesselFlow(
 
 	float Ptm = Ptm_i - vein.Ppl - vein.peri_a - vein.peri_b * exp( vein.peri_c * ( Ptm_i - vein.Ppl ));
 	
+	if (Pout < 0.0)
+		result[vessel_index].R = INFINITY;
+
+	if (vein.flow == 0.0 || Pout < 0.0 || isnan(Pout)) {
+		result[vessel_index].D = 0.0;
+		result[vessel_index].Dmin = 0.0;
+		result[vessel_index].Dmax = 0.0;
+		return;
+	}
+
 	// check if vessel is closed
 	if (vein.D < 0.1) {
 		result[vessel_index].D = 0.0;
