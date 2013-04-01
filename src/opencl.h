@@ -190,8 +190,10 @@ struct CL_Result {
 class opencl_exception : public std::runtime_error
 {
 public:
-	explicit opencl_exception(const std::string &name) throw() : std::runtime_error(name) {}
-	explicit opencl_exception(const QString &name) throw() : std::runtime_error(name.toStdString()) {}
+	explicit opencl_exception(const std::string &name, int id=1) throw() : std::runtime_error(name) {error_no=id;}
+	explicit opencl_exception(const QString &name, int id=1) throw() : std::runtime_error(name.toStdString()) {error_no=id;}
+
+	int error_no;
 };
 
 class OpenCL

@@ -154,7 +154,7 @@ Model::Model(Transducer transducer_pos, IntegralType int_type)
 	                DbSettings::value(settings_opencl_enabled, true).toBool();
 
 	if (opencl_helper)
-		integration_helper = new OpenCLIntegrationHelper(this);
+		integration_helper = new OpenCLIntegrationHelper(this, integral_type);
 	else
 		integration_helper = new CpuIntegrationHelper(
 		                             this,
@@ -241,7 +241,7 @@ Model& Model::operator =(const Model &other)
 	                DbSettings::value(settings_opencl_enabled, true).toBool();
 
 	if (opencl_helper)
-		integration_helper = new OpenCLIntegrationHelper(this);
+		integration_helper = new OpenCLIntegrationHelper(this, integral_type);
 	else
 		integration_helper = new CpuIntegrationHelper(
 		                             this,
@@ -911,7 +911,7 @@ int Model::calc( int max_iter )
 	return n_iterations;
 }
 
-bool Model::calculationErrors() const
+int Model::calculationErrors() const
 {
 	return integration_helper->hasErrors();
 }
@@ -1080,16 +1080,13 @@ double Model::calibrationValue(DataType type)
 		return 5.0;
 	case Model::PA_Diam_value:
 		return 1.144573509;
-		// return 1.078684028;
 	case Model::PV_Diam_value:
 		return 1.435043415;
-		//return 1.358196542;
 
 	case Model::Krc:
-		return 347172.146206906;
-		// return 217116.065107119;
+		return 347183.918337400;
 	case Model::CV_Diam_value:
-		return 0.0002672574699;
+		return 0.0002861550397;
 
 	case Model::Ptp_value:
 	case Model::PAP_value:

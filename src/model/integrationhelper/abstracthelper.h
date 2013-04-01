@@ -38,7 +38,7 @@ public:
 	virtual double capillaryResistances() = 0;
 
 	virtual bool isAvailable() const { return true; }
-	virtual bool hasErrors() const { return false; }
+	virtual int hasErrors() const { return 0; }
 
 protected:
 	bool isOutsideLung(int vessel_idx) const { return model->isOutsideLung(vessel_idx); }

@@ -20,6 +20,7 @@
 #include "abstracthelper.h"
 #include "model/model.h"
 #include "opencl.h"
+#include <QAtomicInt>
 #include <QMutex>
 
 struct OpenCLIntegrationData;
@@ -28,7 +29,7 @@ class CpuIntegrationHelper;
 class OpenCLIntegrationHelper : public AbstractIntegrationHelper
 {
 public:
-	OpenCLIntegrationHelper(Model *model);
+	OpenCLIntegrationHelper(Model *model, Model::IntegralType type);
 	virtual ~OpenCLIntegrationHelper();
 
 	virtual double multiSegmentedVessels();
@@ -37,7 +38,7 @@ public:
 	virtual double capillaryResistances();
 
 	virtual bool isAvailable() const { return is_available; }
-	virtual bool hasErrors() const { return has_errors; }
+	virtual int hasErrors() const { return error; }
 
 protected:
 	float integrateByDevice(OpenCL_device &dev, cl_kernel k);
@@ -50,13 +51,12 @@ protected:
 
 private:
 	bool is_available;
-	bool has_errors;
+	int error;
 
 	const int n_devices;
 	std::vector<OpenCL_device> d;
 
 	// used by the integration function
-	QMutex vessel_index_mutex;
-	int art_index, vein_index;
+	QAtomicInt vein_index, art_index;
 	CpuIntegrationHelper *cpu_helper; // used for capillaries
 };

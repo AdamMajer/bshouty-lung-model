@@ -23,23 +23,24 @@
 #include <QFutureSynchronizer>
 #include <QDebug>
 #include <QFile>
+#include <limits>
 
 struct WorkGroup {
 	int n_elements;
 	cl_kernel kernel;
 	Vessel *vessels;
 
-	int *vessel_idx;
+	QAtomicInt &vessel_idx;
 
-	WorkGroup(int ne, cl_kernel k, Vessel *v, int *i)
+	WorkGroup(int ne, cl_kernel k, Vessel *v, QAtomicInt &i)
 	        :n_elements(ne), kernel(k), vessels(v), vessel_idx(i) {}
 };
 
-OpenCLIntegrationHelper::OpenCLIntegrationHelper(Model *model)
-        : AbstractIntegrationHelper(model, Model::SegmentedVesselFlow),
+OpenCLIntegrationHelper::OpenCLIntegrationHelper(Model *model, Model::IntegralType type)
+        : AbstractIntegrationHelper(model, type),
           n_devices(cl->nDevices())
 {
-	has_errors = false;
+	error = 0;
 	is_available = cl->isAvailable();
 
 	if (!is_available)
@@ -130,8 +131,8 @@ float OpenCLIntegrationHelper::integrateByDevice(OpenCL_device &dev, cl_kernel k
 	 */
 
 	const struct WorkGroup group[2] = {
-	        WorkGroup(nArteries(), k, arteries(), &art_index),
-	        WorkGroup(nVeins(),    k, veins(),    &vein_index)
+	        WorkGroup(nArteries(), k, arteries(), art_index),
+	        WorkGroup(nVeins(),    k, veins(),    vein_index)
 	};
 
 	try {
@@ -142,7 +143,7 @@ float OpenCLIntegrationHelper::integrateByDevice(OpenCL_device &dev, cl_kernel k
 	}
 	catch (opencl_exception e) {
 		qDebug() << "OpenCL ERROR: " << e.what();
-		has_errors = true;
+		error = e.error_no;
 	}
 
 	return ret;
@@ -161,23 +162,32 @@ float OpenCLIntegrationHelper::processWorkGroup(
 	const int elements_per_function = (dev.device_type == CL_DEVICE_TYPE_GPU) ? 102400 : 1024;
 
 	/* Careful with locks. The lock is locked before and at end of loop!. */
-	vessel_index_mutex.lock();
-	while (*w.vessel_idx < w.n_elements) {
-		int idx = *w.vessel_idx;
-		int n;
-		n = (w.n_elements-idx > elements_per_function) ? elements_per_function : w.n_elements-idx;
-		*w.vessel_idx += n;
-		vessel_index_mutex.unlock();
+	const int max_n = std::min(dev.max_work_item_size[0]*dev.max_work_item_size[1],
+	                static_cast<size_t>(elements_per_function));
+	int idx;
+	while ((idx = w.vessel_idx.fetchAndAddOrdered(max_n)) < w.n_elements) {
 
-		int real_vessels = assignVessels(cl_vessel_buf, w.vessels+idx, n);
+		int n = max_n;
+		if (idx+max_n > w.n_elements)
+			n = w.n_elements-idx;
+
+		size_t real_vessels = assignVessels(cl_vessel_buf, w.vessels+idx, n);
 		err = f.clEnqueueWriteBuffer(dev.queue, dev.mem_vein_buffer, CL_FALSE,
 		                             0, sizeof(CL_Vessel)*real_vessels, cl_vessel_buf,
 		                             0, NULL, NULL);
 		cl->errorCheck(err);
 		int kernel_arg_no = 0;
 
+		cl_int width = std::min(dev.max_work_item_size[0], real_vessels);
+		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(cl_int), &width);
+		cl->errorCheck(err);
+
 		cl_float hct = Hct();
-		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(float), &hct);
+		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(cl_float), &hct);
+		cl->errorCheck(err);
+
+		cl_float tlrns = Tlrns();
+		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(cl_float), &tlrns);
 		cl->errorCheck(err);
 
 		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(cl_mem), &dev.mem_vein_buffer);
@@ -187,8 +197,11 @@ float OpenCLIntegrationHelper::processWorkGroup(
 		cl->errorCheck(err);
 
 		size_t dims[2];
-		dims[0] = 32;
-		dims[1] = (real_vessels+31)/32; // only need 1 "extra" dimention if n is not a multiple of 32
+		dims[0] = std::min(dev.max_work_item_size[0], real_vessels);
+		dims[1] = real_vessels/dims[0];
+		if (real_vessels%dims[0] > 0)
+			dims[1]++;
+
 		err = f.clEnqueueNDRangeKernel(dev.queue, w.kernel, 2, NULL, dims, NULL, 0, NULL, NULL);
 		cl->errorCheck(err);
 
@@ -198,18 +211,13 @@ float OpenCLIntegrationHelper::processWorkGroup(
 		cl->errorCheck(err);
 
 		updateResults(ret_values_buf, w.vessels+idx, n);
-		for (int i=0; i<real_vessels; ++i) {
+		for (size_t i=0; i<real_vessels; ++i) {
 			if (isinf(ret_values_buf[i].R) || isnan(ret_values_buf[i].R)) {
 				qDebug("INF");
 			}
 			ret = qMax(ret, ret_values_buf[i].delta_R);
 		}
-
-		// qDebug() << "dev type: " << (int)dev.device_type << "  ret: " << ret;
-
-		vessel_index_mutex.lock();
 	}
-	vessel_index_mutex.unlock();
 
 	return ret;
 }
@@ -224,8 +232,13 @@ int OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
 		const Vessel &v = vessels[i];
 		CL_Vessel &c = cl_vessels[total_vessels];
 
-		if (v.flow <= 1e-50 || isnan(v.pressure_in) || isnan(v.pressure_out))
+		if (v.flow <= 1e-50 ||
+		    isnan(v.pressure_in) ||
+		    isnan(v.pressure_out) ||
+		    v.pressure_out < 0.0) {
+
 			continue;
+		}
 
 		c.max_a = v.max_a;
 		c.gamma = v.gamma;
@@ -264,6 +277,16 @@ void OpenCLIntegrationHelper::updateResults(const CL_Result *cl_vessels,
 
 		if (v.flow <= 1e-50 || isnan(v.pressure_in) || isnan(v.pressure_out))
 			continue;
+
+		if (r.D < 0.1 || v.pressure_out < 0.0) {
+			v.viscosity_factor = v.R = std::numeric_limits<double>::infinity();
+			v.Dmax = 0.0;
+			v.Dmin = 0.0;
+			v.D_calc = 0.0;
+			v.volume = 0.0;
+			v.last_delta_R = 0.0;
+			continue;
+		}
 
 		v.R = r.R;
 		v.last_delta_R = r.delta_R;

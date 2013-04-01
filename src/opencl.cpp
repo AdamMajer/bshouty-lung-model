@@ -301,9 +301,9 @@ void OpenCL::addDevice(cl_platform_id platform_id, cl_device_id device_id)
 	dev.singleSegmentVesselKernel = opencl.clCreateKernel(dev.program, "singleSegmentVesselFlow", &err);
 	errorCheck(err);
 
-	dev.mem_vein_buffer = opencl.clCreateBuffer(dev.context, CL_MEM_READ_ONLY, sizeof(CL_Vessel)*4*256*100, NULL, &err);
+	dev.mem_vein_buffer = opencl.clCreateBuffer(dev.context, CL_MEM_READ_ONLY, sizeof(CL_Vessel)*102400, NULL, &err);
 	cl->errorCheck(err);
-	dev.mem_results = opencl.clCreateBuffer(dev.context, CL_MEM_WRITE_ONLY, sizeof(CL_Result)*4*256*100, NULL, &err);
+	dev.mem_results = opencl.clCreateBuffer(dev.context, CL_MEM_WRITE_ONLY, sizeof(CL_Result)*102400, NULL, &err);
 	cl->errorCheck(err);
 
 	dev.integration_workspace = (CL_Result*)allocPageAligned(sizeof(CL_Result)*102400);

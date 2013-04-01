@@ -1128,14 +1128,19 @@ void MainWindow::calculationCompleted()
 	if (res.size() < 1)
 		return;
 
-	bool calculation_errors = false;
-	for (ModelCalcList::const_iterator i=res.begin(); i!=res.end(); ++i)
-		calculation_errors = calculation_errors || i->second->calculationErrors();
+	int calculation_errors = 0;
+	for (ModelCalcList::const_iterator i=res.begin(); i!=res.end(); ++i) {
+		calculation_errors = i->second->calculationErrors();
+
+		if (calculation_errors != 0)
+			break;
+	}
 	if (calculation_errors) {
 		QMessageBox::information(this, "Calculation Errors",
-		                         "Internal calculation errors were encountered.\n"
-		                         "Please try disabling OpenCL in the Options menu \n"
-		                         "and recalculating.");
+		                         QString("Internal calculation errors were encountered.\n"
+		                                 "Please try disabling OpenCL in the Options menu \n"
+		                                 "and recalculating.\n\n"
+		                                 "Error #: %1").arg(calculation_errors));
 	}
 
 	QApplication::beep();

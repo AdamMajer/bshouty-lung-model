@@ -233,7 +233,7 @@ public:
 	// does actual calculations
 	virtual int calc( int max_iter = 100 ); // returns number of iterations
 
-	bool calculationErrors() const;
+	int calculationErrors() const;
 
 	// load/save state to a database
 	bool load(QSqlDatabase &db, int offset=0, QProgressDialog *progress=0);
