@@ -171,7 +171,10 @@ float OpenCLIntegrationHelper::processWorkGroup(
 		if (idx+max_n > w.n_elements)
 			n = w.n_elements-idx;
 
-		size_t real_vessels = assignVessels(cl_vessel_buf, w.vessels+idx, n);
+		size_t real_vessels = assignVessels(cl_vessel_buf,
+		                                    w.vessels+idx,
+		                                    n,
+		                                    dev.max_work_item_size[0]);
 		err = f.clEnqueueWriteBuffer(dev.queue, dev.mem_vein_buffer, CL_FALSE,
 		                             0, sizeof(CL_Vessel)*real_vessels, cl_vessel_buf,
 		                             0, NULL, NULL);
@@ -223,8 +226,9 @@ float OpenCLIntegrationHelper::processWorkGroup(
 }
 
 int OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
-                                            const Vessel *vessels,
-                                            int n)
+                                           const Vessel *vessels,
+                                           int n,
+                                           int section_size)
 {
 	// returns actual number to be executed
 	int total_vessels = 0;
@@ -261,6 +265,13 @@ int OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
 		c.vessel_ratio = v.vessel_ratio;
 
 		total_vessels++;
+	}
+
+	// zero remainieg vessels in the section
+	int remaining = n % section_size;
+	if (remaining > 0) {
+		remaining = section_size - remaining;
+		memset(cl_vessels+total_vessels, 0, remaining*sizeof(CL_Vessel));
 	}
 
 	return total_vessels;
