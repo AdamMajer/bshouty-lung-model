@@ -1192,10 +1192,9 @@ void MainWindow::modelSelected(Model *new_model, int n_iters)
 	const QString iter_msg("Iterations: %1");
 	ui->statusbar->showMessage(iter_msg.arg(n_iters));
 
-	delete model;
-	model = new_model->clone();
-	setupNewModelScene();
+	*model = *new_model;
 	updateInputsOutputs();
+	update();
 
 	updateTitleFilename();
 
