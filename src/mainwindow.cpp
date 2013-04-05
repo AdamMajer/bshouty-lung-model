@@ -1203,6 +1203,12 @@ void MainWindow::modelSelected(Model *new_model, int n_iters)
 	ui->statusbar->showMessage(iter_msg.arg(n_iters));
 
 	*model = *new_model;
+
+	if (!model->validInputs()) {
+		QMessageBox::warning(this, "Invalid inputs",
+		                     "Some of the input values are invalid.");
+	}
+
 	updateInputsOutputs();
 	update();
 

@@ -261,6 +261,8 @@ public:
 	void setKrFactors(double Krc);
 	double getKrc();
 
+	bool validInputs() const;
+
 	static QString calibrationPath(DataType type);
 protected:
 	static double calibrationValue(DataType);

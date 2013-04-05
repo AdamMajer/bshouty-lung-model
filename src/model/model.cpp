@@ -477,6 +477,9 @@ double Model::getResult(DataType type) const
 	case Ptp_value:
 		return Pal - Ppl;
 	case PAP_value:
+		if (!validInputs())
+			return std::numeric_limits<double>::quiet_NaN();
+
 		return LAP + arteries[0].flow * arteries[0].total_R;
 	case Rus_value:
 		return arteries[0].partial_R;
@@ -865,6 +868,11 @@ int Model::calc( int max_iter )
 {
 	abort_calculation = 0;
 	prog = 0;
+	n_iterations = 0;
+
+	if (!validInputs())
+		return 0;
+
 	if (model_reset) {
 		getParameters();
 		for (DiseaseList::iterator i=dis.begin(); i!=dis.end(); ++i)
@@ -873,7 +881,6 @@ int Model::calc( int max_iter )
 		model_reset = false;
 	}
 
-	n_iterations = 0;
 	/* It is possible that the last capillary that is opened results in all
 	 * capilaries to be closed. To remedy this situation, we allow for the
 	 * final opened capillary to be re-closed once more
@@ -996,6 +1003,12 @@ double Model::getKrc()
 		Krc_factor = calibrationValue(Krc);
 
 	return Krc_factor;
+}
+
+bool Model::validInputs() const
+{
+	return Vm[0] < Vrv[0] && Vrv[0] < Vfrc[0] &&
+	       Vm[1] < Vrv[1] && Vrv[1] < Vfrc[1];
 }
 
 QString Model::calibrationPath(DataType type)

@@ -77,6 +77,9 @@ int CompromiseModel::calc(int max_iter)
 	    slew_disease_idx >= static_cast<int>(dis.size()))
 		return -1; // disease not specified
 
+	if (!validInputs())
+		return 0;
+
 	double param_value;
 	Range r = dis.at(slew_disease_idx).paramRange(param_no);
 	const double orig_range = r.max() - r.min();
