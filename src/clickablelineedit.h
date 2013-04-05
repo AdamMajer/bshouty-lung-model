@@ -36,6 +36,7 @@ protected:
 
 protected slots:
 	void setRange();
+	void textChangedIsRange(const QString &txt);
 
 signals:
 	void focusChange(bool in_focus);

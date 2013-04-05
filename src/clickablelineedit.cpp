@@ -27,13 +27,13 @@ const char range_property[] = "range";
 ClickableLineEdit::ClickableLineEdit(QWidget *parent)
         : QLineEdit(parent)
 {
-
+	connect(this, SIGNAL(textChanged(QString)), SLOT(textChangedIsRange(QString)));
 }
 
 ClickableLineEdit::ClickableLineEdit(const QString &contents, QWidget *parent)
         : QLineEdit(contents, parent)
 {
-
+	connect(this, SIGNAL(textChanged(QString)), SLOT(textChangedIsRange(QString)));
 }
 
 void ClickableLineEdit::contextMenuEvent(QContextMenuEvent *e)
@@ -69,6 +69,11 @@ void ClickableLineEdit::setRange()
 	if (dlg.exec() == QDialog::Accepted) {
 		range = dlg.range();
 		setText(range.toString());
-		setReadOnly(range.sequence().size() > 1);
 	}
+}
+
+void ClickableLineEdit::textChangedIsRange(const QString &txt)
+{
+	Range range(txt);
+	setReadOnly(range.sequenceCount() > 1);
 }
