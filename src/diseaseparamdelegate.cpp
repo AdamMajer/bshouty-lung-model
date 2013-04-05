@@ -19,7 +19,7 @@
 
 #include <QDoubleSpinBox>
 #include <QItemEditorCreatorBase>
-#include "clickablelineedit.h"
+#include "rangelineedit.h"
 #include "diseasemodel.h"
 #include "diseaseparamdelegate.h"
 
@@ -27,7 +27,7 @@ DiseaseParamDelegate::DiseaseParamDelegate(QObject *parent)
         : QStyledItemDelegate(parent)
 {
 	QItemEditorFactory *f = new QItemEditorFactory();
-	QItemEditorCreatorBase *base_edit = new QStandardItemEditorCreator<ClickableLineEdit>();
+	QItemEditorCreatorBase *base_edit = new QStandardItemEditorCreator<RangeLineEdit>();
 	f->registerEditor(QVariant::Double, base_edit);
 	f->registerEditor(QVariant::String, base_edit);
 	setItemEditorFactory(f);

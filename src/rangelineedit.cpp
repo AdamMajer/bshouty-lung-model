@@ -17,26 +17,26 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clickablelineedit.h"
+#include "rangelineedit.h"
 #include <QContextMenuEvent>
 #include <QMenu>
 #include "rangestepdlg.h"
 
 const char range_property[] = "range";
 
-ClickableLineEdit::ClickableLineEdit(QWidget *parent)
+RangeLineEdit::RangeLineEdit(QWidget *parent)
         : QLineEdit(parent)
 {
 	connect(this, SIGNAL(textChanged(QString)), SLOT(textChangedIsRange(QString)));
 }
 
-ClickableLineEdit::ClickableLineEdit(const QString &contents, QWidget *parent)
+RangeLineEdit::RangeLineEdit(const QString &contents, QWidget *parent)
         : QLineEdit(contents, parent)
 {
 	connect(this, SIGNAL(textChanged(QString)), SLOT(textChangedIsRange(QString)));
 }
 
-void ClickableLineEdit::contextMenuEvent(QContextMenuEvent *e)
+void RangeLineEdit::contextMenuEvent(QContextMenuEvent *e)
 {
 	QMenu *menu = createStandardContextMenu();
 	QList<QAction*> ac = menu->actions();
@@ -48,19 +48,19 @@ void ClickableLineEdit::contextMenuEvent(QContextMenuEvent *e)
 	menu->popup(mapToGlobal(e->pos()));
 }
 
-void ClickableLineEdit::focusInEvent(QFocusEvent *e)
+void RangeLineEdit::focusInEvent(QFocusEvent *e)
 {
 	QLineEdit::focusInEvent(e);
 	emit focusChange(true);
 }
 
-void ClickableLineEdit::focusOutEvent(QFocusEvent *e)
+void RangeLineEdit::focusOutEvent(QFocusEvent *e)
 {
 	emit focusChange(false);
 	QLineEdit::focusOutEvent(e);
 }
 
-void ClickableLineEdit::setRange()
+void RangeLineEdit::setRange()
 {
 	Range range(property(range_property).toString());
 	RangeStepDlg dlg(range, this);
@@ -72,7 +72,7 @@ void ClickableLineEdit::setRange()
 	}
 }
 
-void ClickableLineEdit::textChangedIsRange(const QString &txt)
+void RangeLineEdit::textChangedIsRange(const QString &txt)
 {
 	Range range(txt);
 	setReadOnly(range.sequenceCount() > 1);

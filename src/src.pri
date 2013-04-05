@@ -4,7 +4,6 @@ SOURCES += \
 	$${SRC_DIR}/calibratedlg.cpp \
 	$${SRC_DIR}/capillary.cpp \
 	$${SRC_DIR}/capillaryview.cpp \
-	$${SRC_DIR}/clickablelineedit.cpp \
 	$${SRC_DIR}/common.cpp \
 	$${SRC_DIR}/dbsettings.cpp \
 	$${SRC_DIR}/diseaselistdlg.cpp \
@@ -19,6 +18,7 @@ SOURCES += \
 	$${SRC_DIR}/opencl.cpp \
 	$${SRC_DIR}/overlaymapwidget.cpp \
 	$${SRC_DIR}/overlaysettingsdlg.cpp \
+	$${SRC_DIR}/rangelineedit.cpp \
 	$${SRC_DIR}/rangestepdlg.cpp \
 	$${SRC_DIR}/scripteditdlg.cpp \
 	$${SRC_DIR}/scripthighlighter.cpp \
@@ -35,7 +35,6 @@ HEADERS += \
 	$${SRC_DIR}/calibratedlg.h \
 	$${SRC_DIR}/capillary.h \
 	$${SRC_DIR}/capillaryview.h \
-	$${SRC_DIR}/clickablelineedit.h \
 	$${SRC_DIR}/common.h \
 	$${SRC_DIR}/dbsettings.h \
 	$${SRC_DIR}/diseaselistdlg.h \
@@ -49,6 +48,7 @@ HEADERS += \
 	$${SRC_DIR}/opencl.h \
 	$${SRC_DIR}/overlaymapwidget.h \
 	$${SRC_DIR}/overlaysettingsdlg.h \
+	$${SRC_DIR}/rangelineedit.h \
 	$${SRC_DIR}/rangestepdlg.h \
 	$${SRC_DIR}/scripteditdlg.h \
 	$${SRC_DIR}/scripthighlighter.h \

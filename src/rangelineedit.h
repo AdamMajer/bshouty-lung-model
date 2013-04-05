@@ -21,13 +21,13 @@
 
 extern const char range_property[];
 
-class ClickableLineEdit : public QLineEdit
+class RangeLineEdit : public QLineEdit
 {
 	Q_OBJECT
 
 public:
-	ClickableLineEdit(QWidget * parent = 0);
-	ClickableLineEdit(const QString & contents, QWidget * parent = 0);
+	RangeLineEdit(QWidget * parent = 0);
+	RangeLineEdit(const QString & contents, QWidget * parent = 0);
 
 protected:
 	virtual void contextMenuEvent(QContextMenuEvent *);
