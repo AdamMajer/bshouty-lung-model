@@ -47,6 +47,8 @@ protected slots:
 	void itemDoubleClicked(int row);
 
 private:
+	void combineMirroredLungLabels(QList<QPair<Model::DataType,QString> > &types);
+
 	ModelCalcList models;
 
 	Ui::MultiModelOutput *ui;

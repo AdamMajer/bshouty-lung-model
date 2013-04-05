@@ -168,6 +168,10 @@ void MultiModelOutput::updateView()
 	}
 
 	// add calculated values
+	//
+	// NOTE: Left and Right must remain 4 characters as those are stripped
+	//       in the combineMirroredLungLabels() function if values are
+	//       the same for left and right lungs.
 	QList<QPair<Model::DataType,QString> > types = QList<QPair<Model::DataType,QString> >()
 	                << QPair<Model::DataType, QString>(Model::Rds_value, "Rds")
 	                << QPair<Model::DataType, QString>(Model::Rm_value, "Rm")
@@ -179,23 +183,30 @@ void MultiModelOutput::updateView()
 	                << QPair<Model::DataType, QString>(Model::LAP_value, "LAP")
 	                << QPair<Model::DataType, QString>(Model::Pal_value, "Pal")
 	                << QPair<Model::DataType, QString>(Model::Ppl_value, "Ppl")
-//	                << QPair<Model::DataType, QString>(Model::CL_value, "CL")
 	                << QPair<Model::DataType, QString>(Model::PV_Diam_value, "PV Diameter")
 	                << QPair<Model::DataType, QString>(Model::PV_EVL_value, "PV EVL")
 	                << QPair<Model::DataType, QString>(Model::PA_Diam_value, "PA Diameter")
 	                << QPair<Model::DataType, QString>(Model::PA_EVL_value, "PA EVL")
 
-	                << QPair<Model::DataType, QString>(Model::Vtlc_value, "Vtlc")
-	                << QPair<Model::DataType, QString>(Model::Vfrc_value, "Vfrc")
-	                << QPair<Model::DataType, QString>(Model::Vrv_value, "Vrv")
-	                << QPair<Model::DataType, QString>(Model::Vm_value, "Vm")
+	                << QPair<Model::DataType, QString>(Model::Vtlc_L_value, "Lt. Vtlc")
+	                << QPair<Model::DataType, QString>(Model::Vtlc_R_value, "Rt. Vtlc")
+	                << QPair<Model::DataType, QString>(Model::Vfrc_L_value, "Lt. Vfrc")
+	                << QPair<Model::DataType, QString>(Model::Vfrc_R_value, "Rt. Vfrc")
+	                << QPair<Model::DataType, QString>(Model::Vrv_L_value, "Lt. Vrv")
+	                << QPair<Model::DataType, QString>(Model::Vrv_R_value, "Rt. Vrv")
+	                << QPair<Model::DataType, QString>(Model::Vm_L_value, "Lt. Vm")
+	                << QPair<Model::DataType, QString>(Model::Vm_R_value, "Rt. Vm")
 
 	                << QPair<Model::DataType, QString>(Model::Hct_value, "Hct")
 
-	                << QPair<Model::DataType, QString>(Model::Lung_Ht_value, "Lung Height")
+	                << QPair<Model::DataType, QString>(Model::Lung_Ht_L_value, "Lt. Lung Height")
+	                << QPair<Model::DataType, QString>(Model::Lung_Ht_R_value, "Rt. Lung Height")
 	                << QPair<Model::DataType, QString>(Model::Pat_Wt_value, "Patient Weight")
 	                << QPair<Model::DataType, QString>(Model::Pat_Ht_value, "Patient Height");
 
+	combineMirroredLungLabels(types);
+
+	// Make labels
 	for (QList<QPair<Model::DataType,QString> >::const_iterator i=types.begin(); i!=types.end(); ++i) {
 		QList<QString> values;
 		bool all_the_same = true;
@@ -270,4 +281,46 @@ void MultiModelOutput::itemDoubleClicked(int row)
 		return;
 
 	emit doubleClicked(models[row].second, models[row].first);
+}
+
+void MultiModelOutput::combineMirroredLungLabels(QList<QPair<Model::DataType, QString> > &types)
+{
+	QMap<Model::DataType, QPair<Model::DataType,Model::DataType> > cmap;
+	cmap.insert(Model::Lung_Ht_value,
+	            QPair<Model::DataType,Model::DataType>(Model::Lung_Ht_L_value, Model::Lung_Ht_R_value));
+	cmap.insert(Model::Vtlc_value,
+	            QPair<Model::DataType,Model::DataType>(Model::Vtlc_L_value, Model::Vtlc_R_value));
+	cmap.insert(Model::Vfrc_value,
+	            QPair<Model::DataType,Model::DataType>(Model::Vfrc_L_value, Model::Vfrc_R_value));
+	cmap.insert(Model::Vrv_value,
+	            QPair<Model::DataType,Model::DataType>(Model::Vrv_L_value, Model::Vrv_R_value));
+	cmap.insert(Model::Vm_value,
+	            QPair<Model::DataType,Model::DataType>(Model::Vm_L_value, Model::Vm_R_value));
+
+	// Combine left right / right lung values if they are equal
+	for (QMap<Model::DataType, QPair<Model::DataType,Model::DataType> >::const_iterator i = cmap.begin(); i!=cmap.end(); i++) {
+		bool same_value = true;
+
+		for (ModelCalcList::const_iterator m=models.begin(); m!=models.end() && same_value; ++m) {
+			Model *model = m->second;
+			same_value = same_value && qFuzzyCompare(model->getResult(i->first)+1.0,
+			                                         model->getResult(i->second)+1.0);
+		}
+
+		if (same_value) {
+			// remove _R_ variant, rename string of _L_ variant
+			for (QList<QPair<Model::DataType,QString> >::iterator type=types.begin(); type!=types.end(); ) {
+				if (type->first == i->first) {
+					QString label = type->second;
+					label = label.right(label.size() - 4);
+					type->second = label;
+					type++;
+				}
+				else if (type->first == i->second)
+					type = types.erase(type);
+				else
+					type++;
+			}
+		}
+	}
 }

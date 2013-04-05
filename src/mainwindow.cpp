@@ -152,10 +152,20 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->patHt->setProperty(range_property, "50 to 250;1");
 	ui->patWt->setProperty(range_property, "1 to 200;0.1");
 	ui->lungHt->setProperty(range_property, "1 to 50;0.1");
+	ui->lungHt_left->setProperty(range_property, "1 to 50;0.1");
+	ui->lungHt_right->setProperty(range_property, "1 to 50;0.1");
 	ui->Vm->setProperty(range_property, "0 to 95;1");
+	ui->Vm_left->setProperty(range_property, "0 to 95;1");
+	ui->Vm_right->setProperty(range_property, "0 to 95;1");
 	ui->Vrv->setProperty(range_property, "5 to 95;1");
+	ui->Vrv_left->setProperty(range_property, "5 to 95;1");
+	ui->Vrv_right->setProperty(range_property, "5 to 95;1");
 	ui->Vfrc->setProperty(range_property, "5 to 95;1");
+	ui->Vfrc_left->setProperty(range_property, "5 to 95;1");
+	ui->Vfrc_right->setProperty(range_property, "5 to 95;1");
 	ui->Vtlc->setProperty(range_property, "5 to 300;1");
+	ui->Vtlc_left->setProperty(range_property, "5 to 300;1");
+	ui->Vtlc_right->setProperty(range_property, "5 to 300;1");
 
 	ui->Pal->setProperty(range_property, "0 to 100;0.1");
 	ui->Ppl->setProperty(range_property, "-50 to 50;0.1");
