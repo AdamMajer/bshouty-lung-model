@@ -1380,19 +1380,20 @@ void MainWindow::patHtWtChanged()
 	bool data_modified = false;
 	if (ht_range.sequenceCount() == 1) {
 		double val = ht_range.firstValue();
-		if (wt_range.sequenceCount() == 1) {
+		data_modified = baseline->setData(Model::Pat_Ht_value, val);
+		if (wt_range.sequenceCount() == 1 && data_modified) {
 			// Only set ideal weight if we change height
 			// and weight not a range
+
 			double ideal_weight = Model::idealWeight(baseline->gender(),
 			                                         val);
 			ui->patWt->setText(doubleToString(ideal_weight));
 			wt_range.setMin(ideal_weight);
 			wt_range.setMax(ideal_weight);
 		}
-		data_modified = baseline->setData(Model::Pat_Ht_value, val);
 	}
 
-	if (wt_range.sequenceCount() == 1) {
+	if (!data_modified && wt_range.sequenceCount() == 1) {
 		double val = wt_range.firstValue();
 		data_modified = baseline->setData(Model::Pat_Wt_value, val) || data_modified;
 	}
