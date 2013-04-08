@@ -178,26 +178,26 @@ float OpenCLIntegrationHelper::processWorkGroup(
 		err = f.clEnqueueWriteBuffer(dev.queue, dev.mem_vein_buffer, CL_FALSE,
 		                             0, sizeof(CL_Vessel)*real_vessels, cl_vessel_buf,
 		                             0, NULL, NULL);
-		cl->errorCheck(err);
+		cl->errorCheck(err, __FUNCTION__, __LINE__);
 		int kernel_arg_no = 0;
 
 		cl_int width = std::min(dev.max_work_item_size[0], real_vessels);
 		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(cl_int), &width);
-		cl->errorCheck(err);
+		cl->errorCheck(err, __FUNCTION__, __LINE__);
 
 		cl_float hct = Hct();
 		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(cl_float), &hct);
-		cl->errorCheck(err);
+		cl->errorCheck(err, __FUNCTION__, __LINE__);
 
 		cl_float tlrns = Tlrns();
 		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(cl_float), &tlrns);
-		cl->errorCheck(err);
+		cl->errorCheck(err, __FUNCTION__, __LINE__);
 
 		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(cl_mem), &dev.mem_vein_buffer);
-		cl->errorCheck(err);
+		cl->errorCheck(err, __FUNCTION__, __LINE__);
 
 		err = f.clSetKernelArg(w.kernel, kernel_arg_no++, sizeof(cl_mem), &dev.mem_results);
-		cl->errorCheck(err);
+		cl->errorCheck(err, __FUNCTION__, __LINE__);
 
 		size_t dims[2];
 		dims[0] = std::min(dev.max_work_item_size[0], real_vessels);
@@ -206,12 +206,12 @@ float OpenCLIntegrationHelper::processWorkGroup(
 			dims[1]++;
 
 		err = f.clEnqueueNDRangeKernel(dev.queue, w.kernel, 2, NULL, dims, NULL, 0, NULL, NULL);
-		cl->errorCheck(err);
+		cl->errorCheck(err, __FUNCTION__, __LINE__);
 
 		err = f.clEnqueueReadBuffer(dev.queue, dev.mem_results, CL_TRUE,
 		                            0, sizeof(CL_Result)*real_vessels, ret_values_buf,
 		                            0, NULL, NULL);
-		cl->errorCheck(err);
+		cl->errorCheck(err, __FUNCTION__, __LINE__);
 
 		updateResults(ret_values_buf, w.vessels+idx, n);
 		for (size_t i=0; i<real_vessels; ++i) {

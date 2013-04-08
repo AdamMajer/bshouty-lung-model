@@ -77,7 +77,8 @@ OpenCL::OpenCL()
 	try {
 		cl_platform_id platform_ids[5];
 		cl_uint platform_nums;
-		errorCheck(opencl.clGetPlatformIDs(5, platform_ids, &platform_nums));
+		errorCheck(opencl.clGetPlatformIDs(5, platform_ids, &platform_nums),
+		           __FUNCTION__, __LINE__);
 
 		for (cl_uint i=0; i<platform_nums; ++i)
 			addPlatform(platform_ids[i]);
@@ -120,12 +121,13 @@ OpenCL_func OpenCL::functions() const
 	return opencl;
 }
 
-void OpenCL::errorCheck(cl_int status) throw(opencl_exception)
+void OpenCL::errorCheck(cl_int status, const char *fn, int id) throw(opencl_exception)
 {
 	if (status == CL_SUCCESS)
 		return;
 
-	throw opencl_exception(QString("OpenCL Error: %1").arg(status));
+	throw opencl_exception(QString("OpenCL Error: %1 @ %2:%3")
+	                       .arg(status).arg(QLatin1String(fn)).arg(id));
 }
 
 void OpenCL::resolveFunctions()
@@ -176,7 +178,8 @@ void OpenCL::addPlatform(cl_platform_id platform_id)
 	cl_uint num_devices;
 
 	errorCheck(opencl.clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_ALL,
-	                                 16, devices, &num_devices));
+	                                 16, devices, &num_devices),
+	           __FUNCTION__, __LINE__);
 	for (cl_uint i=0; i<num_devices; ++i)
 		addDevice(platform_id, devices[i]);
 }
@@ -190,7 +193,8 @@ void OpenCL::addDevice(cl_platform_id platform_id, cl_device_id device_id)
 
 	errorCheck(opencl.clGetDeviceInfo(device_id, CL_DEVICE_TYPE,
 	                                  sizeof(cl_device_type),
-	                                  &dev.device_type, 0));
+	                                  &dev.device_type, 0),
+	           __FUNCTION__, __LINE__);
 
 	switch (dev.device_type) {
 	case CL_DEVICE_TYPE_CPU:
@@ -205,28 +209,34 @@ void OpenCL::addDevice(cl_platform_id platform_id, cl_device_id device_id)
 	cl_uint max_dims;
 	errorCheck(opencl.clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
 	                                  sizeof(cl_uint),
-	                                  &max_dims, 0));
+	                                  &max_dims, 0),
+	           __FUNCTION__, __LINE__);
 
 	size_t *max_work_sizes = new size_t[max_dims];
 	errorCheck(opencl.clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_SIZES,
 	                                  sizeof(size_t)*max_dims,
-	                                  max_work_sizes, 0));
+	                                  max_work_sizes, 0),
+	           __FUNCTION__, __LINE__);
 	dev.max_work_item_size[0] = max_work_sizes[0];
 	dev.max_work_item_size[1] = max_work_sizes[1];
 
 	errorCheck(opencl.clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE,
 	                                  sizeof(size_t),
-	                                  &dev.max_work_group_size, 0));
+	                                  &dev.max_work_group_size, 0),
+	           __FUNCTION__, __LINE__);
 
 	errorCheck(opencl.clGetDeviceInfo(device_id, CL_DEVICE_GLOBAL_MEM_SIZE,
 	                                  sizeof(cl_ulong),
-	                                  &dev.max_mem_size, 0));
+	                                  &dev.max_mem_size, 0),
+	           __FUNCTION__, __LINE__);
 	errorCheck(opencl.clGetDeviceInfo(device_id, CL_DEVICE_MAX_MEM_ALLOC_SIZE,
 	                                  sizeof(cl_ulong),
-	                                  &dev.max_alloc_size, 0));
+	                                  &dev.max_alloc_size, 0),
+	           __FUNCTION__, __LINE__);
 	errorCheck(opencl.clGetDeviceInfo(device_id, CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE,
 	                                  sizeof(cl_uint),
-	                                  &dev.cacheline_size, 0));
+	                                  &dev.cacheline_size, 0),
+	           __FUNCTION__, __LINE__);
 
 	if (dev.cacheline_size > 256) {
 		QMessageBox::information(0, "OpenCL optimization error",
@@ -238,20 +248,23 @@ void OpenCL::addDevice(cl_platform_id platform_id, cl_device_id device_id)
 	cl_bool cl_compiler_available;
 	errorCheck(opencl.clGetDeviceInfo(device_id, CL_DEVICE_COMPILER_AVAILABLE,
 	                                  sizeof(cl_bool),
-	                                  &cl_compiler_available, 0));
+	                                  &cl_compiler_available, 0),
+	           __FUNCTION__, __LINE__);
 	if (!cl_compiler_available)
 		return;
 
 	cl_bool cl_device_available;
 	errorCheck(opencl.clGetDeviceInfo(device_id, CL_DEVICE_AVAILABLE,
 	                                  sizeof(cl_bool),
-	                                  &cl_device_available, 0));
+	                                  &cl_device_available, 0),
+	           __FUNCTION__, __LINE__);
 	if (!cl_device_available)
 		return;
 
 	errorCheck(opencl.clGetDeviceInfo(device_id, CL_DEVICE_NAME,
 	                                  sizeof(char)*512,
-	                                  &dev.name, NULL));
+	                                  &dev.name, NULL),
+	           __FUNCTION__, __LINE__);
 
 	n_devices++;
 
@@ -267,11 +280,11 @@ void OpenCL::addDevice(cl_platform_id platform_id, cl_device_id device_id)
 	                                       (cl_context_properties)platform_id,
 	                                       0 };
 	dev.context = opencl.clCreateContext(properties, 1, &device_id, NULL, NULL, &err);
-	errorCheck(err);
+	errorCheck(err, __FUNCTION__, __LINE__);
 
 	const char *prog_ptr = program_src.constData();
 	dev.program = opencl.clCreateProgramWithSource(dev.context, 1, &prog_ptr, 0, &err);
-	errorCheck(err);
+	errorCheck(err, __FUNCTION__, __LINE__);
 
 	err = opencl.clBuildProgram(dev.program, 1, &device_id, "-cl-single-precision-constant", NULL, NULL);
 
@@ -291,20 +304,20 @@ void OpenCL::addDevice(cl_platform_id platform_id, cl_device_id device_id)
 		else
 			throw opencl_exception(QString::fromLatin1("Compilation error"));
 	}
-	errorCheck(err);
+	errorCheck(err, __FUNCTION__, __LINE__);
 
 	dev.queue = opencl.clCreateCommandQueue(dev.context, device_id, 0, &err);
-	errorCheck(err);
+	errorCheck(err, __FUNCTION__, __LINE__);
 
 	dev.multiSegmentedVesselKernel = opencl.clCreateKernel(dev.program, "multiSegmentedVesselFlow", &err);
-	errorCheck(err);
+	errorCheck(err, __FUNCTION__, __LINE__);
 	dev.singleSegmentVesselKernel = opencl.clCreateKernel(dev.program, "singleSegmentVesselFlow", &err);
-	errorCheck(err);
+	errorCheck(err, __FUNCTION__, __LINE__);
 
 	dev.mem_vein_buffer = opencl.clCreateBuffer(dev.context, CL_MEM_READ_ONLY, sizeof(CL_Vessel)*102400, NULL, &err);
-	cl->errorCheck(err);
+	cl->errorCheck(err, __FUNCTION__, __LINE__);
 	dev.mem_results = opencl.clCreateBuffer(dev.context, CL_MEM_WRITE_ONLY, sizeof(CL_Result)*102400, NULL, &err);
-	cl->errorCheck(err);
+	cl->errorCheck(err, __FUNCTION__, __LINE__);
 
 	dev.integration_workspace = (CL_Result*)allocPageAligned(sizeof(CL_Result)*102400);
 	dev.cl_vessel = (CL_Vessel*)allocPageAligned(sizeof(CL_Vessel)*102400);

@@ -209,7 +209,7 @@ public:
 	OpenCL_func functions() const;
 
 	// throws opencl_exception on error
-	static void errorCheck(cl_int status) throw(opencl_exception);
+	static void errorCheck(cl_int status, const char *fn, int id) throw(opencl_exception);
 
 protected:
 	void resolveFunctions();
