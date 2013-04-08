@@ -796,14 +796,15 @@ bool Model::setData(DataType type, double val)
 			 */
 
 			PatWt = idealWeight(pat_gender, val);
-			double baseline_diameter = 4.85 + 13.43*
-			                sqrt(BSA(PatHt, PatWt));
-			double new_diameter = 4.85 + 13.43*
-			                sqrt(BSA(val, PatWt));
-
 			PatHt = val;
-			PA_diam *= new_diameter/baseline_diameter;
-			PV_diam *= new_diameter/baseline_diameter;
+
+			double idealBSA = BSA(calibrationValue(Model::Pat_Ht_value),
+			                      calibrationValue(Model::Pat_Wt_value));
+			double baseline_ratio = 4.85 + 13.43*sqrt(idealBSA);
+			double new_ratio = 4.85 + 13.43*sqrt(BSA(PatHt, PatWt));
+
+			PA_diam = calibrationValue(Model::PA_Diam_value)*new_ratio/baseline_ratio;
+			PV_diam = calibrationValue(Model::PV_Diam_value)*new_ratio/baseline_ratio;
 
 			initVesselBaselineResistances();
 			modified_flag = true;
@@ -813,6 +814,14 @@ bool Model::setData(DataType type, double val)
 	case Pat_Wt_value:
 		if (significantChange(PatWt, val)) {
 			PatWt = val;
+
+			double idealBSA = BSA(calibrationValue(Model::Pat_Ht_value),
+			                      calibrationValue(Model::Pat_Wt_value));
+			double baseline_ratio = 4.85 + 13.43*sqrt(idealBSA);
+			double new_ratio = 4.85 + 13.43*sqrt(BSA(PatHt, PatWt));
+
+			PA_diam = calibrationValue(Model::PA_Diam_value)*new_ratio/baseline_ratio;
+			PV_diam = calibrationValue(Model::PV_Diam_value)*new_ratio/baseline_ratio;
 
 			initVesselBaselineResistances();
 			modified_flag = true;
