@@ -500,7 +500,11 @@ struct CalibrationValue CalibrateDlg::correctVariable(const CalibrationValue &va
 	CalibrationValue v = value;
 
 	if (fabs(value.target - value.current_value)/value.target > tlrns) {
-		const double diff_percent = 1.0 + (value.target - value.current_value)/value.target/2.0;
+		double diff_percent = 1.0 + (value.target - value.current_value)/value.target/2.0;
+		if (diff_percent < 0.75)
+			diff_percent = 0.75;
+		else if (diff_percent > 1.25)
+			diff_percent = 1.25;
 
 		switch (value.type) {
 		case PA_diam:
@@ -551,8 +555,10 @@ bool CalibrateDlg::cornerVesselCorrection()
 
 	CalibrationValue &cv = *cv_iter;
 	if (fabs(cv.target - cv.current_value)/cv.target > tlrns) {
-		const double diff_percent = 1.0 + (cv.target - cv.current_value)/cv.target/2.0;
-		cv.input /= sqrt(diff_percent);
+		double diff_percent = (cv.target - cv.current_value)/cv.target/2.0;
+		if (fabs(diff_percent) > 0.1)
+			diff_percent = 0.1 * (diff_percent<0 ? -1.0 : 1.0);
+		cv.input /= std::sqrt(1+diff_percent);
 		cv.is_modified = true;
 
 		qDebug() << "calibration adjustment:" << diff_percent;
