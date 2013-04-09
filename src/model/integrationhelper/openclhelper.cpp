@@ -175,6 +175,10 @@ float OpenCLIntegrationHelper::processWorkGroup(
 		                                    w.vessels+idx,
 		                                    n,
 		                                    dev.max_work_item_size[0]);
+
+		if (real_vessels <= 0)
+			continue;
+
 		err = f.clEnqueueWriteBuffer(dev.queue, dev.mem_vein_buffer, CL_FALSE,
 		                             0, sizeof(CL_Vessel)*real_vessels, cl_vessel_buf,
 		                             0, NULL, NULL);
@@ -216,7 +220,7 @@ float OpenCLIntegrationHelper::processWorkGroup(
 		updateResults(ret_values_buf, w.vessels+idx, n);
 		for (size_t i=0; i<real_vessels; ++i) {
 			if (isinf(ret_values_buf[i].R) || isnan(ret_values_buf[i].R)) {
-				qDebug("INF");
+				qDebug("INF: %d", idx+i);
 			}
 			ret = qMax(ret, ret_values_buf[i].delta_R);
 		}
