@@ -242,8 +242,8 @@ int OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
 
 		if (v.flow <= 1e-50 ||
 		    isnan(v.pressure_in) ||
-		    isnan(v.pressure_out) ||
-		    v.pressure_out < 0.0) {
+		    isnan(v.pressure_out)/* ||
+		    v.pressure_out < 0.0*/) {
 
 			continue;
 		}
@@ -293,7 +293,7 @@ void OpenCLIntegrationHelper::updateResults(const CL_Result *cl_vessels,
 		if (v.flow <= 1e-50 || isnan(v.pressure_in) || isnan(v.pressure_out))
 			continue;
 
-		if (r.D < 0.1 || v.pressure_out < 0.0) {
+		if (r.D < 0.1 /*|| v.pressure_out < 0.0*/) {
 			v.viscosity_factor = v.R = std::numeric_limits<double>::infinity();
 			v.Dmax = 0.0;
 			v.Dmin = 0.0;
@@ -303,13 +303,17 @@ void OpenCLIntegrationHelper::updateResults(const CL_Result *cl_vessels,
 			continue;
 		}
 
-		v.R = r.R;
-		v.last_delta_R = r.delta_R;
-		v.D_calc = r.D;
-		v.Dmax = r.Dmax;
-		v.Dmin = r.Dmin;
-		v.viscosity_factor = r.viscosity_factor;
-		v.volume = r.vol;
+		if (!isnan(r.D)) {
+			v.R = r.R;
+			v.last_delta_R = r.delta_R;
+			v.D_calc = r.D;
+			v.Dmax = r.Dmax;
+			v.Dmin = r.Dmin;
+			v.viscosity_factor = r.viscosity_factor;
+			v.volume = r.vol;
+		}
+		else
+			qDebug() << "+ NaN";
 
 		idx++;
 	}

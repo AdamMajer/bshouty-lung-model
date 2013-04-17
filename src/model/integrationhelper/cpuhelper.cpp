@@ -166,7 +166,7 @@ double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 	}
 
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
-	if (v.pressure_out < 0.0 || v.flow == 0.0 || isnan(Pout) || isnan(Pin)) {
+	if (/*v.pressure_out < 0.0 ||*/ v.flow == 0.0 || isnan(Pout) || isnan(Pin)) {
 		v.D_calc = 0.0;
 		v.Dmin = 0.0;
 		v.Dmax = 0.0;
@@ -267,12 +267,14 @@ double CpuIntegrationHelper::multiSegmentedFlowVessel(Vessel &v,
 	double Rin = v.R;
 	double P = v.pressure_out; // pressure to the right (LAP) of the vessel
 
+	/*
 	if (P < 0.0) {
 		v.R = std::numeric_limits<double>::infinity();
 	}
+	*/
 
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
-	if (v.flow == 0.0 || isnan(P) || P < 0.0)
+	if (v.flow == 0.0 || isnan(P) /*|| P < 0.0*/)
 		return 0.0;
 
 	double Ptm = 1.35951002636 * ( P - v.tone );
