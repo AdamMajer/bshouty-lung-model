@@ -34,7 +34,8 @@ public:
 	virtual double capillaryResistances();
 
 protected:
-	static double capillaryResistance(Capillary &cap);
+	double capillaryResistance(Capillary &cap);
+	double capillaryH(const Capillary &cap, double pressure);
 	double singleSegmentVessel(Vessel &v);
 	double multiSegmentedFlowVessel(Vessel &v);
 	double multiSegmentedFlowVessel(Vessel &v,
