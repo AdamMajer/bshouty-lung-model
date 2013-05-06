@@ -128,8 +128,8 @@ Model::Model(Transducer transducer_pos, IntegralType int_type)
 	LAP = calibrationValue(LAP_value);
 
 	Vm[0] = Vm[1] = calibrationValue(Vm_value);
-	Vrv[0] = Vrv[1] = calibrationValue(Vrv_value);
-	Vfrc[0] = Vfrc[1] = calibrationValue(Vfrc_value);
+	Vc[0] = Vc[1] = calibrationValue(Vc_value);
+	Vd[0] = Vd[1] = calibrationValue(Vd_value);
 	Vtlc[0] = Vtlc[1] = calibrationValue(Vtlc_value);
 
 	Hct = calibrationValue(Hct_value);
@@ -200,8 +200,8 @@ Model& Model::operator =(const Model &other)
 	for (int i=0; i<2; ++i) {
 		LungHt[i] = other.LungHt[i];
 		Vm[i] = other.Vm[i];
-		Vrv[i] = other.Vrv[i];
-		Vfrc[i] = other.Vfrc[i];
+		Vc[i] = other.Vc[i];
+		Vd[i] = other.Vd[i];
 		Vtlc[i] = other.Vtlc[i];
 	}
 
@@ -505,21 +505,21 @@ double Model::getResult(DataType type) const
 	case Vm_L_value:
 	case Vm_value:
 		return Vm[0] * 100.0;
-	case Vrv_L_value:
-	case Vrv_value:
-		return Vrv[0] * 100.0;
-	case Vfrc_L_value:
-	case Vfrc_value:
-		return Vfrc[0] * 100.0;
+	case Vc_L_value:
+	case Vc_value:
+		return Vc[0];
+	case Vd_L_value:
+	case Vd_value:
+		return Vd[0];
 	case Vtlc_L_value:
 	case Vtlc_value:
 		return Vtlc[0] * 100.0;
 	case Vm_R_value:
 		return Vm[1] * 100.0;
-	case Vrv_R_value:
-		return Vrv[1] * 100.0;
-	case Vfrc_R_value:
-		return Vfrc[1] * 100.0;
+	case Vc_R_value:
+		return Vc[1];
+	case Vd_R_value:
+		return Vd[1];
 	case Vtlc_R_value:
 		return Vtlc[1] * 100.0;
 
@@ -628,21 +628,19 @@ bool Model::setData(DataType type, double val)
 			return true;
 		}
 		break;
-	case Vrv_value:
-		val /= 100.0;
-		if (significantChange(Vrv[0], val) ||
-		    significantChange(Vrv[1], val)) {
-			Vrv[0] = Vrv[1] = val;
+	case Vc_value:
+		if (significantChange(Vc[0], val) ||
+		    significantChange(Vc[1], val)) {
+			Vc[0] = Vc[1] = val;
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
 		}
 		break;
-	case Vfrc_value:
-		val /= 100.0;
-		if (significantChange(Vfrc[0], val) ||
-		    significantChange(Vfrc[1], val)) {
-			Vfrc[0] = Vfrc[1] = val;
+	case Vd_value:
+		if (significantChange(Vd[0], val) ||
+		    significantChange(Vd[1], val)) {
+			Vd[0] = Vd[1] = val;
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
@@ -667,26 +665,23 @@ bool Model::setData(DataType type, double val)
 			return true;
 		}
 		break;
-	case Vrv_L_value:
-		val /= 100.0;
-		if (significantChange(Vrv[0], val)) {
-			Vrv[0] = val;
+	case Vc_L_value:
+		if (significantChange(Vc[0], val)) {
+			Vc[0] = val;
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
 		}
 		break;
-	case Vfrc_L_value:
-		val /= 100.0;
-		if (significantChange(Vfrc[0], val)) {
-			Vfrc[0] = val;
+	case Vd_L_value:
+		if (significantChange(Vd[0], val)) {
+			Vd[0] = val;
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
 		}
 		break;
 	case Vtlc_L_value:
-		val /= 100.0;
 		if (significantChange(Vtlc[0], val)) {
 			Vtlc[0] = val;
 			calculateBaselineCharacteristics();
@@ -695,7 +690,6 @@ bool Model::setData(DataType type, double val)
 		}
 		break;
 	case Vm_R_value:
-		val /= 100.0;
 		if (significantChange(Vm[1], val)) {
 			Vm[1] = val;
 			calculateBaselineCharacteristics();
@@ -703,19 +697,17 @@ bool Model::setData(DataType type, double val)
 			return true;
 		}
 		break;
-	case Vrv_R_value:
-		val /= 100.0;
-		if (significantChange(Vrv[1], val)) {
-			Vrv[1] = val;
+	case Vc_R_value:
+		if (significantChange(Vc[1], val)) {
+			Vc[1] = val;
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
 		}
 		break;
-	case Vfrc_R_value:
-		val /= 100.0;
-		if (significantChange(Vfrc[1], val)) {
-			Vfrc[1] = val;
+	case Vd_R_value:
+		if (significantChange(Vd[1], val)) {
+			Vd[1] = val;
 			calculateBaselineCharacteristics();
 			modified_flag = true;
 			return true;
@@ -1016,8 +1008,8 @@ double Model::getKrc()
 
 bool Model::validInputs() const
 {
-	return Vm[0] < Vrv[0] && Vrv[0] < Vfrc[0] &&
-	       Vm[1] < Vrv[1] && Vrv[1] < Vfrc[1];
+	return Vc[0] > Vd[0] &&
+	       Vc[1] > Vd[1];
 }
 
 QString Model::calibrationPath(DataType type)
@@ -1039,12 +1031,6 @@ double Model::calibrationValue(DataType type)
 			case Model::Vm_value:
 			case Model::Vm_L_value:
 			case Model::Vm_R_value:
-			case Model::Vrv_value:
-			case Model::Vrv_L_value:
-			case Model::Vrv_R_value:
-			case Model::Vfrc_value:
-			case Model::Vfrc_L_value:
-			case Model::Vfrc_R_value:
 			case Model::Vtlc_value:
 			case Model::Vtlc_L_value:
 			case Model::Vtlc_R_value:
@@ -1074,14 +1060,14 @@ double Model::calibrationValue(DataType type)
 	case Model::Vm_L_value:
 	case Model::Vm_R_value:
 		return 0.1;
-	case Model::Vrv_value:
-	case Model::Vrv_L_value:
-	case Model::Vrv_R_value:
-		return 0.27;
-	case Model::Vfrc_value:
-	case Model::Vfrc_L_value:
-	case Model::Vfrc_R_value:
-		return 0.55;
+	case Model::Vc_value:
+	case Model::Vc_L_value:
+	case Model::Vc_R_value:
+		return 5.0;
+	case Model::Vd_value:
+	case Model::Vd_L_value:
+	case Model::Vd_R_value:
+		return 4.0;
 	case Model::Vtlc_value:
 	case Model::Vtlc_L_value:
 	case Model::Vtlc_R_value:
@@ -1735,6 +1721,14 @@ void Model::calculateBaselineCharacteristics()
 
 double Model::lengthFactor(const Vessel &v, int lung_no) const
 {
+	double cd = Vc[lung_no]/Vd[lung_no];
+	double b = Vtlc[lung_no]*(1.0 + exp(cd));
+	double a = b/(1+exp(cd));
+	double V = Vm[lung_no] + a + b/(1+exp(cd - v.Ptp/Vd[lung_no]));
+
+	return cbrt(V);
+
+	/*
 	const double min_ratio = 0.4 * Vtlc[lung_no];
 	double len_ratio;
 
@@ -1751,6 +1745,7 @@ double Model::lengthFactor(const Vessel &v, int lung_no) const
 
 	len_ratio = qMax(Vtlc[lung_no]*len_ratio, min_ratio);
 	return cbrt(len_ratio);
+	*/
 }
 
 bool Model::initDb(QSqlDatabase &db) const
@@ -1819,10 +1814,10 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 
 	SET_VALUE(Vm[0]);
 	SET_VALUE(Vm[1]);
-	SET_VALUE(Vrv[0]);
-	SET_VALUE(Vrv[1]);
-	SET_VALUE(Vfrc[0]);
-	SET_VALUE(Vfrc[1]);
+	SET_VALUE(Vc[0]);
+	SET_VALUE(Vc[1]);
+	SET_VALUE(Vd[0]);
+	SET_VALUE(Vd[1]);
 	SET_VALUE(Vtlc[0]);
 	SET_VALUE(Vtlc[1]);
 
@@ -2018,10 +2013,10 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 
 	SET_VALUE(Vm[0]);
 	SET_VALUE(Vm[1]);
-	SET_VALUE(Vrv[0]);
-	SET_VALUE(Vrv[1]);
-	SET_VALUE(Vfrc[0]);
-	SET_VALUE(Vfrc[1]);
+	SET_VALUE(Vc[0]);
+	SET_VALUE(Vc[1]);
+	SET_VALUE(Vd[0]);
+	SET_VALUE(Vd[1]);
 	SET_VALUE(Vtlc[0]);
 	SET_VALUE(Vtlc[1]);
 
@@ -2082,10 +2077,10 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 
 	GET_VALUE(Vm[0]);
 	GET_VALUE(Vm[1]);
-	GET_VALUE(Vrv[0]);
-	GET_VALUE(Vrv[1]);
-	GET_VALUE(Vfrc[0]);
-	GET_VALUE(Vfrc[1]);
+	GET_VALUE(Vc[0]);
+	GET_VALUE(Vc[1]);
+	GET_VALUE(Vd[0]);
+	GET_VALUE(Vd[1]);
 	GET_VALUE(Vtlc[0]);
 	GET_VALUE(Vtlc[1]);
 

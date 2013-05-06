@@ -157,12 +157,12 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->Vm->setProperty(range_property, "0 to 95;1");
 	ui->Vm_left->setProperty(range_property, "0 to 95;1");
 	ui->Vm_right->setProperty(range_property, "0 to 95;1");
-	ui->Vrv->setProperty(range_property, "5 to 95;1");
-	ui->Vrv_left->setProperty(range_property, "5 to 95;1");
-	ui->Vrv_right->setProperty(range_property, "5 to 95;1");
-	ui->Vfrc->setProperty(range_property, "5 to 95;1");
-	ui->Vfrc_left->setProperty(range_property, "5 to 95;1");
-	ui->Vfrc_right->setProperty(range_property, "5 to 95;1");
+	ui->Vc->setProperty(range_property, "5 to 95;1");
+	ui->Vc_left->setProperty(range_property, "5 to 95;1");
+	ui->Vc_right->setProperty(range_property, "5 to 95;1");
+	ui->Vd->setProperty(range_property, "5 to 95;1");
+	ui->Vd_left->setProperty(range_property, "5 to 95;1");
+	ui->Vd_right->setProperty(range_property, "5 to 95;1");
 	ui->Vtlc->setProperty(range_property, "5 to 300;1");
 	ui->Vtlc_left->setProperty(range_property, "5 to 300;1");
 	ui->Vtlc_right->setProperty(range_property, "5 to 300;1");
@@ -221,12 +221,12 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->Vm, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
 	connect(ui->Vm_left, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
 	connect(ui->Vm_right, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
-	connect(ui->Vrv, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
-	connect(ui->Vrv_left, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
-	connect(ui->Vrv_right, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
-	connect(ui->Vfrc, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
-	connect(ui->Vfrc_left, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
-	connect(ui->Vfrc_right, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vc, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vc_left, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vc_right, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vd, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vd_left, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
+	connect(ui->Vd_right, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
 	connect(ui->Vtlc, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
 	connect(ui->Vtlc_left, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
 	connect(ui->Vtlc_right, SIGNAL(textEdited(QString)), SLOT(globalVolumesChanged()));
@@ -890,12 +890,12 @@ void MainWindow::updateInputsOutputs()
 	GET_MODEL(Model::Vm_value, ui->Vm);
 	GET_MODEL(Model::Vm_L_value, ui->Vm_left);
 	GET_MODEL(Model::Vm_R_value, ui->Vm_right);
-	GET_MODEL(Model::Vrv_value, ui->Vrv);
-	GET_MODEL(Model::Vrv_L_value, ui->Vrv_left);
-	GET_MODEL(Model::Vrv_R_value, ui->Vrv_right);
-	GET_MODEL(Model::Vfrc_value, ui->Vfrc);
-	GET_MODEL(Model::Vfrc_L_value, ui->Vfrc_left);
-	GET_MODEL(Model::Vfrc_R_value, ui->Vfrc_right);
+	GET_MODEL(Model::Vc_value, ui->Vc);
+	GET_MODEL(Model::Vc_L_value, ui->Vc_left);
+	GET_MODEL(Model::Vc_R_value, ui->Vc_right);
+	GET_MODEL(Model::Vd_value, ui->Vd);
+	GET_MODEL(Model::Vd_L_value, ui->Vd_left);
+	GET_MODEL(Model::Vd_R_value, ui->Vd_right);
 	GET_MODEL(Model::Vtlc_value, ui->Vtlc);
 	GET_MODEL(Model::Vtlc_L_value, ui->Vtlc_left);
 	GET_MODEL(Model::Vtlc_R_value, ui->Vtlc_right);
@@ -966,8 +966,8 @@ QList<QPair<Model::DataType, Range> > MainWindow::fetchModelInputs() const
 		// similar lungs
 		ADD_MODEL_RANGE(ret, Model::Lung_Ht_value, ui->lungHt);
 		ADD_MODEL_RANGE(ret, Model::Vm_value, ui->Vm);
-		ADD_MODEL_RANGE(ret, Model::Vrv_value, ui->Vrv);
-		ADD_MODEL_RANGE(ret, Model::Vfrc_value, ui->Vfrc);
+		ADD_MODEL_RANGE(ret, Model::Vc_value, ui->Vc);
+		ADD_MODEL_RANGE(ret, Model::Vd_value, ui->Vd);
 		ADD_MODEL_RANGE(ret, Model::Vtlc_value, ui->Vtlc);
 	}
 	else {
@@ -976,10 +976,10 @@ QList<QPair<Model::DataType, Range> > MainWindow::fetchModelInputs() const
 		ADD_MODEL_RANGE(ret, Model::Lung_Ht_R_value, ui->lungHt_right);
 		ADD_MODEL_RANGE(ret, Model::Vm_L_value, ui->Vm_left);
 		ADD_MODEL_RANGE(ret, Model::Vm_R_value, ui->Vm_right);
-		ADD_MODEL_RANGE(ret, Model::Vrv_L_value, ui->Vrv_left);
-		ADD_MODEL_RANGE(ret, Model::Vrv_R_value, ui->Vrv_right);
-		ADD_MODEL_RANGE(ret, Model::Vfrc_L_value, ui->Vfrc_left);
-		ADD_MODEL_RANGE(ret, Model::Vfrc_R_value, ui->Vfrc_right);
+		ADD_MODEL_RANGE(ret, Model::Vc_L_value, ui->Vc_left);
+		ADD_MODEL_RANGE(ret, Model::Vc_R_value, ui->Vc_right);
+		ADD_MODEL_RANGE(ret, Model::Vd_L_value, ui->Vd_left);
+		ADD_MODEL_RANGE(ret, Model::Vd_R_value, ui->Vd_right);
 		ADD_MODEL_RANGE(ret, Model::Vtlc_L_value, ui->Vtlc_left);
 		ADD_MODEL_RANGE(ret, Model::Vtlc_R_value, ui->Vtlc_right);
 	}
@@ -1342,9 +1342,9 @@ void MainWindow::dissimilarLungSelection(int id)
 
 		COPY_TEXT(lungHt);
 		COPY_TEXT(Vm);
-		COPY_TEXT(Vrv);
+		COPY_TEXT(Vc);
 		COPY_TEXT(Vtlc);
-		COPY_TEXT(Vfrc);
+		COPY_TEXT(Vd);
 #undef COPY_TEXT
 		break;
 
@@ -1360,9 +1360,9 @@ void MainWindow::dissimilarLungSelection(int id)
 
 		COPY_TEXT(lungHt);
 		COPY_TEXT(Vm);
-		COPY_TEXT(Vrv);
+		COPY_TEXT(Vc);
 		COPY_TEXT(Vtlc);
-		COPY_TEXT(Vfrc);
+		COPY_TEXT(Vd);
 
 #undef COPY_TEXT
 		break;
@@ -1469,18 +1469,18 @@ void MainWindow::vesselPtpDependenciesChanged()
 
 void MainWindow::globalVolumesChanged()
 {
-	bool Vm_ok, Vrv_ok, Vfrc_ok, Vtlc_ok;
+	bool Vm_ok, Vc_ok, Vd_ok, Vtlc_ok;
 	const double new_Vm = ui->Vm->text().toDouble(&Vm_ok);
-	const double new_Vrv = ui->Vrv->text().toDouble(&Vrv_ok);
-	const double new_Vfrc = ui->Vfrc->text().toDouble(&Vfrc_ok);
+	const double new_Vc = ui->Vc->text().toDouble(&Vc_ok);
+	const double new_Vd = ui->Vd->text().toDouble(&Vd_ok);
 	const double new_Vtlc = ui->Vtlc->text().toDouble(&Vtlc_ok);
 
 	if (Vm_ok)
 		baseline->setData(Model::Vm_value, new_Vm);
-	if (Vrv_ok)
-		baseline->setData(Model::Vrv_value, new_Vrv);
-	if (Vfrc_ok)
-		baseline->setData(Model::Vfrc_value, new_Vfrc);
+	if (Vc_ok)
+		baseline->setData(Model::Vc_value, new_Vc);
+	if (Vd_ok)
+		baseline->setData(Model::Vd_value, new_Vd);
 	if (Vtlc_ok)
 		baseline->setData(Model::Vtlc_value, new_Vtlc);
 

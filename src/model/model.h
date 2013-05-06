@@ -110,7 +110,7 @@ public:
 		Lung_Ht_value, Flow_value, LAP_value, Pal_value, Ppl_value,
 		Ptp_value, PAP_value, Rus_value, Rds_value, Rm_value,
 		Rt_value, Tlrns_value,
-		Vm_value, Vrv_value, Vfrc_value, Vtlc_value,
+		Vm_value, Vc_value, Vd_value, Vtlc_value,
 		Pat_Ht_value, Pat_Wt_value,
 		TotalR_value,
 		Krc,
@@ -119,8 +119,8 @@ public:
 		CV_Diam_value,
 
 		Lung_Ht_L_value, Lung_Ht_R_value,
-		Vm_L_value, Vrv_L_value, Vfrc_L_value, Vtlc_L_value,
-		Vm_R_value, Vrv_R_value, Vfrc_R_value, Vtlc_R_value,
+		Vm_L_value, Vc_L_value, Vd_L_value, Vtlc_L_value,
+		Vm_R_value, Vc_R_value, Vd_R_value, Vtlc_R_value,
 
 		CO_value = Flow_value,
 		DiseaseParam = 0xFFFF
@@ -296,7 +296,7 @@ protected:
 
 private:
 	double Tlrns, Pal, Ppl, CO, CI, LAP;
-	double LungHt[2], Vm[2], Vrv[2], Vfrc[2], Vtlc[2]; // [LeftLung, RightLung]
+	double LungHt[2], Vm[2], Vc[2], Vd[2], Vtlc[2]; // [LeftLung, RightLung]
 	double PatWt, PatHt;
 	double Hct;
 	double PA_EVL, PA_diam, PV_EVL, PV_diam; // cm

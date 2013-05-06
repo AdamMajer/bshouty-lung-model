@@ -190,10 +190,10 @@ void MultiModelOutput::updateView()
 
 	                << QPair<Model::DataType, QString>(Model::Vtlc_L_value, "Lt. Vtlc")
 	                << QPair<Model::DataType, QString>(Model::Vtlc_R_value, "Rt. Vtlc")
-	                << QPair<Model::DataType, QString>(Model::Vfrc_L_value, "Lt. Vfrc")
-	                << QPair<Model::DataType, QString>(Model::Vfrc_R_value, "Rt. Vfrc")
-	                << QPair<Model::DataType, QString>(Model::Vrv_L_value, "Lt. Vrv")
-	                << QPair<Model::DataType, QString>(Model::Vrv_R_value, "Rt. Vrv")
+	                << QPair<Model::DataType, QString>(Model::Vd_L_value, "Lt. Vd")
+	                << QPair<Model::DataType, QString>(Model::Vd_R_value, "Rt. Vd")
+	                << QPair<Model::DataType, QString>(Model::Vc_L_value, "Lt. Vc")
+	                << QPair<Model::DataType, QString>(Model::Vc_R_value, "Rt. Vc")
 	                << QPair<Model::DataType, QString>(Model::Vm_L_value, "Lt. Vm")
 	                << QPair<Model::DataType, QString>(Model::Vm_R_value, "Rt. Vm")
 
@@ -290,10 +290,10 @@ void MultiModelOutput::combineMirroredLungLabels(QList<QPair<Model::DataType, QS
 	            QPair<Model::DataType,Model::DataType>(Model::Lung_Ht_L_value, Model::Lung_Ht_R_value));
 	cmap.insert(Model::Vtlc_value,
 	            QPair<Model::DataType,Model::DataType>(Model::Vtlc_L_value, Model::Vtlc_R_value));
-	cmap.insert(Model::Vfrc_value,
-	            QPair<Model::DataType,Model::DataType>(Model::Vfrc_L_value, Model::Vfrc_R_value));
-	cmap.insert(Model::Vrv_value,
-	            QPair<Model::DataType,Model::DataType>(Model::Vrv_L_value, Model::Vrv_R_value));
+	cmap.insert(Model::Vd_value,
+	            QPair<Model::DataType,Model::DataType>(Model::Vd_L_value, Model::Vd_R_value));
+	cmap.insert(Model::Vc_value,
+	            QPair<Model::DataType,Model::DataType>(Model::Vc_L_value, Model::Vc_R_value));
 	cmap.insert(Model::Vm_value,
 	            QPair<Model::DataType,Model::DataType>(Model::Vm_L_value, Model::Vm_R_value));
 

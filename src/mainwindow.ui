@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>972</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuData">
@@ -161,9 +161,9 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
-              <width>347</width>
-              <height>1524</height>
+              <y>-107</y>
+              <width>346</width>
+              <height>1444</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout">
@@ -917,7 +917,7 @@ p, li { white-space: pre-wrap; }
                 </size>
                </property>
                <property name="currentIndex">
-                <number>0</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="page">
                 <layout class="QFormLayout" name="formLayout">
@@ -996,16 +996,16 @@ p, li { white-space: pre-wrap; }
                     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans Serif';&quot;&gt;V&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; vertical-align:sub;&quot;&gt;RV &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif';&quot;&gt;(%TLC)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;V&lt;/span&gt;&lt;span style=&quot; font-size:8pt; vertical-align:sub;&quot;&gt;C &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="buddy">
-                    <cstring>Vrv</cstring>
+                    <cstring>Vc</cstring>
                    </property>
                   </widget>
                  </item>
                  <item row="3" column="1">
-                  <widget class="RangeLineEdit" name="Vrv">
+                  <widget class="RangeLineEdit" name="Vc">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;RV&lt;/span&gt; stands for Residual Volume (as a percent of TLC).&lt;/p&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;RV&lt;/span&gt; must be greater than V&lt;span style=&quot; vertical-align:sub;&quot;&gt;M&lt;/span&gt; and smaller than V&lt;span style=&quot; vertical-align:sub;&quot;&gt;FRC&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt; 1 – 75, default is 27%&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -1014,15 +1014,15 @@ p, li { white-space: pre-wrap; }
                  <item row="4" column="0">
                   <widget class="QLabel" name="label_16">
                    <property name="text">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;FRC &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif';&quot;&gt;(%TLC)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;D&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="buddy">
-                    <cstring>Vfrc</cstring>
+                    <cstring>Vd</cstring>
                    </property>
                   </widget>
                  </item>
                  <item row="4" column="1">
-                  <widget class="RangeLineEdit" name="Vfrc">
+                  <widget class="RangeLineEdit" name="Vd">
                    <property name="toolTip">
                     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1163,23 +1163,23 @@ p, li { white-space: pre-wrap; }
                     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans Serif';&quot;&gt;V&lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif'; vertical-align:sub;&quot;&gt;RV &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif';&quot;&gt;(%TLC)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;V&lt;/span&gt;&lt;span style=&quot; font-size:8pt; vertical-align:sub;&quot;&gt;C&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="buddy">
-                    <cstring>Vrv</cstring>
+                    <cstring>Vc</cstring>
                    </property>
                   </widget>
                  </item>
                  <item row="4" column="1">
-                  <widget class="RangeLineEdit" name="Vrv_left">
+                  <widget class="RangeLineEdit" name="Vc_left">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;RV&lt;/span&gt; stands for Residual Volume (as a percent of TLC).&lt;/p&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;RV&lt;/span&gt; must be greater than V&lt;span style=&quot; vertical-align:sub;&quot;&gt;M&lt;/span&gt; and smaller than V&lt;span style=&quot; vertical-align:sub;&quot;&gt;FRC&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt; 1 – 75, default is 27%&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                   </widget>
                  </item>
                  <item row="4" column="2">
-                  <widget class="RangeLineEdit" name="Vrv_right">
+                  <widget class="RangeLineEdit" name="Vc_right">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;RV&lt;/span&gt; stands for Residual Volume (as a percent of TLC).&lt;/p&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;RV&lt;/span&gt; must be greater than V&lt;span style=&quot; vertical-align:sub;&quot;&gt;M&lt;/span&gt; and smaller than V&lt;span style=&quot; vertical-align:sub;&quot;&gt;FRC&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt; 1 – 75, default is 27%&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -1188,15 +1188,15 @@ p, li { white-space: pre-wrap; }
                  <item row="5" column="0">
                   <widget class="QLabel" name="label_28">
                    <property name="text">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;FRC &lt;/span&gt;&lt;span style=&quot; font-family:'Sans Serif';&quot;&gt;(%TLC)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;D&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="buddy">
-                    <cstring>Vfrc</cstring>
+                    <cstring>Vd</cstring>
                    </property>
                   </widget>
                  </item>
                  <item row="5" column="1">
-                  <widget class="RangeLineEdit" name="Vfrc_left">
+                  <widget class="RangeLineEdit" name="Vd_left">
                    <property name="toolTip">
                     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1211,7 +1211,7 @@ p, li { white-space: pre-wrap; }
                   </widget>
                  </item>
                  <item row="5" column="2">
-                  <widget class="RangeLineEdit" name="Vfrc_right">
+                  <widget class="RangeLineEdit" name="Vd_right">
                    <property name="toolTip">
                     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1722,17 +1722,17 @@ p, li { white-space: pre-wrap; }
   <tabstop>patWt</tabstop>
   <tabstop>lungHt</tabstop>
   <tabstop>Vm</tabstop>
-  <tabstop>Vrv</tabstop>
-  <tabstop>Vfrc</tabstop>
+  <tabstop>Vc</tabstop>
+  <tabstop>Vd</tabstop>
   <tabstop>Vtlc</tabstop>
   <tabstop>lungHt_left</tabstop>
   <tabstop>lungHt_right</tabstop>
   <tabstop>Vm_left</tabstop>
   <tabstop>Vm_right</tabstop>
-  <tabstop>Vrv_left</tabstop>
-  <tabstop>Vrv_right</tabstop>
-  <tabstop>Vfrc_left</tabstop>
-  <tabstop>Vfrc_right</tabstop>
+  <tabstop>Vc_left</tabstop>
+  <tabstop>Vc_right</tabstop>
+  <tabstop>Vd_left</tabstop>
+  <tabstop>Vd_right</tabstop>
   <tabstop>Vtlc_left</tabstop>
   <tabstop>Vtlc_right</tabstop>
   <tabstop>Hct</tabstop>

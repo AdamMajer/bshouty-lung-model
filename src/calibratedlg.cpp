@@ -61,8 +61,8 @@ CalibrateDlg::CalibrateDlg(QWidget *parent)
 	ui->patWt->setText(doubleToString(base_model.getResult(Model::Pat_Wt_value)));
 	ui->lungHt->setText(doubleToString(base_model.getResult(Model::Lung_Ht_value)));
 	ui->Vm->setText(doubleToString(base_model.getResult(Model::Vm_value)));
-	ui->Vrv->setText(doubleToString(base_model.getResult(Model::Vrv_value)));
-	ui->Vfrc->setText(doubleToString(base_model.getResult(Model::Vfrc_value)));
+	ui->Vc->setText(doubleToString(base_model.getResult(Model::Vc_value)));
+	ui->Vd->setText(doubleToString(base_model.getResult(Model::Vd_value)));
 	ui->Vtlc->setText(doubleToString(base_model.getResult(Model::Vtlc_value)));
 
 	ui->Hct->setText(doubleToString(base_model.getResult(Model::Hct_value)));
@@ -86,8 +86,8 @@ CalibrateDlg::CalibrateDlg(QWidget *parent)
 	connect(ui->patWt, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
 	connect(ui->lungHt, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
 	connect(ui->Vm, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
-	connect(ui->Vrv, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
-	connect(ui->Vfrc, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->Vc, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
+	connect(ui->Vd, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
 	connect(ui->Vtlc, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
 
 	connect(ui->CO, SIGNAL(textEdited(const QString &)), SLOT(valueEditorFinished(const QString &)));
@@ -145,8 +145,8 @@ void CalibrateDlg::accept()
 	                << Model::CV_Diam_value
 	                << Model::PV_EVL_value
 	                << Model::Vm_value
-	                << Model::Vrv_value
-	                << Model::Vfrc_value
+	                << Model::Vc_value
+	                << Model::Vd_value
 	                << Model::Vtlc_value;
 
 	foreach (Model::DataType data_type, save_values) {
@@ -409,8 +409,8 @@ void CalibrateDlg::valueEditorFinished(const QString &val_str)
 	v.insert(Model::Pat_Wt_value, ui->patWt);
 	v.insert(Model::Lung_Ht_value, ui->lungHt);
 	v.insert(Model::Vm_value, ui->Vm);
-	v.insert(Model::Vrv_value, ui->Vrv);
-	v.insert(Model::Vfrc_value, ui->Vfrc);
+	v.insert(Model::Vc_value, ui->Vc);
+	v.insert(Model::Vd_value, ui->Vd);
 	v.insert(Model::Vtlc_value, ui->Vtlc);
 
 	v.insert(Model::CO_value, ui->CO);
@@ -474,8 +474,8 @@ void CalibrateDlg::updateCalculatedModelValues()
 	v.insert(Model::Pat_Wt_value, ui->patWt);
 	v.insert(Model::Lung_Ht_value, ui->lungHt);
 	v.insert(Model::Vm_value, ui->Vm);
-	v.insert(Model::Vrv_value, ui->Vrv);
-	v.insert(Model::Vfrc_value, ui->Vfrc);
+	v.insert(Model::Vc_value, ui->Vc);
+	v.insert(Model::Vd_value, ui->Vd);
 	v.insert(Model::Vtlc_value, ui->Vtlc);
 
 	v.insert(Model::CO_value, ui->CO);
@@ -597,8 +597,8 @@ void CalibrateDlg::resetBaseModel()
 	v.insert(Model::Pat_Wt_value, ui->patWt);
 	v.insert(Model::Lung_Ht_value, ui->lungHt);
 	v.insert(Model::Vm_value, ui->Vm);
-	v.insert(Model::Vrv_value, ui->Vrv);
-	v.insert(Model::Vfrc_value, ui->Vfrc);
+	v.insert(Model::Vc_value, ui->Vc);
+	v.insert(Model::Vd_value, ui->Vd);
 	v.insert(Model::Vtlc_value, ui->Vtlc);
 
 	v.insert(Model::CO_value, ui->CO);
