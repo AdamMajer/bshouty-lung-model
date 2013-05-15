@@ -146,57 +146,20 @@ double CpuIntegrationHelper::capillaryResistance(Capillary &cap)
 }
 
 double CpuIntegrationHelper::capillaryH(const Capillary &cap, double pressure)
+
 {
-	// Calculate H of capillary based on pressure
-	// smooth in section of (-0.10 .. 0.05)
-
-	double b, d;
+	double Hmax, d, plr; // plr=pressure range over which curve is linear
 	double exp_cd;
-//	if (pressure >= 0.05) {
-		d = 4.0;
-		exp_cd = 16.0*cap.Alpha/cap.Ho;
-/*	}
-	else if (pressure <= -0.10) {
-		d = 0.125;
-		// c = -0.25;
-		exp_cd = std::exp(-2);
-	}
-	else {
-		// transition smoothed
-		double x = std::sinh(80.0 * (pressure+0.025));
-		if (fabs(x) > 100)
-			x = (x<0 ? -100.0 : 100.0);
 
-		d = 3.875/200.0*x + 2.0625;
-		double c_a1 = (d*std::log(16.0*cap.Alpha/cap.Ho) + 0.25)/200.0;
-		double c_a2 = c_a1*100.0 - 0.25;
-		double c = c_a1*x + c_a2;
+	plr=16.0;
+	d = plr/4.0;
+	Hmax = cap.Ho + plr*cap.Alpha;
+	exp_cd = Hmax/cap.Ho-1;
 
-		exp_cd = std::exp(c/d);
-	}
-*/
-	b = cap.Ho + cap.Ho*exp_cd;
-	double adjusted_p = pressure/d;
-	if (fabs(adjusted_p)>2.0 && 2.0*exp_cd<exp(adjusted_p)) {
-		// taylor series expansion
-		double ret = 1.0;
-		double kn = exp_cd;
-		double v = -std::exp(-adjusted_p);
-		double vn = v;
+	return Hmax/(1+exp_cd*std::exp(-pressure/d));
 
-		while (vn*kn > std::numeric_limits<double>::epsilon()) {
-			ret += vn*kn;
-
-			vn *= v;
-			kn *= exp_cd;
-		}
-
-		return b * ret;
-	}
-
-	// use real value otherwise
-	return b/(1+exp_cd/std::exp(adjusted_p));
 }
+
 
 double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 {
