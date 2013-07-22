@@ -122,18 +122,10 @@ double CpuIntegrationHelper::capillaryResistance(Capillary &cap)
 		return 0.0;
 	}
 	else {
-		// Calculate height at capillary outlet
-		double Krc_dl = cap.Krc / 128.0;
-
 		// Riemann sum to find correct inlet pressure
-		double P = std::max(0.0, Ptmv);
-		for (int i=0; i<128; ++i) {
-			double H = capillaryH(cap, P);
-			double dR = 1/cap.Alpha * Krc_dl * 4.0/(sqr(sqr(H)));
-
-			P += dR*cap.flow;
-		}
-		Ptma = P;
+		double P = std::max(0.0, Ptmv); // starling resistor
+		double H = capillaryH(cap, P);
+		Ptma = P + cap.flow * (1/cap.Alpha) * cap.Krc * 4.0/(sqr(sqr(H)));
 	}
 
 	if (Ptma < Ptmv)
