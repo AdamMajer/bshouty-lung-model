@@ -204,29 +204,27 @@ double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 	v.viscosity_factor = 0.0;
 	v.volume = 0.0;
 	double D = 0.0;
-	if( Ptm < 0 ) {
-		Rs = -Ptm/( 1.35951002636 * v.flow ); // Starling Resistor
-	}
-	else {
-		double new_Pin = Pin;
-		double old_Pin;
-		do {
-			old_Pin = new_Pin;
-			double avg_P = (new_Pin + Pout) / 2.0;
-			Ptm = 1.35951002636 * ( avg_P - v.tone );
-			Ptm = Ptm - v.Ppl - v.perivascular_press_a -
-			      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
 
-			// const double inv_A = (1.0 + v.b * exp( v.c * Ptm )) / 0.99936058722097668220 / v.a;
-			D = v.D*v.gamma - (v.gamma-1.0)*v.D*exp(-Ptm*v.phi/(v.gamma-1.0));
-			const double vf = viscosityFactor(D, hct);
-			Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * v.vessel_ratio;
-			v.viscosity_factor = vf;
+	double new_Pin = Pin;
+	double old_Pin;
+	do {
+		old_Pin = new_Pin;
+		double avg_P = (new_Pin + Pout) / 2.0;
+		Ptm = 1.35951002636 * ( avg_P - v.tone );
+		Ptm = Ptm - v.Ppl - v.perivascular_press_a -
+		      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
 
-			new_Pin = Pout + v.flow * Rs;
-			new_Pin = (new_Pin + old_Pin) / 2.0;
-		} while (fabs(new_Pin - old_Pin)/old_Pin > Tlrns());
-	}
+		// const double inv_A = (1.0 + v.b * exp( v.c * Ptm )) / 0.99936058722097668220 / v.a;
+		Ptm = std::max(Ptm, 0.0); // Starling resistor
+
+		D = v.D*v.gamma - (v.gamma-1.0)*v.D*exp(-Ptm*v.phi/(v.gamma-1.0));
+		const double vf = viscosityFactor(D, hct);
+		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * v.vessel_ratio;
+		v.viscosity_factor = vf;
+
+		new_Pin = Pout + v.flow * Rs;
+		new_Pin = (new_Pin + old_Pin) / 2.0;
+	} while (fabs(new_Pin - old_Pin)/old_Pin > Tlrns());
 
 	//		if (calc_dim) {
 	//			calc_dim->push_back(v.Dmin);
@@ -277,10 +275,6 @@ double CpuIntegrationHelper::multiSegmentedFlowVessel(Vessel &v,
 	if (v.flow == 0.0 || isnan(P) /*|| P < 0.0*/)
 		return 0.0;
 
-	double Ptm = 1.35951002636 * ( P - v.tone );
-	double Rs;
-	double D_integral = 0.0;
-
 	/* First segment is slightly different from others, so we pull it out */
 	/* First 1/5th of generations is outside the lung - use different equation */
 
@@ -298,66 +292,33 @@ double CpuIntegrationHelper::multiSegmentedFlowVessel(Vessel &v,
 		return Rin > 1e100 ? 0 : 10.0;
 	}
 
-	Ptm = Ptm - v.Ppl - v.perivascular_press_a -
-	      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
-
 	const double dL =  v.length / (double)nSums;
 
 	// min diameter is always first segment
 	v.viscosity_factor = 0.0;
 	v.volume = 0.0;
-	if( Ptm < 0 ) {
-		v.Dmin = 0.0;
-		Rs = -Ptm/( 1.35951002636 * v.flow ); // Starling Resistor
-	}
-	else {
-		/*
-		const double inv_A = (1.0 + v.b * exp( v.c * Ptm )) / 0.99936058722097668220 / v.a;
-		double area = v.a / v.max_a;
-		double A = ((1/inv_A - 1.0) * area + 1.0)*area;
-		v.Dmin = v.D * sqrt(A);
-		*/
-
-		v.Dmin = v.D*v.gamma - (v.gamma-1.0)*v.D*exp(-Ptm*v.phi/(v.gamma-1.0));
-
-		//v.Dmin = v.D / sqrt(inv_A);
-		const double vf = viscosityFactor(v.Dmin, hct);
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(v.Dmin)) * v.vessel_ratio;
-		v.viscosity_factor += vf;
-		v.volume += M_PI/4.0 * sqr(v.Dmin) * dL;
-
-		if (calc_dim)
-			calc_dim->push_back(v.Dmin);
-	}
-
-	D_integral = v.Dmin;
-	P = P + v.flow * Rs;
-	Rtot = Rs;
 
 	double D=0.0;
-	for( int j=1; j<nSums; j++ ) {
-		Ptm = 1.35951002636 * ( P - v.tone );
+	double D_integral = 0.0;
+	for( int j=0; j<nSums; j++ ) {
+		double Ptm = 1.35951002636 * ( P - v.tone );
 
 		Ptm = Ptm - v.Ppl - v.perivascular_press_a -
 		      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
 
-		// corrected to Ptp=0, Ptm=35 cmH2O
-		/*
-		const double inv_A = (1.0 + v.b * exp( v.c * Ptm )) / 0.99936058722097668220 / v.a;
-		const double area = v.a / v.max_a;
-		const double A = ((1/inv_A - 1.0) * area + 1.0)*area;
-		D = v.D * sqrt(A);
-		*/
-
+		Ptm = std::max(Ptm, 0.0); // Starling Resistor
 		D = v.D*v.gamma - (v.gamma-1.0)*v.D*exp(-Ptm*v.phi/(v.gamma-1.0));
-
 		D_integral += D;
 		const double vf = viscosityFactor(D, hct);
 
 		if (calc_dim)
 			calc_dim->push_back(D);
 
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * v.vessel_ratio;
+		if (Q_UNLIKELY(j == 0)) {
+			v.Dmin = D;
+		}
+
+		double Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * v.vessel_ratio;
 		v.viscosity_factor += vf;
 		v.volume += M_PI/4.0 * sqr(D) * dL;
 
