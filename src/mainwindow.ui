@@ -161,8 +161,8 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-107</y>
-              <width>346</width>
+              <y>0</y>
+              <width>348</width>
               <height>1444</height>
              </rect>
             </property>
@@ -917,7 +917,7 @@ p, li { white-space: pre-wrap; }
                 </size>
                </property>
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="page">
                 <layout class="QFormLayout" name="formLayout">
