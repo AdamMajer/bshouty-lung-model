@@ -682,6 +682,7 @@ bool Model::setData(DataType type, double val)
 		}
 		break;
 	case Vtlc_L_value:
+		val /= 100.0;
 		if (significantChange(Vtlc[0], val)) {
 			Vtlc[0] = val;
 			calculateBaselineCharacteristics();
@@ -690,6 +691,7 @@ bool Model::setData(DataType type, double val)
 		}
 		break;
 	case Vm_R_value:
+		val /= 100.0;
 		if (significantChange(Vm[1], val)) {
 			Vm[1] = val;
 			calculateBaselineCharacteristics();
