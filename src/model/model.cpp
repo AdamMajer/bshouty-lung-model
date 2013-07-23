@@ -1096,7 +1096,7 @@ double Model::calibrationValue(DataType type)
 	case Model::Krc:
 		return 160419.186375174;
 	case Model::CV_Diam_value:
-		return 3.080729702;
+		return 0.0003080729702;
 
 	case Model::Ptp_value:
 	case Model::PAP_value:
