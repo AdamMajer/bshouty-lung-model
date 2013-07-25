@@ -161,6 +161,7 @@ struct CL_Vessel {
 	cl_float peri_a;
 	cl_float peri_b;
 	cl_float peri_c;
+	cl_float P_0;
 
 	cl_float D;
 	cl_float len;
@@ -171,7 +172,7 @@ struct CL_Vessel {
 	 * of 64-bytes on CPU and up to 128 on GPU (nVidia Kerpler, for example)
 	 * The padding MUST NOT be smaller than cacheline size
 	 */
-	cl_float pad[15 + 2*16]; // pad to 256 bytes
+	cl_float pad[14 + 2*16]; // pad to 256 bytes
 };
 
 struct CL_Result {

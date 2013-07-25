@@ -257,6 +257,7 @@ int OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
 		c.peri_a = v.perivascular_press_a;
 		c.peri_b = v.perivascular_press_b;
 		c.peri_c = v.perivascular_press_c;
+		c.P_0 = v.pressure_0;
 		c.Ppl = v.Ppl;
 		c.pressure_in = v.pressure_in;
 		c.pressure_out = v.pressure_out;

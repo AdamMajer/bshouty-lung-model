@@ -15,13 +15,14 @@ struct Vessel {
 	float peri_a;
 	float peri_b;
 	float peri_c;
+	float P_0;
 
 	float D;
 	float len;
 
 	float vessel_ratio;
 
-	float pad[15 + 2*16]; // pad to 256 bytes
+	float pad[14 + 2*16]; // pad to 256 bytes
 };
 
 struct Result {
@@ -65,7 +66,8 @@ __kernel void singleSegmentVesselFlow(
 	
 	const float Rin = vein.R;
 	const float Pin = vein.pressure_in;
-	const float Pout = vein.pressure_out;
+	const float Pout = fmax(vein.pressure_out, vein.P_0);
+	const float starling_R = (vein.P_0 - fmin(vein.pressure_out, vein.P_0)) / vein.flow;
 
 	float Ptm = 1.35951002636 * ((Pin+Pout)/2.0 - vein.tone);
 	float Rs;
@@ -73,11 +75,6 @@ __kernel void singleSegmentVesselFlow(
 	/* Conditions like no flow, isnan(P), etc. are weeded out before
 	 * vessels are passed to OpenCL
 	 */
-
-
-
-	/* First segment is slightly different from others, so we pull it out */
-	/* First 1/5th of generations is outside the lung - use different equation */
 
 	// check if vessel is closed
 	if (vein.D < 0.1) {
@@ -94,7 +91,6 @@ __kernel void singleSegmentVesselFlow(
 
 	Ptm = Ptm - vein.Ppl - vein.peri_a - vein.peri_b * exp( vein.peri_c * ( Ptm - vein.Ppl ));
 
-	// min diameter is always first segment
 	float D = 0.0;
 	float vf = 0.0;
 	
@@ -108,9 +104,6 @@ __kernel void singleSegmentVesselFlow(
 		Ptm = Ptm - vein.Ppl - vein.peri_a -
 		      vein.peri_b * exp( vein.peri_c * ( Ptm - vein.Ppl ));
 		
-		if (Ptm < 0.0)
-			Ptm = 0.0;
-
 		D = vein.D*vein.gamma - (vein.gamma-1.0)*vein.D*exp(-Ptm*vein.phi/(vein.gamma-1.0));
 		vf = viscosityFactor(D, hct);
 		Rs = 128*Kr/M_PI * vf * vein.len / sqr(sqr(D)) * vein.vessel_ratio;
@@ -119,9 +112,11 @@ __kernel void singleSegmentVesselFlow(
 		new_Pin = (new_Pin + old_Pin) / 2.0;
 	} while (fabs(new_Pin - old_Pin)/old_Pin > tlrns);
 	
+	Rs += starling_R;
+	
 	result[vessel_index].viscosity_factor = vf;
 	result[vessel_index].volume = M_PI/4.0 * sqr(D) * vein.len / (1e9*vein.vessel_ratio); // um**3 => uL, and correct for real number of vessels
-	result[vessel_index].Dmax = D; // max diameter is always last segment
+	result[vessel_index].Dmax = D;
 	result[vessel_index].Dmin = D;
 	result[vessel_index].D = D;
 	result[vessel_index].R = Rs;
@@ -138,25 +133,19 @@ __kernel void multiSegmentedVesselFlow(
 	const size_t vessel_index = get_global_id(0) + get_global_id(1)*width;
 	const struct Vessel vein = v[vessel_index];
 
+	float Pout = fmax(vein.pressure_out, vein.P_0);
+	const float starling_R = (vein.P_0 - fmin(vein.pressure_out, vein.P_0)) / vein.flow;
 	float Rtot = 0.0;
-	float Pout = vein.pressure_out;
 
-	float Ptm_i = 1.35951002636 * ( Pout - vein.tone );
-	float Rs;
-
-	float D = 0.0;
+	float D;
 	float D_integral = 0.0;
 	float volume = 0.0;
 	float viscosity = 0.0;
 	float dL = vein.len / (float)nSums;
 
-	float Ptm = Ptm_i - vein.Ppl - vein.peri_a - vein.peri_b * exp( vein.peri_c * ( Ptm_i - vein.Ppl ));
-	
 	/* Conditions like no flow, isnan(P), etc. are weeded out before
 	 * vessels are passed to OpenCL
 	 */
-
-
 
 	// check if vessel is closed
 	if (vein.D < 0.1) {
@@ -171,42 +160,27 @@ __kernel void multiSegmentedVesselFlow(
 		return;
 	}
 
-
-	// Starling resistor
-	if( Ptm < 0.0 )
-		Ptm = 0.0;
-
-	D = vein.D*vein.gamma - (vein.gamma-1.0)*vein.D*exp(-Ptm*vein.phi/(vein.gamma-1.0));
-	const float vf = viscosityFactor(D, hct);
-	Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
-		
-	D_integral = D;
-	viscosity += vf;
-	volume += M_PI_F/4.0 * sqr(D) * dL;
-
-	result[vessel_index].Dmin = D;
-	Pout = Pout + vein.flow * Rs;
-	Rtot = Rs;
-
 	for( int sum=0; sum<nSums; sum++ ){
-		Ptm_i = 1.35951002636 * ( Pout - vein.tone );
-		Ptm = Ptm_i - vein.Ppl - vein.peri_a - vein.peri_b * exp( vein.peri_c * ( Ptm_i - vein.Ppl ));
-
-		if (Ptm < 0.0)
-			Ptm = 0.0;
+		const float Ptm_i = 1.35951002636 * ( Pout - vein.tone );
+		const float Ptm = Ptm_i - vein.Ppl - vein.peri_a - 
+				vein.peri_b * exp( vein.peri_c * ( Ptm_i - vein.Ppl ));
 		D = vein.D*vein.gamma - (vein.gamma-1.0)*vein.D*exp(-Ptm*vein.phi/(vein.gamma-1.0));
-		
 		const float vf = viscosityFactor(D, hct);
-		Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
+
+		const float Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
 
 		volume += M_PI_F/4.0 * sqr(D) * dL;
 		viscosity += vf;
 		D_integral += D;
+
+		if (sum == 0)
+			result[vessel_index].Dmin = D;
 		
 		Pout = Pout + vein.flow * Rs;
 		Rtot += Rs;
 	}
 
+	Rtot += starling_R;
 	result[vessel_index].R = Rtot;
 	result[vessel_index].D = D_integral / nSums;
 	result[vessel_index].Dmax = D;
