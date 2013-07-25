@@ -1112,6 +1112,32 @@ double Model::calibrationValue(DataType type)
 	return 0.0;
 }
 
+double Model::lambertW(double z)
+{
+	double w = 0.0;
+	for (int i=0; i<5; ++i) {
+		double zi = w*std::exp(w) - z;
+		w = w - zi/(std::exp(w)*(w+1.0) - (w+2.0)*zi/(2.0*w+2.0));
+	}
+
+	return w;
+}
+
+void Model::calculatePressure0(Vessel &v)
+{
+	if (std::fabs(v.perivascular_press_b) > 1e-15) {
+		// parivascular pressure
+		double z = -v.perivascular_press_b*v.perivascular_press_c *
+		           std::exp(v.perivascular_press_a*v.perivascular_press_c);
+		double p = -lambertW(z)/v.perivascular_press_c;
+		v.pressure_0 = (p + v.perivascular_press_a + v.Ppl)/cmH2O_per_mmHg + v.tone;
+	}
+	else {
+		// no parivascular pressure (except possible constant)
+		v.pressure_0 = (v.Ppl+v.perivascular_press_a)/cmH2O_per_mmHg + v.tone;
+	}
+}
+
 void Model::getParameters()
 {
 	/* This procedure gets the arterial and venous parameters
@@ -1134,6 +1160,7 @@ void Model::getParameters()
 			art.perivascular_press_c = -0.013 - 0.0002*art.Ptp;
 		}
 
+		calculatePressure0(art);
 		art.length *= art.length_factor;
 	}
 
@@ -1152,6 +1179,7 @@ void Model::getParameters()
 			vein.perivascular_press_c = -0.020 - 0.0002*vein.Ptp;
 		}
 
+		calculatePressure0(vein);
 		vein.length *= vein.length_factor;
 	}
 }

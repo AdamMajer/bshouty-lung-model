@@ -159,7 +159,8 @@ double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 	const double hct = Hct();
 	double Rin = v.R;
 	double Pin = v.pressure_in;
-	const double Pout = v.pressure_out;
+	const double Pout = std::max(v.pressure_0, v.pressure_out);
+	const double starling_R = (v.pressure_0 - std::min(v.pressure_0, v.pressure_out))/v.flow;
 
 	if (v.pressure_out < 0.0) {
 		v.R = std::numeric_limits<double>::infinity();
@@ -173,7 +174,7 @@ double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 		return 0.0;
 	}
 
-	double Ptm = 1.35951002636 * ((Pin+Pout)/2.0 - v.tone);
+	double Ptm = cmH2O_per_mmHg * ((Pin+Pout)/2.0 - v.tone);
 	double Rs;
 
 	/* First segment is slightly different from others, so we pull it out */
@@ -210,12 +211,9 @@ double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 	do {
 		old_Pin = new_Pin;
 		double avg_P = (new_Pin + Pout) / 2.0;
-		Ptm = 1.35951002636 * ( avg_P - v.tone );
+		Ptm = cmH2O_per_mmHg * ( avg_P - v.tone );
 		Ptm = Ptm - v.Ppl - v.perivascular_press_a -
 		      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
-
-		// const double inv_A = (1.0 + v.b * exp( v.c * Ptm )) / 0.99936058722097668220 / v.a;
-		Ptm = std::max(Ptm, 0.0); // Starling resistor
 
 		D = v.D*v.gamma - (v.gamma-1.0)*v.D*exp(-Ptm*v.phi/(v.gamma-1.0));
 		const double vf = viscosityFactor(D, hct);
@@ -232,12 +230,12 @@ double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 	//		}
 
 	v.volume = M_PI/4.0 * sqr(D) * dL;
-	v.Dmax = D; // max diameter is always last segment
+	v.Dmax = D;
 	v.Dmin = D;
 	v.D_calc = D;
 
 	v.volume = v.volume / (1e9*v.vessel_ratio); // um**3 => uL, and correct for real number of vessels
-	v.R = Rs;
+	v.R = Rs + starling_R;
 	// v.R = K1 * v.R + K2 * Rin;
 	v.last_delta_R = fabs(Rin-v.R)/Rin;
 
@@ -263,20 +261,12 @@ double CpuIntegrationHelper::multiSegmentedFlowVessel(Vessel &v,
 	const double hct = Hct();
 	double Rtot = 0.0;
 	double Rin = v.R;
-	double P = v.pressure_out; // pressure to the right (LAP) of the vessel
-
-	/*
-	if (P < 0.0) {
-		v.R = std::numeric_limits<double>::infinity();
-	}
-	*/
+	double P = std::max(v.pressure_0, v.pressure_out); // pressure to the right (LAP) of the vessel
+	const double starling_R = (v.pressure_0 - std::min(v.pressure_0, v.pressure_out))/v.flow;
 
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
-	if (v.flow == 0.0 || isnan(P) /*|| P < 0.0*/)
+	if (v.flow == 0.0 || isnan(P))
 		return 0.0;
-
-	/* First segment is slightly different from others, so we pull it out */
-	/* First 1/5th of generations is outside the lung - use different equation */
 
 	// check if vessel is closed
 	if (v.D < 0.1) {
@@ -301,12 +291,11 @@ double CpuIntegrationHelper::multiSegmentedFlowVessel(Vessel &v,
 	double D=0.0;
 	double D_integral = 0.0;
 	for( int j=0; j<nSums; j++ ) {
-		double Ptm = 1.35951002636 * ( P - v.tone );
+		double Ptm = cmH2O_per_mmHg * ( P - v.tone );
 
 		Ptm = Ptm - v.Ppl - v.perivascular_press_a -
 		      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
 
-		Ptm = std::max(Ptm, 0.0); // Starling Resistor
 		D = v.D*v.gamma - (v.gamma-1.0)*v.D*exp(-Ptm*v.phi/(v.gamma-1.0));
 		D_integral += D;
 		const double vf = viscosityFactor(D, hct);
@@ -330,8 +319,7 @@ double CpuIntegrationHelper::multiSegmentedFlowVessel(Vessel &v,
 	v.D_calc = D_integral / nSums;
 
 	v.volume = v.volume / (1e9*v.vessel_ratio); // um**3 => uL, and correct for real number of vessels
-	v.R = Rtot;
-	// v.R = K1 * v.R + K2 * Rin;
+	v.R = Rtot + starling_R;
 	v.last_delta_R = fabs(Rin-v.R)/Rin;
 
 	return v.last_delta_R;

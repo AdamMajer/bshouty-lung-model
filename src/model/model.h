@@ -50,7 +50,8 @@ struct Vessel
 	double GPz; // gravity factor, without correcting for transducer position
 	double Ppl, Ptp; // cmH2O
 
-	// calclated in GetParameters()
+	// calculated in GetParameters()
+	double pressure_0; // pressure below which vessel acts as Starling Resistor
 	double perivascular_press_a, perivascular_press_b, perivascular_press_c;
 
 	double total_R; // mmHg*min/l
@@ -62,7 +63,7 @@ struct Vessel
 
 	double vessel_ratio; // n_model_vessels / real vessels
 
-	double cacheline_padding[4]; // padding to 256-byte cacheline boundary
+	double cacheline_padding[3]; // padding to 256-byte cacheline boundary
 };
 
 enum CapillaryState {
@@ -267,6 +268,8 @@ public:
 protected:
 	static double calibrationValue(DataType);
 
+	static double lambertW(double z);
+	static void calculatePressure0(Vessel &v);
 	void getParameters();
 	// void getKz();
 	void vascPress(int ideal_threads);

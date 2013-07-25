@@ -233,7 +233,7 @@ QString VesselView::headers(Type type, bool) const
 	switch (type) {
 	case Artery:
 	case Vein:
-		return QString::fromUtf8("\nR\nγ\nφ\nC\nPeri. a\nPeri. b\nPeri. c\n\n"
+		return QString::fromUtf8("\nR\nγ\nφ\nC\nPeri. a\nPeri. b\nPeri. c\nP0\n\n"
 		                         "GP\nPTP\nTone\nFlow (μL/s)\nPin\nPout\n\n"
 		                         "Length (μm)\nD0 (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)");
 	case Capillary:
@@ -270,6 +270,7 @@ QString VesselView::baselineValuesText(Type type, bool) const
 		value_list << doubleToString(v->gamma);
 		value_list << doubleToString(v->phi);
 		value_list << doubleToString(v->c);
+		value_list << QString::null;
 		value_list << QString::null;
 		value_list << QString::null;
 		value_list << QString::null;
@@ -331,6 +332,7 @@ QString VesselView::calculatedValuesText(Type type, bool) const
 		value_list << doubleToString(v->perivascular_press_a);
 		value_list << doubleToString(v->perivascular_press_b);
 		value_list << doubleToString(v->perivascular_press_c);
+		value_list << doubleToString(v->pressure_0);
 		value_list << QString::null;
 		value_list << doubleToString(v->GP);
 		value_list << doubleToString(v->Ptp);
