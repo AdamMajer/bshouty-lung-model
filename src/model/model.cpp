@@ -1129,8 +1129,16 @@ void Model::calculatePressure0(Vessel &v)
 		// parivascular pressure
 		double z = -v.perivascular_press_b*v.perivascular_press_c *
 		           std::exp(v.perivascular_press_a*v.perivascular_press_c);
-		double p = -lambertW(z)/v.perivascular_press_c;
-		v.pressure_0 = (p + v.perivascular_press_a + v.Ppl)/cmH2O_per_mmHg + v.tone;
+
+		if (z < -1/std::exp(1))
+			// NOTE: cannot use infinity as we need to subtract it
+			// from itself. Just use low enough pressure that cannot
+			// occur.
+			v.pressure_0 = -1000.0;
+		else {
+			double p = -lambertW(z)/v.perivascular_press_c;
+			v.pressure_0 = (p + v.perivascular_press_a + v.Ppl)/cmH2O_per_mmHg + v.tone;
+		}
 	}
 	else {
 		// no parivascular pressure (except possible constant)
