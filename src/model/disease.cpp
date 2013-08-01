@@ -373,7 +373,7 @@ void Disease::processCapillary(Model &m, QScriptValue &global, QScriptValue &f, 
 	Capillary v = m.capillary(ves_no);
 
 	global.setProperty("vessel_idx", ves_no);
-	SET_PROPERTY(R);
+	SET_PROPERTY(Krc);
 	SET_PROPERTY(Alpha);
 	SET_PROPERTY(Ho);
 
@@ -382,7 +382,7 @@ void Disease::processCapillary(Model &m, QScriptValue &global, QScriptValue &f, 
 
 	GET_PROPERTY(Alpha);
 	GET_PROPERTY(Ho);
-	GET_PROPERTY(R);
+	GET_PROPERTY(Krc);
 
 	if (v == m.capillary(ves_no))
 		return;

@@ -291,8 +291,10 @@ void OpenCLIntegrationHelper::updateResults(const CL_Result *cl_vessels,
 		Vessel &v = vessels[i];
 		const CL_Result &r = cl_vessels[idx];
 
-		if (v.flow <= 1e-50 || isnan(v.pressure_in) || isnan(v.pressure_out))
+		if (v.flow <= 1e-50 || isnan(v.pressure_in) || isnan(v.pressure_out)) {
+			v.last_delta_R = 0.0;
 			continue;
+		}
 
 		if (r.D < 0.1 /*|| v.pressure_out < 0.0*/) {
 			v.viscosity_factor = v.R = std::numeric_limits<double>::infinity();

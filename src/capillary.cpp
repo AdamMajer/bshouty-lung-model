@@ -31,12 +31,12 @@ CapillaryDlg::CapillaryDlg( Capillary & cap, QWidget *parent ) : QDialog( parent
 
 	ui->alpha->setText(doubleToString( cap.Alpha ));
 	ui->ho->setText(doubleToString( cap.Ho ));
-	ui->r->setText(doubleToString( cap.R ));
+	ui->krc->setText(doubleToString( cap.Krc ));
 
 	QValidator *v = new QRegExpValidator(QRegExp(numeric_validator_rx), this);
 	ui->alpha->setValidator(v);
 	ui->ho->setValidator(v);
-	ui->r->setValidator(v);
+	ui->krc->setValidator(v);
 }
 //=========================================================
 void CapillaryDlg::accept()
@@ -52,9 +52,9 @@ void CapillaryDlg::accept()
 	if( ok )
 		c.Ho = n;
 
-	n = ui->r->text().toDouble( &ok );
+	n = ui->krc->text().toDouble( &ok );
 	if( ok )
-		c.R = n;
+		c.Krc = n;
 
 	QDialog::accept();
 }

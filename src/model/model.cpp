@@ -88,7 +88,7 @@ bool operator==(const struct Capillary &a, const struct Capillary &b)
 	return memcmp(&a, &b, sizeof(struct Capillary)) == 0 ||
 	    !(significantChange(a.Alpha, b.Alpha) ||
 	      significantChange(a.Ho, b.Ho) ||
-	      significantChange(a.R, b.R));
+	      significantChange(a.Krc, b.Krc));
 }
 
 
@@ -452,7 +452,6 @@ void Model::setCapillary(int index, const Capillary & c, bool override)
 	caps[index].F = 1.0 + 25*caps[index].Alpha;
 	caps[index].F3 = caps[index].F*caps[index].F*caps[index].F;
 	caps[index].F4 = caps[index].F*caps[index].F*caps[index].F*caps[index].F;
-	caps[index].Krc = Krc_factor;
 
 	vessel_value_override[c_idx] = vessel_value_override[c_idx] || override;
 	modified_flag = true;
@@ -1089,14 +1088,14 @@ double Model::calibrationValue(DataType type)
 	case Model::PV_EVL_value:
 		return 5.0;
 	case Model::PA_Diam_value:
-		return 1.249040143;
+		return 1.246580968;
 	case Model::PV_Diam_value:
-		return 1.565327483;
+		return 1.562245585;
 
 	case Model::Krc:
-		return 160419.186375174;
+		return 160353.526680071;
 	case Model::CV_Diam_value:
-		return 0.0003080729702;
+		return 0.0003075713451;
 
 	case Model::Ptp_value:
 	case Model::PAP_value:
@@ -1316,44 +1315,22 @@ void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 
 	// last generation, no children
 	if( gen == nGenerations()) {
-		/* In case when there is no flow, check if we get pressure
-		 * from accross unclosed capillary. This is just a slightly
-		 * modified version of 'backward' pressure seen below.
-		 */
 		const int c_idx = i - current_gen_start;
 		const int cv_idx = c_idx + startIndex(gen+1);
 
-		if (arteries[i].flow == 0.0 &&
-		    !isinf(caps[i-current_gen_start].R)) {
+		caps[c_idx].flow = arteries[i].flow*arteries[cv_idx].R/(arteries[cv_idx].R + caps[c_idx].R);
+		arteries[cv_idx].flow = arteries[i].flow - caps[c_idx].flow;
 
-			if (isnan(arteries[i].pressure_out)) {
-				arteries[i].pressure_out = veins[i].pressure_in;
-				if (!isinf(arteries[i].R))
-					arteries[i].pressure_in = arteries[i].pressure_out;
-			}
-			else {
-				veins[i].pressure_in = arteries[i].pressure_out;
-				if (!isinf(veins[i].R))
-					veins[i].pressure_out = veins[i].pressure_in;
-			}
-
+		if (Q_UNLIKELY(std::isnan(caps[c_idx].flow) || std::isnan(arteries[cv_idx].flow))) {
 			caps[c_idx].flow = 0.0;
 			arteries[cv_idx].flow = 0.0;
 		}
-		else {
-			// calculate flow in the corner vessel
-			arteries[cv_idx].pressure_out = veins[i].pressure_in;
-			arteries[cv_idx].pressure_in = arteries[i].pressure_out;
 
-			caps[c_idx].pressure_in = cmH2O_per_mmHg*arteries[i].pressure_out - Pal;
-			caps[c_idx].pressure_out = cmH2O_per_mmHg*veins[i].pressure_in - Pal;
-			caps[c_idx].flow = (arteries[i].pressure_out - veins[i].pressure_in) / caps[c_idx].R;
+		arteries[cv_idx].pressure_out = veins[i].pressure_in;
+		arteries[cv_idx].pressure_in = arteries[i].pressure_out;
 
-			double cv_flow_max = std::max(0.0, arteries[i].flow - caps[c_idx].flow);
-			arteries[cv_idx].flow = std::min(cv_flow_max,
-			                                 (arteries[cv_idx].pressure_in - arteries[cv_idx].pressure_out)
-			                                 / arteries[cv_idx].R);
-		}
+		caps[c_idx].pressure_in = cmH2O_per_mmHg*arteries[i].pressure_out - Pal;
+		caps[c_idx].pressure_out = cmH2O_per_mmHg*veins[i].pressure_in - Pal;
 		return;
 	}
 
@@ -1568,6 +1545,7 @@ void Model::initVesselBaselineResistances()
 			continue;
 
 		caps[i].R = cKrc;
+		caps[i].Krc = cKrc;
 		caps[i].open_state = Capillary_Auto;
 	}
 }

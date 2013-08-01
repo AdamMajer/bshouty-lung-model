@@ -100,7 +100,7 @@ cap: function(param1, param2) {
 	   with each artery. The following values are available
 	   and may be modifed by this function,
 		this.vessel_idx - vessel number, READ ONLY
-		this.R
+		this.Krc
 		this.Alpha
 		this.Ho
 	*/

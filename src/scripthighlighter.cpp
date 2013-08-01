@@ -43,7 +43,7 @@ static QStringList lung_vars = QStringList()
         << "R" << "gamma" << "phi" << "c" << "tone"
         << "GP" << "Ppl" << "Ptp" << "Kz"
         << "perivascular_press_a" << "perivascular_press_b" << "perivascular_press_c"
-        << "Alpha" << "Ho"
+        << "Alpha" << "Ho" << "Krc"
         << "D"
         // Model parameters
         << "Lung_Ht" << "Flow" << "LAP" << "Pal" << "Ppl" << "Ptp" << "PAP"

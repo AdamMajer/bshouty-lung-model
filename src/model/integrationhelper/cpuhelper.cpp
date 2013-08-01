@@ -128,12 +128,12 @@ double CpuIntegrationHelper::capillaryResistance(Capillary &cap)
 		Ptma = P + cap.flow * (1/cap.Alpha) * cap.Krc * 4.0/(sqr(sqr(H)));
 	}
 
-	if (Ptma < Ptmv)
-		throw std::exception();
-
 	// calculate effective resistance based on the pressures
 	cap.R = (Ptma - Ptmv) / cap.flow;
-	cap.last_delta_R = fabs(cap.R-Ri)/Ri;
+	if (Ri > 1e-10)
+		cap.last_delta_R = fabs(cap.R-Ri)/Ri;
+	else
+		cap.last_delta_R = fabs(cap.R-Ri);
 	return cap.last_delta_R; // return different from target tolerance
 }
 

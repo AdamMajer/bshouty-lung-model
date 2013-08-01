@@ -56,23 +56,23 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="r">
+    <widget class="QLineEdit" name="krc">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Baseline Capillary Resistance.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Baseline Capillary Resistance Constant.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>R</string>
+      <string>Krc</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>r</tabstop>
+  <tabstop>krc</tabstop>
   <tabstop>alpha</tabstop>
   <tabstop>ho</tabstop>
   <tabstop>buttonBox</tabstop>

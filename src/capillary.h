@@ -31,7 +31,7 @@ public:
 
 	virtual void accept();
 
-public:
+private:
 	Capillary & c;
 	Ui::Capillary *ui;
 };
