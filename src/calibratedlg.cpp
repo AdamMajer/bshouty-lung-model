@@ -578,12 +578,14 @@ bool CalibrateDlg::cornerVesselCorrection()
 void CalibrateDlg::setCapillaryState(CapillaryState state)
 {
 	int n_caps = base_model.numCapillaries();
+	double krc = ui->krc->text().toDouble();
 	for (int i=0; i<n_caps; i++) {
 		Capillary c = base_model.capillary(i);
 		if (c.open_state == state)
 			continue;
 
 		c.open_state = state;
+		c.Krc = krc;
 		base_model.setCapillary(i, c);
 	}
 }
