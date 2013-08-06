@@ -89,7 +89,9 @@ struct Capillary
 	double last_delta_R;
 	qint64 open_state; // CapillaryState enum
 
-	double cacheline_padding[20];
+	double Hin, Hout;
+
+	double cacheline_padding[18];
 };
 
 extern bool operator==(const struct Vessel &a, const struct Vessel &b);

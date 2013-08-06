@@ -124,8 +124,9 @@ double CpuIntegrationHelper::capillaryResistance(Capillary &cap)
 	else {
 		// Riemann sum to find correct inlet pressure
 		double P = std::max(0.0, Ptmv); // starling resistor
-		double H = capillaryH(cap, P);
-		Ptma = P + cap.flow * (1/cap.Alpha) * cap.Krc * 4.0/(sqr(sqr(H)));
+		cap.Hout = capillaryH(cap, P);
+		Ptma = P + cap.flow * (1/cap.Alpha) * cap.Krc * 4.0/(sqr(sqr(cap.Hout)));
+		cap.Hin = capillaryH(cap, Ptma);
 	}
 
 	// calculate effective resistance based on the pressures

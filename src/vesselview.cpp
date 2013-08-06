@@ -235,9 +235,9 @@ QString VesselView::headers(Type type, bool) const
 	case Vein:
 		return QString::fromUtf8("\nR\nγ\nφ\nC\nPeri. a\nPeri. b\nPeri. c\nP0\n\n"
 		                         "GP\nPTP\nTone\nFlow (μL/s)\nPin\nPout\n\n"
-		                         "Length (μm)\nD0 (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)");
+		                         "Length (μm)\nD0 (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)\nTotal R.");
 	case Capillary:
-		return QLatin1String("\nR\nAlpha\nHo\nFlow\n- - -") + headers(Artery, false);
+		return QLatin1String("\nR\nAlpha\nHo\nFlow\nKrc\nHin\nHout\n- - -") + headers(Artery, false);
 	case CornerVessel:
 	case Connection:
 		break;
@@ -289,11 +289,15 @@ QString VesselView::baselineValuesText(Type type, bool) const
 		value_list << QString::null;
 		value_list << QString::null;
 		value_list << doubleToString(v->volume);
+		value_list << doubleToString(v->total_R);
 		break;
 	case Capillary:
 		value_list << doubleToString(baseline_cap->R);
 		value_list << doubleToString(baseline_cap->Alpha);
 		value_list << doubleToString(baseline_cap->Ho);
+		value_list << QString::null;
+		value_list << doubleToString(baseline_cap->Krc);
+		value_list << QString::null;
 		value_list << QString::null;
 		value_list << "- - - ";
 		value_list << baselineValuesText(CornerVessel, false);
@@ -348,12 +352,16 @@ QString VesselView::calculatedValuesText(Type type, bool) const
 		value_list << doubleToString(v->Dmax);
 		value_list << doubleToString(v->viscosity_factor);
 		value_list << doubleToString(v->volume);
+		value_list << doubleToString(v->total_R);
 		break;
 	case Capillary:
 		value_list << doubleToString(cap->R);
 		value_list << doubleToString(cap->Alpha);
 		value_list << doubleToString(cap->Ho);
 		value_list << doubleToString(cap->flow * 1e6/60); // L/min => uL/s
+		value_list << doubleToString(cap->Krc);
+		value_list << doubleToString(cap->Hin);
+		value_list << doubleToString(cap->Hout);
 		value_list << " - - -";
 		value_list << calculatedValuesText(CornerVessel, false);
 		break;
