@@ -295,6 +295,8 @@ protected:
 	virtual bool saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress);
 	virtual bool loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress);
 
+	void allocateIntegralType();
+
 protected:
 	DiseaseList dis;
 	int n_iterations;

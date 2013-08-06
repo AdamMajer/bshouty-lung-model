@@ -150,19 +150,7 @@ Model::Model(Transducer transducer_pos, IntegralType int_type)
 	model_reset = true;
 	abort_calculation = 0;
 
-	bool opencl_helper = cl->isAvailable() &&
-	                DbSettings::value(settings_opencl_enabled, true).toBool();
-
-	if (opencl_helper)
-		integration_helper = new OpenCLIntegrationHelper(this, integral_type);
-	else
-		integration_helper = new CpuIntegrationHelper(
-		                             this,
-		                             integral_type);
-
-	if (integration_helper == 0)
-		throw std::bad_alloc();
-
+	allocateIntegralType();
 
 	// Initial conditions
 	initVesselBaselineCharacteristics();
@@ -174,7 +162,9 @@ Model::Model(const Model &other)
 	veins = (Vessel*)allocateCachelineAligned(sizeof(Vessel)*numVeins());
 	caps = (Capillary*)allocateCachelineAligned(sizeof(Capillary)*numCapillaries());
 
-	*this = other;
+	integral_type = other.integral_type;
+	allocateIntegralType();
+	operator =(other);
 }
 
 Model::~Model()
@@ -222,7 +212,11 @@ Model& Model::operator =(const Model &other)
 	model_reset = other.model_reset;
 	abort_calculation = other.abort_calculation;
 
-	integral_type = other.integral_type;
+	if (integral_type != other.integral_type) {
+		delete integration_helper;
+		integral_type = other.integral_type;
+		allocateIntegralType();
+	}
 
 	dis = other.dis;
 
@@ -237,6 +231,11 @@ Model& Model::operator =(const Model &other)
 
 	prog = other.prog;
 
+	return *this;
+}
+
+void Model::allocateIntegralType()
+{
 	bool opencl_helper = cl->isAvailable() &&
 	                DbSettings::value(settings_opencl_enabled, true).toBool();
 
@@ -249,8 +248,6 @@ Model& Model::operator =(const Model &other)
 
 	if (integration_helper == 0)
 		throw std::bad_alloc();
-
-	return *this;
 }
 
 Model* Model::clone() const
