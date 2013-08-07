@@ -1340,8 +1340,8 @@ void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 		if (isinf(arteries[con].total_R)) {
 			// all vessels inside have no flow, pressure is only defined
 			// until block. Later, it is undefined.
-			arteries[con].pressure_in = arteries[i].pressure_out - (arteries[con].GP - arteries[i].GP)/1.35951002636;
-			veins[con].pressure_out = veins[i].pressure_in - (veins[con].GP - veins[i].GP)/1.35951002636;
+			arteries[con].pressure_in = arteries[i].pressure_out - (arteries[con].GP - arteries[i].GP)/cmH2O_per_mmHg;
+			veins[con].pressure_out = veins[i].pressure_in - (veins[con].GP - veins[i].GP)/cmH2O_per_mmHg;
 
 			arteries[con].flow = 0.0;
 			veins[con].flow = 0.0;
@@ -1360,8 +1360,8 @@ void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 			                        veins[con].pressure_out;
 		}
 		else {
-			arteries[con].pressure_in = arteries[i].pressure_out - (arteries[con].GP - arteries[i].GP)/1.35951002636;
-			veins[con].pressure_out = veins[i].pressure_in - (veins[con].GP - veins[i].GP)/1.35951002636;
+			arteries[con].pressure_in = arteries[i].pressure_out - (arteries[con].GP - arteries[i].GP)/cmH2O_per_mmHg;
+			veins[con].pressure_out = veins[i].pressure_in - (veins[con].GP - veins[i].GP)/cmH2O_per_mmHg;
 
 			double flow = (arteries[con].pressure_in - veins[con].pressure_out) /
 			              arteries[con].total_R;;
@@ -1397,14 +1397,14 @@ void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 	for( int con=connection_first; con<=connection_first+1; con++ ){
 		if (arteries[i].flow == 0.0 && isnan(arteries[i].pressure_out)) {
 			arteries[i].pressure_out = arteries[con].pressure_in +
-			                           (arteries[con].GP - arteries[i].GP)/1.35951002636;
+			                           (arteries[con].GP - arteries[i].GP)/cmH2O_per_mmHg;
 			if (!isinf(arteries[i].R))
 				arteries[i].pressure_in = arteries[i].pressure_out;
 		}
 
 		if (veins[i].flow == 0.0 && isnan(veins[i].pressure_in)) {
 			veins[i].pressure_in = veins[con].pressure_out +
-			                       (veins[con].GP - veins[i].GP)/1.35951002636;
+			                       (veins[con].GP - veins[i].GP)/cmH2O_per_mmHg;
 			if (!isinf(veins[i].R))
 				veins[i].pressure_out = veins[i].pressure_in;
 		}
@@ -1420,7 +1420,7 @@ void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 		    isnan(arteries[con].pressure_in)) {
 
 			arteries[con].pressure_in = arteries[i].pressure_out -
-			                            (arteries[con].GP - arteries[i].GP)/1.35951002636;
+			                            (arteries[con].GP - arteries[i].GP)/cmH2O_per_mmHg;
 			if (!isinf(arteries[con].R)) {
 				arteries[con].pressure_out = arteries[con].pressure_in;
 				redo_branch = true;
@@ -1432,7 +1432,7 @@ void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 		    isnan(veins[con].pressure_out)) {
 
 			veins[con].pressure_out = veins[i].pressure_in -
-			                          (veins[con].GP - veins[i].GP)/1.35951002636;
+			                          (veins[con].GP - veins[i].GP)/cmH2O_per_mmHg;
 			if (!isinf(veins[con].R)) {
 				veins[con].pressure_in = veins[con].pressure_out;
 				redo_branch = true;
