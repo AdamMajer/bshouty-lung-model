@@ -73,10 +73,10 @@ enum CapillaryState {
 
 struct Capillary
 {
-	double R;
+	double R;  // mmHg*min/l
 	double Ho;
 	double Alpha;
-	double flow;
+	double flow;  // l/min
 
 	// precalculated values used in ::capillaryResistance() function
 	double F;     // (1.0 + 25.0*cap.Alpha)

@@ -130,7 +130,7 @@ double CpuIntegrationHelper::capillaryResistance(Capillary &cap)
 	}
 
 	// calculate effective resistance based on the pressures
-	cap.R = (Ptma - Ptmv) / cap.flow;
+	cap.R = (Ptma - Ptmv)/cmH2O_per_mmHg / cap.flow;
 	if (Ri > 1e-10)
 		cap.last_delta_R = fabs(cap.R-Ri)/Ri;
 	else
