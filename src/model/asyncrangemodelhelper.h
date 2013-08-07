@@ -66,7 +66,7 @@ private:
 
 	QList<QPair<Model::DataType, Range> > data_ranges;
 	ModelCalcList results;
-	const Model &base_model;
+	const Model *base_model;
 
 	AsyncRangeModelHelper_p *p;
 	int timer_id;

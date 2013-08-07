@@ -142,7 +142,7 @@ protected:
 
 
 AsyncRangeModelHelper::AsyncRangeModelHelper(const Model &bm, QObject *parent)
-        : QObject(parent), base_model(bm)
+        : QObject(parent), base_model(bm.clone())
 {
 	p = 0;
 	timer_id = -1;
@@ -155,6 +155,7 @@ AsyncRangeModelHelper::~AsyncRangeModelHelper()
 		delete results.takeFirst().second;
 
 	cleanupHelper();
+	delete base_model;
 }
 
 void AsyncRangeModelHelper::setRangeData(Model::DataType type, const Range &range)
@@ -204,7 +205,7 @@ bool AsyncRangeModelHelper::beginCalculation()
 		delete results.takeFirst().second;
 
 	cleanupHelper();
-	p = new AsyncRangeModelHelper_p(data_ranges, base_model, parent());
+	p = new AsyncRangeModelHelper_p(data_ranges, *base_model, parent());
 	connect(p, SIGNAL(finished()), SLOT(calcThreadDone()));
 	p->start();
 	startTimer(2000);
