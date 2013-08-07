@@ -1711,11 +1711,11 @@ void Model::calculateBaselineCharacteristics()
 	const int num_capillaries = numCapillaries();
 	const int start_offset = startIndex(16);
 
-	Capillary cap;
-	cap.Ho = 2.5;
-	cap.R = 3500.0;
-	cap.open_state = Capillary_Auto;
 	for (int i=0; i<num_capillaries; i++) {
+		Capillary cap = caps[i];
+		cap.Ho = 2.5;
+		cap.open_state = Capillary_Auto;
+
 		const Vessel &connected_vessel = arteries[i+start_offset];
 		if (vessel_value_override[num_arteries + num_veins + i])
 			continue;
