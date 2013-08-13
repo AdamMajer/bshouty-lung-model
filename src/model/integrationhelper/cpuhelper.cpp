@@ -121,16 +121,28 @@ double CpuIntegrationHelper::capillaryResistance(Capillary &cap)
 		cap.last_delta_R = 0.0;
 		return 0.0;
 	}
-	else {
-		// Riemann sum to find correct inlet pressure
-		double P = std::max(0.0, Ptmv); // starling resistor
-		cap.Hout = capillaryH(cap, P);
-		Ptma = P + cap.flow * (1/cap.Alpha) * cap.Krc * 4.0/(sqr(sqr(cap.Hout)));
-		cap.Hin = capillaryH(cap, Ptma);
-	}
 
-	// calculate effective resistance based on the pressures
-	cap.R = (Ptma - Ptmv)/cmH2O_per_mmHg / cap.flow;
+	double starlingR = -std::min(0.0, Ptmv) / cmH2O_per_mmHg / cap.flow;
+	double P = std::max(0.0, Ptmv); // starling resistor adjusted Pout
+	cap.Hout = capillaryH(cap, P);
+	Ptma = P + cap.flow * (1/cap.Alpha) * cap.Krc * 4.0/(sqr(sqr(cap.Hout)));
+
+	double diff;
+	int i=0;
+	do {
+		cap.Hin = capillaryH(cap, Ptma);
+
+		cap.R = starlingR +
+		        cap.Krc/(cap.Alpha*cmH2O_per_mmHg *
+		                 (cap.Hin*cap.Hin*cap.Hin +
+		                  cap.Hin*cap.Hin*cap.Hout +
+		                  cap.Hin*cap.Hout*cap.Hout +
+		                  cap.Hout*cap.Hout*cap.Hout));
+		double P1 = Ptma;
+		Ptma = P + cap.flow*cap.R*cmH2O_per_mmHg;
+		diff = std::fabs(P1-Ptma)/Ptma;
+	} while(i++<100 && diff > 1e-6);
+
 	if (Ri > 1e-10)
 		cap.last_delta_R = fabs(cap.R-Ri)/Ri;
 	else
