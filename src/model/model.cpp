@@ -1453,7 +1453,7 @@ bool Model::deltaR(int ideal_threads)
 
 	qDebug() << "   max vessel deltaR: " << max_vessel_deviation;
 	qDebug() << "   max cap deltaR:    " << max_cap_deviation;
-	while (max_cap_deviation/max_vessel_deviation > 20.0 && cap_iteration < 500) {
+	while (max_cap_deviation/max_vessel_deviation > 20.0 && cap_iteration < 25) {
 		// unstable capillaries, simply adjust flow and recalculate
 		// capillaries until deviation is reduced.
 		vascPress(ideal_threads);

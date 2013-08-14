@@ -143,8 +143,14 @@ double CpuIntegrationHelper::capillaryResistance(Capillary &cap)
 		diff = std::fabs(P1-Ptma)/Ptma;
 	} while(i++<100 && diff > 1e-6);
 
-	if (Ri > 1e-10)
+	if (cap.R > 1e12 && cap.R > 1e12) {
+		// change no longer affects flow, so ignore it
+		// otherwise loop will continue forever!
+		cap.last_delta_R = 0.0;
+	}
+	else if (Ri > 1e-10) {
 		cap.last_delta_R = fabs(cap.R-Ri)/Ri;
+	}
 	else
 		cap.last_delta_R = fabs(cap.R-Ri);
 	return cap.last_delta_R; // return different from target tolerance
