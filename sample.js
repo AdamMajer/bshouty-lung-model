@@ -65,7 +65,6 @@ artery: function(param1, param2) {
 		this.perivascular_press_a
 		this.perivascular_press_b
 		this.perivascular_press_c
-		this.Kz
 	*/
 
 	return false;
@@ -88,7 +87,6 @@ vein: function(param1, param2) {
 		this.perivascular_press_a
 		this.perivascular_press_b
 		this.perivascular_press_c
-		this.Kz
 	  Return 'true' if values are modified, 'false' otherwise
 	*/
 
