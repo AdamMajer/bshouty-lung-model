@@ -1085,14 +1085,14 @@ double Model::calibrationValue(DataType type)
 	case Model::PV_EVL_value:
 		return 5.0;
 	case Model::PA_Diam_value:
-		return 1.246580968;
+		return 1.246560079;
 	case Model::PV_Diam_value:
-		return 1.562245585;
+		return 1.561969830;
 
 	case Model::Krc:
-		return 160353.526680071;
+		return 980310.157554115;
 	case Model::CV_Diam_value:
-		return 0.0003075713451;
+		return 0.0003075713928;
 
 	case Model::Ptp_value:
 	case Model::PAP_value:
