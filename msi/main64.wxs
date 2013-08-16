@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-  <Product Id="{0A1D3A3E-7997-41ac-8861-A70FEC2C0B95}"
+  <Product Id="{7F2A9C19-1C6C-4756-9054-BEEB11845A97}"
            Name="Bshouty Lung Model"
            UpgradeCode="{01BC86DD-F8AB-452D-B395-D2FB46113752}"
-           Language="1033" Version="1.6.2017" Manufacturer="Dr. Zoheir Bshouty">
+           Language="1033" Version="1.71.2019" Manufacturer="Dr. Zoheir Bshouty">
     <Package Description="Bshouty Lung Model"
              Comments="Lung Disease Computational Model"
              InstallerVersion="300" Compressed="yes"
@@ -17,11 +17,11 @@
     <Upgrade Id="{01BC86DD-F8AB-452D-B395-D2FB46113752}">
         <UpgradeVersion Minimum="1.0.0"
                         IncludeMinimum="yes"
-                        Maximum="1.6.2017"
+                        Maximum="1.71.2019"
                         IncludeMaximum="no"
                         ExcludeLanguages="yes"
                         Property="OLDVERSIONBEINGUPGRADED" />
-        <UpgradeVersion Minimum="1.6.2017"
+        <UpgradeVersion Minimum="1.71.2019"
                         OnlyDetect="yes"
                         ExcludeLanguages="yes"
                         Property="NEWERVERSIONDETECTED" />
@@ -43,7 +43,7 @@
         <Directory Id="INSTALLLOCATION" Name="Bshouty Lung Model">
 
             <!-- Application Install -->
-            <Component Id="LungModel" Guid="{A624B3A8-0E31-4fd3-A270-ED15518E76EF}" DiskId="1" Win64="yes">
+            <Component Id="LungModel" Guid="{240E3914-F743-41bb-B51E-798005BAB8D8}" DiskId="1" Win64="yes">
               <File Id="source.cl" Name="vessel_integration.cl" Source="C:\src\bshouty_lung_model\vessel_integration.cl" />
               <File Id="model1.exe" Name="lung_model.exe" Source="C:\src\bshouty_lung_model\release\bshouty_model.exe" DiskId="1" KeyPath="yes" />
               <ProgId Id="modelext">
@@ -65,22 +65,22 @@
                         Advertise="yes" />
             </Component> 
             <!-- Core Qt componenets and drivers -->
-            <Component Id="Qt" Guid="{7DFF0031-58D2-4C9E-B508-D85EADBEE111}" DiskId="1" Win64="yes">
-              <File Id="QtCore4" Name="QtCore4.dll" Source="C:\src\qt\4.8\bin\QtCore4.dll" />
-              <File Id="QtSql4" Name="QtSql4.dll" Source="C:\src\qt\4.8\bin\QtSql4.dll" />
-              <File Id="QtGUI4" Name="QtGUI4.dll" Source="C:\src\qt\4.8\bin\QtGUI4.dll" />
-              <File Id="QtScript4" Name="QtScript4.dll" Source="C:\src\qt\4.8\bin\QtScript4.dll" />
+            <Component Id="Qt" Guid="{7DFF0031-55D2-4C9E-B508-D85EADBEE111}" DiskId="1" Win64="yes">
+              <File Id="QtCore4" Name="QtCore4.dll" Source="C:\src\qt\4.8.4\bin\QtCore4.dll" />
+              <File Id="QtSql4" Name="QtSql4.dll" Source="C:\src\qt\4.8.4\bin\QtSql4.dll" />
+              <File Id="QtGUI4" Name="QtGUI4.dll" Source="C:\src\qt\4.8.4\bin\QtGUI4.dll" />
+              <File Id="QtScript4" Name="QtScript4.dll" Source="C:\src\qt\4.8.4\bin\QtScript4.dll" />
             </Component>
             <Directory Id="imageformats" Name="imageformats">
-              <Component Id="QtImgPlugins" Guid="{09B9D793-58FB-4C6C-BA73-A63A5E2F4158}" DiskId="1" Win64="yes">
-                <File Id="qgif" Name="qgif4.dll" Source="C:\src\qt\4.8\plugins\imageformats\qgif4.dll" />
-                <File Id="qjpeg" Name="qjpeg4.dll" Source="C:\src\qt\4.8\plugins\imageformats\qjpeg4.dll" />
-                <File Id="qmng" Name="qmng4.dll" Source="C:\src\qt\4.8\plugins\imageformats\qmng4.dll" />
+              <Component Id="QtImgPlugins" Guid="{09B9D793-58FB-4C6C-BA73-A63A6E2F4158}" DiskId="1" Win64="yes">
+                <File Id="qgif" Name="qgif4.dll" Source="C:\src\qt\4.8.4\plugins\imageformats\qgif4.dll" />
+                <File Id="qjpeg" Name="qjpeg4.dll" Source="C:\src\qt\4.8.4\plugins\imageformats\qjpeg4.dll" />
+                <File Id="qmng" Name="qmng4.dll" Source="C:\src\qt\4.8.4\plugins\imageformats\qmng4.dll" />
               </Component>
             </Directory>
           <Directory Id="sqldrivers" Name="sqldrivers">
-            <Component Id="QtSqlPlugins" Guid="{8944DA48-3338-46D1-A102-61A2EEFEA054}" DiskId="1" Win64="yes">
-              <File Id="qsqlite" Name="qsqlite4.dll" Source="C:\src\qt\4.8\plugins\sqldrivers\qsqlite4.dll" />
+            <Component Id="QtSqlPlugins" Guid="{8944DA48-3338-46D1-A102-31A2EEFEA054}" DiskId="1" Win64="yes">
+              <File Id="qsqlite" Name="qsqlite4.dll" Source="C:\src\qt\4.8.4\plugins\sqldrivers\qsqlite4.dll" />
             </Component>
           </Directory>
           <Directory Id="data" Name="data">
