@@ -1126,7 +1126,7 @@ void Model::calculatePressure0(Vessel &v)
 		double z = -v.perivascular_press_b*v.perivascular_press_c *
 		           std::exp(v.perivascular_press_a*v.perivascular_press_c);
 
-		if (z < -1/std::exp(1))
+		if (z < -1/std::exp(1.0)) 
 			// NOTE: cannot use infinity as we need to subtract it
 			// from itself. Just use low enough pressure that cannot
 			// occur.
@@ -1318,7 +1318,7 @@ void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 		caps[c_idx].flow = arteries[i].flow*arteries[cv_idx].R/(arteries[cv_idx].R + caps[c_idx].R);
 		arteries[cv_idx].flow = arteries[i].flow - caps[c_idx].flow;
 
-		if (Q_UNLIKELY(std::isnan(caps[c_idx].flow) || std::isnan(arteries[cv_idx].flow))) {
+		if (Q_UNLIKELY(isnan(caps[c_idx].flow) || isnan(arteries[cv_idx].flow))) {
 			caps[c_idx].flow = 0.0;
 			arteries[cv_idx].flow = 0.0;
 		}

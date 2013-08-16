@@ -27,10 +27,9 @@
 #include <float.h>
 long int lrint(double x);
 
-#define isnan(x) _isnan(x)
-#define isinf(x) (_finite(x)==0)
+inline bool isnan(double x) { return _isnan(x); }
+inline bool isinf(double x) { return _finite(x)==0; }
 
-#define fmax(a,b) (a<b?b:a)
 #endif
 
 #if defined(__GNUC__) && defined(WIN32)
