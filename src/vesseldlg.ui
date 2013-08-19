@@ -75,7 +75,7 @@
       <item row="1" column="1">
        <widget class="QLineEdit" name="gamma">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gamma is the ratio of the diameter of the fully distended vessel to D&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt; (vessel diameter at a transmural pressure (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tm&lt;/span&gt;) of zero according to the equation &lt;/p&gt;&lt;p&gt;D=Gamma x D&lt;span style=&quot; vertical-align:sub;&quot;&gt;0 &lt;/span&gt;- (Gamma - 1) x D&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt; x e&lt;span style=&quot; vertical-align:super;&quot;&gt;-Ptm x Phi/(Gamma - 1)&lt;/span&gt;&lt;/p&gt;&lt;p&gt;By Hillier SC et al. (1993)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gamma is the ratio of the diameter of the fully distended vessel to D&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt; (vessel diameter at a transmural pressure (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tm&lt;/span&gt;) of zero according to the equation: &lt;/p&gt;&lt;p&gt;D=Gamma x D&lt;span style=&quot; vertical-align:sub;&quot;&gt;0 &lt;/span&gt;- (Gamma - 1) x D&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt; x e&lt;span style=&quot; vertical-align:super;&quot;&gt;-Ptm x Phi/(Gamma - 1)&lt;/span&gt;&lt;/p&gt;&lt;p&gt;By Hillier SC et al. (1993)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
