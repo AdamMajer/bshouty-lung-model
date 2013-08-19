@@ -132,7 +132,8 @@ void OpenCL::errorCheck(cl_int status, const char *fn, int id) throw(opencl_exce
 
 void OpenCL::resolveFunctions()
 {
-	QLibrary lib("OpenCL");
+	QLibrary lib;
+	lib.setFileNameAndVersion("OpenCL", "1");
 
 	if (!lib.load()){
 		memset(&opencl, 0, sizeof(opencl));
