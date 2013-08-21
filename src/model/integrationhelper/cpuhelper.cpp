@@ -37,7 +37,10 @@ static inline double viscosityFactor(double D, double Hct)
 {
 	const double C = (0.8+exp(-0.075*D)) * ((1/(1 + 1e-11*pow(D, 12)))-1.0) + (1/(1+1e-11*pow(D,12)));
 	const double Mi45 = 220 * exp(-1.3*D) - 2.44*exp(-0.06*pow(D, 0.645)) + 3.2;
-	return (1.0 + (Mi45-1.0)*(pow(1-Hct, C)-1)/(pow(1.0-0.45, C)-1)) / 3.2;
+	const double bb = (C<-0.01 || C>0.01) ?
+	                          (pow(1-Hct, C)-1)/(pow(1.0-0.45, C)-1) :
+	                          std::log(1-Hct)/std::log(1.0-0.45);
+	return (1.0 + (Mi45-1.0)*bb) / 3.2;
 }
 
 CpuIntegrationHelper::CpuIntegrationHelper(Model *model, Model::IntegralType type)

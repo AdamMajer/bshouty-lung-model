@@ -48,9 +48,23 @@ inline float sqr(float n)
 
 inline float viscosityFactor(float D, float Hct)
 {
-	const float C = (0.8+exp((float)-0.075*D)) * ((1/(1 + 1e-11*pown(D, 12)))-1.0) + (1/(1+1e-11*pown(D,12)));
-	const float Mi45 = 220 * exp((float)-1.3*D) - 2.44*exp(-0.06*powr(D, (float)0.645)) + 3.2;
-	return (1.0 + (Mi45-1.0)*(powr((float)1.0-Hct, C)-1.0)/(powr((float)1.0-(float)0.45, C)-1.0)) / 3.2;
+        const float a = 1.0 / fma((float)1e-11, pown(D,12), (float)1.0);
+        const float C = (0.8+exp((float)-0.075*D)) * (a-1.0) + a;
+
+        const float mi_a = exp((float)-1.3*D) * 220.0;
+        const float mi_b = exp((float)-0.06 * powr(D, (float)0.645)) * -2.44;
+        const float Mi45 = mi_a + mi_b + 3.2;
+
+        float bb;
+        if (C > 0.01 || C < -0.01) {
+                const float b = pow((float)1.0 - Hct, C) - 1.0;
+                const float b1 = pow((float)0.55, C) - 1.0; // pow(1.0 - 0.45, C) - 1.0;
+                bb = b/b1;
+        }
+        else {
+                bb = log((float)1.0 - Hct) / log((float)0.55);
+        }
+        return fma(Mi45-(float)1.0, bb, (float)1.0) / 3.2;
 }
 
 __kernel void singleSegmentVesselFlow(
