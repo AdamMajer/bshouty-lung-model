@@ -219,9 +219,6 @@ float OpenCLIntegrationHelper::processWorkGroup(
 
 		updateResults(ret_values_buf, w.vessels+idx, n);
 		for (size_t i=0; i<real_vessels; ++i) {
-			if (isinf(ret_values_buf[i].R) || isnan(ret_values_buf[i].R)) {
-				qDebug("INF: %d", static_cast<int>(idx+i));
-			}
 			ret = qMax(ret, ret_values_buf[i].delta_R);
 		}
 	}

@@ -1006,8 +1006,7 @@ double Model::getKrc()
 
 bool Model::validInputs() const
 {
-	return Vc[0] > Vd[0] &&
-	       Vc[1] > Vd[1];
+	return true;
 }
 
 QString Model::calibrationPath(DataType type)
@@ -1061,11 +1060,11 @@ double Model::calibrationValue(DataType type)
 	case Model::Vc_value:
 	case Model::Vc_L_value:
 	case Model::Vc_R_value:
-		return 5.0;
+		return 8.0;
 	case Model::Vd_value:
 	case Model::Vd_L_value:
 	case Model::Vd_R_value:
-		return 4.0;
+		return 8.0;
 	case Model::Vtlc_value:
 	case Model::Vtlc_L_value:
 	case Model::Vtlc_R_value:
@@ -1085,14 +1084,14 @@ double Model::calibrationValue(DataType type)
 	case Model::PV_EVL_value:
 		return 5.0;
 	case Model::PA_Diam_value:
-		return 1.246560079;
+		return 1.216133189;
 	case Model::PV_Diam_value:
-		return 1.561969830;
+		return 1.524372498;
 
 	case Model::Krc:
-		return 980310.157554115;
+		return 1058155.209682242;
 	case Model::CV_Diam_value:
-		return 0.0003075713928;
+		return 0.0003013216831;
 
 	case Model::Ptp_value:
 	case Model::PAP_value:
@@ -1213,8 +1212,6 @@ double Model::totalResistance(int i, int ideal_threads)
 		double R = arteries[i].R +
 		           1.0 / (1.0/caps[c_idx].R + 1.0/arteries[cv_idx].R) +
 		           veins[i].R;
-		if (isnan(R))
-			R = 1;
 		arteries[i].total_R = R;
 		veins[i].total_R = R;
 
@@ -1278,6 +1275,7 @@ double Model::partialR(Vessel::Type type, int i)
 			v[i].partial_R = std::numeric_limits<double>::infinity();
 		else
 			v[i].partial_R = v[i].R;
+
 		return v[i].partial_R;
 	}
 
@@ -1730,31 +1728,13 @@ void Model::calculateBaselineCharacteristics()
 
 double Model::lengthFactor(const Vessel &v, int lung_no) const
 {
-	double cd = Vc[lung_no]/Vd[lung_no];
-	double b = Vtlc[lung_no]*(1.0 + exp(cd));
-	double a = b/(1+exp(cd));
-	double V = Vm[lung_no] + a + b/(1+exp(cd - v.Ptp/Vd[lung_no]));
+	double cd = exp(Vc[lung_no]/Vd[lung_no]);
+	double a = (Vm[lung_no]*(1+cd)-Vtlc[lung_no])/cd;
+	double b = Vtlc[lung_no]-a;
 
-	return cbrt(V);
-
-	/*
-	const double min_ratio = 0.4 * Vtlc[lung_no];
-	double len_ratio;
-
-	if (v.Ptp > 20.0)
-		len_ratio = 1.0;
-	else if (v.Ptp > 12.5)
-		len_ratio = 0.1/7.5*(v.Ptp-12.5) + 0.9;
-	else if (v.Ptp > 5.0)
-		len_ratio = (0.9-Vfrc[lung_no])/7.5*(v.Ptp-5.0) + Vfrc[lung_no];
-	else if (v.Ptp > 3.0)
-		len_ratio = (Vfrc[lung_no]-Vrv[lung_no])/2.0*(v.Ptp-3.0) + Vrv[lung_no];
-	else
-		len_ratio = (Vrv[lung_no]-Vm[lung_no])/3.0*v.Ptp + Vm[lung_no];
-
-	len_ratio = qMax(Vtlc[lung_no]*len_ratio, min_ratio);
-	return cbrt(len_ratio);
-	*/
+	double V = a + b/(1+exp((Vc[lung_no] - v.Ptp)/Vd[lung_no]));
+	double V0 = a + b/(1+exp(Vc[lung_no]/Vd[lung_no]));
+	return cbrt(V / V0);
 }
 
 bool Model::initDb(QSqlDatabase &db) const
