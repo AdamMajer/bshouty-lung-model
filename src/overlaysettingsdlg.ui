@@ -66,7 +66,7 @@
           <item row="0" column="0">
            <widget class="QRadioButton" name="autoMinimumButton">
             <property name="toolTip">
-             <string>When both are set to Auto, range is +- 2 SD</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When both Minimum and Maximum are set to Auto, range is +/- 2 SD&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>Auto</string>
@@ -124,7 +124,7 @@
           <item row="0" column="0">
            <widget class="QRadioButton" name="autoMaximumButton">
             <property name="toolTip">
-             <string>When both are set to Auto, range is +- 2 SD</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When both Minimum and Maximum are set to Auto, range is +/- 2 SD&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>Auto</string>
@@ -170,7 +170,7 @@
        <item>
         <widget class="QCheckBox" name="percent_absolute_scale_checkbox">
          <property name="toolTip">
-          <string>Maximum values is assumed to be 100%. All other values are represented as a fraction of the maximum.</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maximum value is assumed to be 100%. All other values are represented as a fraction of the maximum.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string>Legend is % of Maximum value</string>
