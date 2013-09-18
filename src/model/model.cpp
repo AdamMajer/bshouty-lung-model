@@ -1363,7 +1363,7 @@ void Model::calculateChildrenFlowPress(int i , int ideal_threads)
 
 			double flow = (arteries[con].pressure_in - veins[con].pressure_out) /
 			              arteries[con].total_R;;
-			if (arteries[con].pressure_in <= 0.0 || flow < 0.0 || isnan(flow))
+			if (flow < 0.0 || isnan(flow))
 				flow = 0.0;
 
 			veins[con].flow = flow;
