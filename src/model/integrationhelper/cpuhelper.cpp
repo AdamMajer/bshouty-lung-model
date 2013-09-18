@@ -184,12 +184,8 @@ double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 	const double Pout = std::max(v.pressure_0, v.pressure_out);
 	const double starling_R = (v.pressure_0 - std::min(v.pressure_0, v.pressure_out))/v.flow;
 
-	if (v.pressure_out < 0.0) {
-		v.R = std::numeric_limits<double>::infinity();
-	}
-
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
-	if (/*v.pressure_out < 0.0 ||*/ v.flow == 0.0 || isnan(Pout) || isnan(Pin)) {
+	if (v.flow == 0.0 || isnan(Pout) || isnan(Pin)) {
 		v.D_calc = 0.0;
 		v.Dmin = 0.0;
 		v.Dmax = 0.0;
