@@ -226,6 +226,7 @@ double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 
 	double new_Pin = Pin;
 	double old_Pin;
+	int i=0;
 	do {
 		old_Pin = new_Pin;
 		double avg_P = (new_Pin + Pout) / 2.0;
@@ -240,7 +241,7 @@ double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 
 		new_Pin = Pout + v.flow * Rs;
 		new_Pin = (new_Pin + old_Pin) / 2.0;
-	} while (fabs(new_Pin - old_Pin)/old_Pin > Tlrns());
+	} while (fabs(new_Pin - old_Pin)/old_Pin > Tlrns() && i++ < 100);
 
 	//		if (calc_dim) {
 	//			calc_dim->push_back(v.Dmin);

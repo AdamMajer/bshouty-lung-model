@@ -110,6 +110,7 @@ __kernel void singleSegmentVesselFlow(
 	
 	float new_Pin = Pin;
 	float old_Pin;
+	int i = 0;
 		
 	do {
 		old_Pin = new_Pin;
@@ -124,7 +125,7 @@ __kernel void singleSegmentVesselFlow(
 
 		new_Pin = Pout + vein.flow * Rs;
 		new_Pin = (new_Pin + old_Pin) / 2.0;
-	} while (fabs(new_Pin - old_Pin)/old_Pin > tlrns);
+	} while (fabs(new_Pin - old_Pin)/old_Pin > tlrns && i++ < 100);
 	
 	Rs += starling_R;
 	
