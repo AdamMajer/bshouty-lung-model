@@ -151,9 +151,9 @@ MainWindow::MainWindow(QWidget *parent)
 	// Set valid range data
 	ui->patHt->setProperty(range_property, "50 to 250;1");
 	ui->patWt->setProperty(range_property, "1 to 200;0.1");
-	ui->lungHt->setProperty(range_property, "1 to 50;0.1");
-	ui->lungHt_left->setProperty(range_property, "1 to 50;0.1");
-	ui->lungHt_right->setProperty(range_property, "1 to 50;0.1");
+	ui->lungHt->setProperty(range_property, "1 to 100;0.1");
+	ui->lungHt_left->setProperty(range_property, "1 to 100;0.1");
+	ui->lungHt_right->setProperty(range_property, "1 to 100;0.1");
 	ui->Vm->setProperty(range_property, "0 to 95;1");
 	ui->Vm_left->setProperty(range_property, "0 to 95;1");
 	ui->Vm_right->setProperty(range_property, "0 to 95;1");
