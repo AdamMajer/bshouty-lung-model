@@ -231,8 +231,8 @@ void Disease::processModel(Model &model)
 	// Process vessels
 	if (artery_function.isFunction()) {
 		int n_gens = model.nGenerations();
-		for (int i=1; i<=n_gens; ++i) {
-			int n_art = model.nElements(i);
+		for (int i=1; i<=n_gens+1; ++i) {
+			int n_art = model.nElements(std::min(n_gens, i));
 			global.setProperty("n_vessels", n_art);
 			for (int j=0; j<n_art; ++j)
 				processArtery(model, global, artery_function, i, j);
