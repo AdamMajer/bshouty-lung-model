@@ -271,7 +271,7 @@ protected:
 	static double calibrationValue(DataType);
 
 	static double lambertW(double z);
-	static void calculatePressure0(Vessel &v);
+	static double calculatePressure0(const Vessel &v);
 	void getParameters();
 	// void getKz();
 	void vascPress(int ideal_threads);

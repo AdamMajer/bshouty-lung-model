@@ -877,6 +877,11 @@ int Model::calc( int max_iter )
 		for (DiseaseList::iterator i=dis.begin(); i!=dis.end(); ++i)
 			i->processModel(*this);
 
+		for (int i=0; i<numArteries(); ++i)
+			arteries[i].pressure_0 = calculatePressure0(arteries[i]);
+		for (int i=0; i<numVeins(); ++i)
+			veins[i].pressure_0 = calculatePressure0(veins[i]);
+
 		model_reset = false;
 	}
 
@@ -1118,7 +1123,7 @@ double Model::lambertW(double z)
 	return w;
 }
 
-void Model::calculatePressure0(Vessel &v)
+double Model::calculatePressure0(const Vessel &v)
 {
 	if (std::fabs(v.perivascular_press_b) > 1e-15) {
 		// parivascular pressure
@@ -1129,15 +1134,15 @@ void Model::calculatePressure0(Vessel &v)
 			// NOTE: cannot use infinity as we need to subtract it
 			// from itself. Just use low enough pressure that cannot
 			// occur.
-			v.pressure_0 = -1000.0;
+			return -1000.0;
 		else {
 			double p = -lambertW(z)/v.perivascular_press_c;
-			v.pressure_0 = (p + v.perivascular_press_a + v.Ppl)/cmH2O_per_mmHg + v.tone;
+			return (p + v.perivascular_press_a + v.Ppl)/cmH2O_per_mmHg + v.tone;
 		}
 	}
 	else {
 		// no parivascular pressure (except possible constant)
-		v.pressure_0 = (v.Ppl+v.perivascular_press_a)/cmH2O_per_mmHg + v.tone;
+		return (v.Ppl+v.perivascular_press_a)/cmH2O_per_mmHg + v.tone;
 	}
 }
 
@@ -1163,7 +1168,6 @@ void Model::getParameters()
 			art.perivascular_press_c = -0.013 - 0.0002*art.Ptp;
 		}
 
-		calculatePressure0(art);
 		art.length *= art.length_factor;
 	}
 
@@ -1182,7 +1186,6 @@ void Model::getParameters()
 			vein.perivascular_press_c = -0.020 - 0.0002*vein.Ptp;
 		}
 
-		calculatePressure0(vein);
 		vein.length *= vein.length_factor;
 	}
 }
