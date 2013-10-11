@@ -1163,9 +1163,10 @@ void Model::getParameters()
 			art.perivascular_press_c = 0.0;
 		}
 		else {
-			art.perivascular_press_a = 15.0 - 0.2*art.Ptp;
 			art.perivascular_press_b = -16.0 - 0.2*art.Ptp;
 			art.perivascular_press_c = -0.013 - 0.0002*art.Ptp;
+			art.perivascular_press_a = -art.perivascular_press_b*
+			        std::exp(art.perivascular_press_c*art.Ptp);
 		}
 
 		art.length *= art.length_factor;
@@ -1181,9 +1182,10 @@ void Model::getParameters()
 			vein.perivascular_press_c = 0.0;
 		}
 		else {
-			vein.perivascular_press_a = 12.0 - 0.1*vein.Ptp;
 			vein.perivascular_press_b = -12.0 - 0.2*vein.Ptp;
 			vein.perivascular_press_c = -0.020 - 0.0002*vein.Ptp;
+			vein.perivascular_press_a = -vein.perivascular_press_b*
+			        std::exp(vein.perivascular_press_c*vein.Ptp);
 		}
 
 		vein.length *= vein.length_factor;
