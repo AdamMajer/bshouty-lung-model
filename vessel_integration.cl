@@ -7,7 +7,6 @@ struct Vessel {
 	float flow;
 	float Ppl;
 
-	float max_a;
 	float gamma;
 	float phi;
 	float c;
@@ -15,6 +14,7 @@ struct Vessel {
 	float peri_a;
 	float peri_b;
 	float peri_c;
+	float peri_d;
 	float P_0;
 
 	float D;
@@ -83,7 +83,7 @@ __kernel void singleSegmentVesselFlow(
 	const float Pout = fmax(vein.pressure_out, vein.P_0);
 	const float starling_R = (vein.P_0 - fmin(vein.pressure_out, vein.P_0)) / vein.flow;
 
-	float Ptm = 1.35951002636 * ((Pin+Pout)/2.0 - vein.tone);
+	float Pv = 1.35951002636 * ((Pin+Pout)/2.0 - vein.tone);
 	float Rs;
 
 	/* Conditions like no flow, isnan(P), etc. are weeded out before
@@ -103,7 +103,9 @@ __kernel void singleSegmentVesselFlow(
 		return;
 	}
 
-	Ptm = Ptm - vein.Ppl - vein.peri_a - vein.peri_b * exp( vein.peri_c * ( Ptm - vein.Ppl ));
+	float Px = vein.Ppl + vein.peri_a +
+	           vein.peri_b/(1.0 + exp((vein.peri_c-Pv+vein.Ppl)/vein.peri_d));
+	float Ptm = Pv - Px;
 
 	float D = 0.0;
 	float vf = 0.0;
@@ -115,9 +117,10 @@ __kernel void singleSegmentVesselFlow(
 	do {
 		old_Pin = new_Pin;
 		float avg_P = (new_Pin + Pout) / 2.0;
-		Ptm = 1.35951002636 * ( avg_P - vein.tone );
-		Ptm = Ptm - vein.Ppl - vein.peri_a -
-		      vein.peri_b * exp( vein.peri_c * ( Ptm - vein.Ppl ));
+		Pv = 1.35951002636 * ( avg_P - vein.tone );
+		Px = vein.Ppl + vein.peri_a +
+		     vein.peri_b/(1.0 + exp((vein.peri_c-Pv+vein.Ppl)/vein.peri_d));
+		Ptm = Pv - Px;
 		
 		D = vein.D*vein.gamma - (vein.gamma-1.0)*vein.D*exp(-Ptm*vein.phi/(vein.gamma-1.0));
 		vf = viscosityFactor(D, hct);
@@ -176,9 +179,11 @@ __kernel void multiSegmentedVesselFlow(
 	}
 
 	for( int sum=0; sum<nSums; sum++ ){
-		const float Ptm_i = 1.35951002636 * ( Pout - vein.tone );
-		const float Ptm = Ptm_i - vein.Ppl - vein.peri_a - 
-				vein.peri_b * exp( vein.peri_c * ( Ptm_i - vein.Ppl ));
+		const float Pv = 1.35951002636 * ( Pout - vein.tone );
+		const float Px = vein.Ppl + vein.peri_a +
+		                 vein.peri_b/(1.0 + exp((vein.peri_c-Pv+vein.Ppl)/vein.peri_d));
+		const float Ptm = Pv - Px;
+
 		D = vein.D*vein.gamma - (vein.gamma-1.0)*vein.D*exp(-Ptm*vein.phi/(vein.gamma-1.0));
 		const float vf = viscosityFactor(D, hct);
 

@@ -76,6 +76,7 @@ bool operator==(const struct Vessel &a, const struct Vessel &b)
 	      significantChange(a.perivascular_press_a, b.perivascular_press_a) ||
 	      significantChange(a.perivascular_press_b, b.perivascular_press_b) ||
 	      significantChange(a.perivascular_press_c, b.perivascular_press_c) ||
+	      significantChange(a.perivascular_press_d, b.perivascular_press_d) ||
 	      significantChange(a.length_factor, b.length_factor) ||
 	      significantChange(a.total_R, b.total_R) ||
 	      significantChange(a.pressure_in, b.pressure_in) ||
@@ -1089,14 +1090,14 @@ double Model::calibrationValue(DataType type)
 	case Model::PV_EVL_value:
 		return 5.0;
 	case Model::PA_Diam_value:
-		return 1.216133189;
+		return 1.220876095;
 	case Model::PV_Diam_value:
-		return 1.524372498;
+		return 1.531792941;
 
 	case Model::Krc:
-		return 1058155.209682242;
+		return 1111708.196081574;
 	case Model::CV_Diam_value:
-		return 0.0003013216831;
+		return 0.0002997219255;
 
 	case Model::Ptp_value:
 	case Model::PAP_value:
@@ -1112,38 +1113,26 @@ double Model::calibrationValue(DataType type)
 	return 0.0;
 }
 
-double Model::lambertW(double z)
-{
-	double w = 0.0;
-	for (int i=0; i<5; ++i) {
-		double zi = w*std::exp(w) - z;
-		w = w - zi/(std::exp(w)*(w+1.0) - (w+2.0)*zi/(2.0*w+2.0));
-	}
-
-	return w;
-}
-
 double Model::calculatePressure0(const Vessel &v)
 {
-	if (std::fabs(v.perivascular_press_b) > 1e-15) {
-		// parivascular pressure
-		double z = -v.perivascular_press_b*v.perivascular_press_c *
-		           std::exp(v.perivascular_press_a*v.perivascular_press_c);
+	// Newton's Method to find zeros
+	int i=0;
+	double Pv = 0.0;
+	double diff;
+	do {
+		double alpha = Pv - v.perivascular_press_c - v.Ppl;
+		double ex = std::exp(-alpha/v.perivascular_press_d);
 
-		if (z < -1/std::exp(1.0)) 
-			// NOTE: cannot use infinity as we need to subtract it
-			// from itself. Just use low enough pressure that cannot
-			// occur.
-			return -1000.0;
-		else {
-			double p = -lambertW(z)/v.perivascular_press_c;
-			return (p + v.perivascular_press_a + v.Ppl)/cmH2O_per_mmHg + v.tone;
-		}
-	}
-	else {
-		// no parivascular pressure (except possible constant)
-		return (v.Ppl+v.perivascular_press_a)/cmH2O_per_mmHg + v.tone;
-	}
+		double fx = alpha + v.perivascular_press_a + v.perivascular_press_c +
+		            v.perivascular_press_b / (1.0 + ex);
+		double fxp = 1.0 + (v.perivascular_press_b/v.perivascular_press_d)*ex/sqr(1.0+ex);
+
+		double old = Pv;
+		Pv = old - fx/fxp;
+		diff = std::fabs(old - Pv);
+	}while (i++<100 && diff > 1e-10);
+
+	return Pv;
 }
 
 void Model::getParameters()
@@ -1157,6 +1146,7 @@ void Model::getParameters()
 	for (int i=0; i<n; i++) {
 		Vessel &art = arteries[i];
 
+		art.perivascular_press_d = 15.6068;
 		if (isOutsideLung(i)) {
 			art.perivascular_press_a = 0.0;
 			art.perivascular_press_b = 0.0;
@@ -1176,6 +1166,7 @@ void Model::getParameters()
 	for (int i=0; i<n; i++) {
 		Vessel &vein = veins[i];
 
+		vein.perivascular_press_d = 16.02287;
 		if (isOutsideLung(i)) {
 			vein.perivascular_press_a = 0.0;
 			vein.perivascular_press_b = 0.0;
@@ -1494,7 +1485,6 @@ void Model::initVesselBaselineCharacteristics()
 			continue;
 
 		//arteries[i].a = 0.2419 / 1.2045;
-		arteries[i].max_a = 2.0; // FIXME!!
 		arteries[i].gamma = 1.84;
 		arteries[i].phi = 0.04; //0.0275 / 1.2045;
 		arteries[i].c = 0;
@@ -1522,7 +1512,6 @@ void Model::initVesselBaselineCharacteristics()
 			veins[i].gamma = 1.85;
 			veins[i].phi = 0.035;
 		}
-		veins[i].max_a = 1.0; /////
 		veins[i].tone = 0;
 
 		veins[i].vessel_ratio = static_cast<double>(nElements(gen_no(i))) /
@@ -1884,6 +1873,7 @@ bool Model::saveDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			SET_VALUE(v.perivascular_press_a);
 			SET_VALUE(v.perivascular_press_b);
 			SET_VALUE(v.perivascular_press_c);
+			SET_VALUE(v.perivascular_press_d);
 
 			SET_VALUE(v.length_factor);
 
@@ -2134,6 +2124,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			SET_VALUE(v.perivascular_press_a);
 			SET_VALUE(v.perivascular_press_b);
 			SET_VALUE(v.perivascular_press_c);
+			SET_VALUE(v.perivascular_press_d);
 
 			SET_VALUE(v.length_factor);
 
@@ -2181,6 +2172,7 @@ bool Model::loadDb(QSqlDatabase &db, int offset, QProgressDialog *progress)
 			GET_VALUE(v.perivascular_press_a);
 			GET_VALUE(v.perivascular_press_b);
 			GET_VALUE(v.perivascular_press_c);
+			GET_VALUE(v.perivascular_press_d);
 
 			GET_VALUE(v.length_factor);
 

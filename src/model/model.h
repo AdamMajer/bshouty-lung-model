@@ -42,7 +42,6 @@ struct Vessel
 	double length_factor; // adjustment to vessel Ptp
 	double viscosity_factor; // in cP (mPa*s)
 
-	double max_a; // FIXME: !!
 	double gamma,phi,c;
 	double tone;
 
@@ -53,6 +52,7 @@ struct Vessel
 	// calculated in GetParameters()
 	double pressure_0; // pressure below which vessel acts as Starling Resistor
 	double perivascular_press_a, perivascular_press_b, perivascular_press_c;
+	double perivascular_press_d;
 
 	double total_R; // mmHg*min/l
 	double partial_R; // line total_R, but only applies to current vessel type

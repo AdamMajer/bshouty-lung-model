@@ -153,7 +153,6 @@ struct CL_Vessel {
 	cl_float flow;
 	cl_float Ppl;
 
-	cl_float max_a;
 	cl_float gamma;
 	cl_float phi;
 	cl_float c;
@@ -161,6 +160,7 @@ struct CL_Vessel {
 	cl_float peri_a;
 	cl_float peri_b;
 	cl_float peri_c;
+	cl_float peri_d;
 	cl_float P_0;
 
 	cl_float D;

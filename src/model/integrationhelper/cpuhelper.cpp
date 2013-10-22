@@ -33,7 +33,10 @@ extern const int nSums;
 
 const double Kr = 1.2501e8; // cP/um**3 => mmHg*min/l
 
-static inline double viscosityFactor(double D, double Hct)
+namespace {
+// helper functions
+
+inline double viscosityFactor(double D, double Hct)
 {
 	const double C = (0.8+exp(-0.075*D)) * ((1/(1 + 1e-11*pow(D, 12)))-1.0) + (1/(1+1e-11*pow(D,12)));
 	const double Mi45 = 220 * exp(-1.3*D) - 2.44*exp(-0.06*pow(D, 0.645)) + 3.2;
@@ -41,6 +44,8 @@ static inline double viscosityFactor(double D, double Hct)
 	                          (pow(1-Hct, C)-1)/(pow(1.0-0.45, C)-1) :
 	                          std::log(1-Hct)/std::log(1.0-0.45);
 	return (1.0 + (Mi45-1.0)*bb) / 3.2;
+}
+
 }
 
 CpuIntegrationHelper::CpuIntegrationHelper(Model *model, Model::IntegralType type)
@@ -192,7 +197,7 @@ double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 		return 0.0;
 	}
 
-	double Ptm = cmH2O_per_mmHg * ((Pin+Pout)/2.0 - v.tone);
+	double Pv = cmH2O_per_mmHg * ((Pin+Pout)/2.0 - v.tone);
 	double Rs;
 
 	/* First segment is slightly different from others, so we pull it out */
@@ -214,8 +219,11 @@ double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 		return Rin > 1e100 ? 0 : 10.0;
 	}
 
-	Ptm = Ptm - v.Ppl - v.perivascular_press_a -
-	      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
+	double Px = v.Ppl + v.perivascular_press_a +
+	            v.perivascular_press_b/(1.0 + std::exp(
+	                       (v.perivascular_press_c-Pv+v.Ppl)/v.perivascular_press_d
+	                       ));
+	double Ptm = Pv - Px;
 
 	const double dL =  v.length;
 
@@ -230,9 +238,12 @@ double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 	do {
 		old_Pin = new_Pin;
 		double avg_P = (new_Pin + Pout) / 2.0;
-		Ptm = cmH2O_per_mmHg * ( avg_P - v.tone );
-		Ptm = Ptm - v.Ppl - v.perivascular_press_a -
-		      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
+		Pv = cmH2O_per_mmHg * ( avg_P - v.tone );
+		Px = v.Ppl + v.perivascular_press_a +
+		     v.perivascular_press_b/(1.0 + std::exp(
+		                (v.perivascular_press_c-Pv+v.Ppl)/v.perivascular_press_d
+		                ));
+		Ptm = Pv - Px;
 
 		D = v.D*v.gamma - (v.gamma-1.0)*v.D*exp(-Ptm*v.phi/(v.gamma-1.0));
 		const double vf = viscosityFactor(D, hct);
@@ -310,10 +321,12 @@ double CpuIntegrationHelper::multiSegmentedFlowVessel(Vessel &v,
 	double D=0.0;
 	double D_integral = 0.0;
 	for( int j=0; j<nSums; j++ ) {
-		double Ptm = cmH2O_per_mmHg * ( P - v.tone );
-
-		Ptm = Ptm - v.Ppl - v.perivascular_press_a -
-		      v.perivascular_press_b * exp( v.perivascular_press_c * ( Ptm - v.Ppl ));
+		double Pv = cmH2O_per_mmHg * ( P - v.tone );
+		double Px = v.Ppl + v.perivascular_press_a +
+		            v.perivascular_press_b/(1.0 + std::exp(
+		                       (v.perivascular_press_c-Pv+v.Ppl)/v.perivascular_press_d
+		                       ));
+		double Ptm = Pv - Px;
 
 		D = v.D*v.gamma - (v.gamma-1.0)*v.D*exp(-Ptm*v.phi/(v.gamma-1.0));
 		D_integral += D;

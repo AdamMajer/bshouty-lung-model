@@ -245,7 +245,6 @@ int OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
 			continue;
 		}
 
-		c.max_a = v.max_a;
 		c.gamma = v.gamma;
 		c.phi = v.phi;
 		c.c = v.c;
@@ -254,6 +253,7 @@ int OpenCLIntegrationHelper::assignVessels(CL_Vessel *cl_vessels,
 		c.peri_a = v.perivascular_press_a;
 		c.peri_b = v.perivascular_press_b;
 		c.peri_c = v.perivascular_press_c;
+		c.peri_d = v.perivascular_press_d;
 		c.P_0 = v.pressure_0;
 		c.Ppl = v.Ppl;
 		c.pressure_in = v.pressure_in;
