@@ -233,7 +233,7 @@ QString VesselView::headers(Type type, bool) const
 	switch (type) {
 	case Artery:
 	case Vein:
-		return QString::fromUtf8("\nR\nγ\nφ\nC\nPeri. a\nPeri. b\nPeri. c\nPx\n\n"
+		return QString::fromUtf8("\nR\nγ\nφ\nC\nPeri. a\nPeri. b\nPeri. c\nP0\n\n"
 		                         "GP\nPTP\nTone\nFlow (μL/s)\nPin\nPout\n\n"
 		                         "Length (μm)\nD0 (μm)\nD (μm)\nDmin (μm)\nDmax (μm)\nVisc Factor\nVolume (μL)\nTotal R.");
 	case Capillary:
