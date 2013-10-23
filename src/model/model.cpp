@@ -1132,7 +1132,7 @@ double Model::calculatePressure0(const Vessel &v)
 		diff = std::fabs(old - Pv);
 	}while (i++<100 && diff > 1e-10);
 
-	return Pv;
+	return Pv/cmH2O_per_mmHg + v.tone;
 }
 
 void Model::getParameters()
