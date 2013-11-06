@@ -1123,9 +1123,9 @@ double Model::calculatePressure0(const Vessel &v)
 		double alpha = Pv - v.perivascular_press_c - v.Ppl;
 		double ex = std::exp(-alpha/v.perivascular_press_d);
 
-		double fx = alpha + v.perivascular_press_a + v.perivascular_press_c +
+		double fx = alpha - v.perivascular_press_a + v.perivascular_press_c -
 		            v.perivascular_press_b / (1.0 + ex);
-		double fxp = 1.0 + (v.perivascular_press_b/v.perivascular_press_d)*ex/sqr(1.0+ex);
+		double fxp = 1.0 - (v.perivascular_press_b/v.perivascular_press_d)*ex/sqr(1.0+ex);
 
 		double old = Pv;
 		Pv = old - fx/fxp;
@@ -1153,10 +1153,10 @@ void Model::getParameters()
 			art.perivascular_press_c = 0.0;
 		}
 		else {
-			art.perivascular_press_b = -16.0 - 0.2*art.Ptp;
-			art.perivascular_press_c = -0.013 - 0.0002*art.Ptp;
-			art.perivascular_press_a = -Pal-art.perivascular_press_b*
-				std::exp(-art.perivascular_press_c*art.Ppl);
+			art.perivascular_press_a = -5 - art.Ptp;
+			art.perivascular_press_b = +16.0 + 1.8*art.Ptp;
+			art.perivascular_press_c = -10.781 + 17.7509*
+			                           std::exp(-0.0594107*art.Ptp);
 		}
 
 		art.length *= art.length_factor;
@@ -1173,10 +1173,10 @@ void Model::getParameters()
 			vein.perivascular_press_c = 0.0;
 		}
 		else {
-			vein.perivascular_press_b = -12.0 - 0.2*vein.Ptp;
-			vein.perivascular_press_c = -0.020 - 0.0002*vein.Ptp;
-			vein.perivascular_press_a = -Pal-vein.perivascular_press_b*
-			       std::exp(-vein.perivascular_press_c*vein.Ppl);
+			vein.perivascular_press_a = -5 - vein.Ptp;
+			vein.perivascular_press_b = +17.0 + 1.9*vein.Ptp;
+			vein.perivascular_press_c = -12.2009 + 15.7122*
+			                            std::exp(-0.0699041*vein.Ptp);
 		}
 
 		vein.length *= vein.length_factor;
