@@ -187,7 +187,8 @@ double CpuIntegrationHelper::singleSegmentVessel(Vessel &v)
 	double Rin = v.R;
 	double Pin = v.pressure_in;
 	const double Pout = std::max(v.pressure_0, v.pressure_out);
-	const double starling_R = (v.pressure_0 - std::min(v.pressure_0, v.pressure_out))/v.flow;
+	const double starling_P = v.pressure_0 - fmin(v.pressure_out, v.pressure_0);
+	const double starling_R = (starling_P < 1e-10 && v.flow < 1e-10) ? 0 : starling_P/v.flow;
 
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
 	if (v.flow == 0.0 || isnan(Pout) || isnan(Pin)) {
@@ -292,7 +293,8 @@ double CpuIntegrationHelper::multiSegmentedFlowVessel(Vessel &v,
 	double Rtot = 0.0;
 	double Rin = v.R;
 	double P = std::max(v.pressure_0, v.pressure_out); // pressure to the right (LAP) of the vessel
-	const double starling_R = (v.pressure_0 - std::min(v.pressure_0, v.pressure_out))/v.flow;
+	const double starling_P = v.pressure_0 - fmin(v.pressure_out, v.pressure_0);
+	const double starling_R = (starling_P < 1e-10 && v.flow < 1e-10) ? 0 : starling_P/v.flow;
 
 	// undefined pressure signals no flow (closed vessel(s) somewhere)
 	if (v.flow == 0.0 || isnan(P))
