@@ -1115,9 +1115,13 @@ double Model::calibrationValue(DataType type)
 
 double Model::calculatePressure0(const Vessel &v)
 {
-	// Newton's Method to find zeros
+	// Newton's Method to first zero from the right.
+	//
+	// Since there is a possibility of more than 1 zero with certain parameters,
+	// it is important to select Pv to the right in the linear region
+	// of the function, hence Pv=75
 	int i=0;
-	double Pv = 0.0;
+	double Pv = 75.0;
 	double diff;
 	do {
 		double alpha = Pv - v.perivascular_press_c - v.Ppl;
