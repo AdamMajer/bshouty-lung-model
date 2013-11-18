@@ -83,7 +83,8 @@
             </Component>
           </Directory>
           <Directory Id="data" Name="data">
-            <Component Id="data" Guid="{1518B488-FF7B-4223-9B92-E273DBF5C134}" DiskId="1" Win64="no">
+            <Component Id="data" Guid="{D5762C2A-7397-4027-A04F-0820F3AD1C2F}" DiskId="1" Win64="no">
+              <File Id='vessel.ini' Source='C:\src\bshouty_lung_model\data\vessel.ini' />
               <File Id='data1' Name='area_calculation.html' Source='C:\src\bshouty_lung_model\data\area_calculation.html' />
               <File Id='data2' Name='fullmodel.html' Source='C:\src\bshouty_lung_model\data\fullmodel.html' />
               <File Id='data3' Name='full_ph.html' Source='C:\src\bshouty_lung_model\data\full_ph.html' />
