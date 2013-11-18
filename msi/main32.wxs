@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-  <Product Id="{B4C23F7A-3785-4fbb-ADCD-F6758BF9BE4C}"
+  <Product Id="{25D2B8CB-E466-4b96-8000-8C2261C709CE}"
            Name="Bshouty Lung Model"
            UpgradeCode="{501CDBBD-507B-45ce-B50D-9346D219E07A}"
-           Language="1033" Version="1.5.2016" Manufacturer="Dr. Zoheir Bshouty">
+           Language="1033" Version="1.7.2017" Manufacturer="Dr. Zoheir Bshouty">
     <Package Description="Bshouty Lung Model"
              Comments="Lung Disease Computational Model"
              InstallerVersion="300" Compressed="yes"
@@ -17,11 +17,11 @@
     <Upgrade Id="{501CDBBD-507B-45ce-B50D-9346D219E07A}">
         <UpgradeVersion Minimum="1.0.0"
                         IncludeMinimum="yes"
-                        Maximum="1.5.2016"
+                        Maximum="1.7.2017"
                         IncludeMaximum="no"
                         ExcludeLanguages="yes"
                         Property="OLDVERSIONBEINGUPGRADED" />
-        <UpgradeVersion Minimum="1.5.2016"
+        <UpgradeVersion Minimum="1.7.2017"
                         OnlyDetect="yes"
                         ExcludeLanguages="yes"
                         Property="NEWERVERSIONDETECTED" />
@@ -43,7 +43,7 @@
         <Directory Id="INSTALLLOCATION" Name="Bshouty Lung Model">
 
             <!-- Application Install -->
-            <Component Id="LungModel" Guid="{C067D2C9-BB94-4a8f-AE07-CFAE51070918}" DiskId="1" Win64="no">
+            <Component Id="LungModel" Guid="{37CFEB55-4BF7-41ac-8AC9-FC821D3B34CA}" DiskId="1" Win64="no">
               <File Id="model1.exe" Name="lung_model.exe" Source="C:\src\bshouty_lung_model\release\bshouty_model.exe" DiskId="1" KeyPath="yes" />
               <ProgId Id="modelext">
                 <Extension Id="lungmodel">
