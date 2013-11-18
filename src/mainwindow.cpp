@@ -72,7 +72,11 @@
 #endif
 
 
+namespace {
 static const QLatin1String db_name("modeldb");
+const QLatin1String calc_integral_selection("/settings/integral_type");
+const QLatin1String window_size_setting("/settings/main_window_size");
+}
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -246,11 +250,6 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(disease_box_group, SIGNAL(buttonClicked(int)), SLOT(diseaseGroupBoxTriggered(int)));
 	updateDiseaseMenu();
 
-	// restore window geometry
-	QRect new_rect = DbSettings::value("/settings/main_window_size", QRect()).toRect();
-	if (new_rect.isValid())
-		setGeometry(new_rect);
-
 #if (QT_POINTER_SIZE != 8)
 	ui->actionOpenCL->setEnabled(false);
 #else
@@ -262,6 +261,42 @@ MainWindow::MainWindow(QWidget *parent)
 	 */
 	ui->actionZoomIn->setText(ui->actionZoomIn->text() + "\t+");
 	ui->actionZoomOut->setText(ui->actionZoomOut->text() + "\t-");
+
+	restoreSettings();
+}
+
+void MainWindow::restoreSettings()
+{
+	// restore window geometry
+	QRect new_rect = DbSettings::value(window_size_setting, QRect()).toRect();
+	if (new_rect.isValid())
+		setGeometry(new_rect);
+
+	// restore calculation type
+	QAction *integral_type = ui->actionSegmentedVessels;
+	Model::IntegralType default_type =
+#if (QT_POINTER_SIZE == 8)
+	                Model::SegmentedVesselFlow;
+#else
+	                Model::RigidVesselFlow;
+#endif
+	Model::IntegralType type = static_cast<Model::IntegralType>(
+	        DbSettings::value(calc_integral_selection, default_type).toInt());
+	switch (type) {
+	case Model::RigidVesselFlow:
+		integral_type = ui->actionRigidVessels;
+		break;
+	default:
+		// nothing
+		break;
+	}
+	emit integral_type->trigger();
+}
+
+void MainWindow::saveSettings() const
+{
+	DbSettings::setValue(window_size_setting, geometry());
+	DbSettings::setValue(calc_integral_selection, (int)baseline->integralType());
 }
 
 void MainWindow::load(const QString &filename)
@@ -373,8 +408,7 @@ void MainWindow::save(const QString &filename)
 
 MainWindow::~MainWindow()
 {
-	// save geometry
-	DbSettings::setValue("/settings/main_window_size", geometry());
+	saveSettings();
 
 	if (calc_thread) {
 		if (!calc_thread->isCalculationCompleted()) {

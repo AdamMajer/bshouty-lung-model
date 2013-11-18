@@ -48,6 +48,9 @@ public:
 	explicit MainWindow(QWidget *parent = 0);
 	~MainWindow();
 
+	void restoreSettings();
+	void saveSettings() const;
+
 	void load(const QString &filename);
 	void save(const QString &filename);
 
