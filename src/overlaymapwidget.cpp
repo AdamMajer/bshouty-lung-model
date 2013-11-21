@@ -66,7 +66,7 @@ void OverlayMapWidget::paintEvent(QPaintEvent *ev)
 			const int h = map_rect.height();
 			const int w = map_rect.width();
 			const double y_spacing = h / 32.0;
-			const double x_spacing = w / (nGenerations()*2);
+			const double x_spacing = w / (nGenerations()*2.0);
 
 			const double x_start = map_paint_rect.left() - fmod(map_paint_rect.left(), x_spacing);
 			const double y_start = map_paint_rect.top() - fmod(map_paint_rect.top(), y_spacing);
