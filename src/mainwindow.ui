@@ -464,6 +464,9 @@ p, li { white-space: pre-wrap; }
              </item>
              <item row="4" column="1">
               <widget class="QComboBox" name="gender">
+               <property name="toolTip">
+                <string>Currently has no impact on the model</string>
+               </property>
                <item>
                 <property name="text">
                  <string>Male</string>
@@ -1003,7 +1006,7 @@ p, li { white-space: pre-wrap; }
                  <item row="3" column="1">
                   <widget class="RangeLineEdit" name="Vc">
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;C&lt;/span&gt; is the transpulmonary pressue (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tp&lt;/span&gt; - in cmH&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;O) at the mid point of the linear portion (most compliant) of the pressure-volume curve for a given subject.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt; 1 – 40, default is 8 cmH&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;O&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;C&lt;/span&gt; is the transpulmonary pressure (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tp&lt;/span&gt; - in cmH&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;O) at the mid point of the linear portion (most compliant) of the pressure-volume curve for a given subject.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt; 1 – 40, default is 8 cmH&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;O&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                   </widget>
                  </item>
@@ -1038,7 +1041,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;D&lt;/span&gt; is the transpulmonary pressue (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tp&lt;/span&gt; - in cmH&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;O) above and below V&lt;span style=&quot; vertical-align:sub;&quot;&gt;C&lt;/span&gt; of the linear portion (most compliant) of the pressure-volume curve for a given subject.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;V&lt;span style=&quot; vertical-align:sub;&quot;&gt;D&lt;/span&gt; is the transpulmonary pressure (P&lt;span style=&quot; vertical-align:sub;&quot;&gt;tp&lt;/span&gt; - in cmH&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;O) above and below V&lt;span style=&quot; vertical-align:sub;&quot;&gt;C&lt;/span&gt; of the linear portion (most compliant) of the pressure-volume curve for a given subject.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Range:&lt;/span&gt; 1 –100, default is 8 cmH&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;O &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -1594,7 +1597,7 @@ p, li { white-space: pre-wrap; }
     <string>OpenCL ...</string>
    </property>
    <property name="statusTip">
-    <string>Accelerated computation OpenCL options and diagnostic</string>
+    <string>Accelerates computation using OpenCL (GPU), if available and supported</string>
    </property>
   </action>
   <action name="actionCalibrateModel">
@@ -1609,6 +1612,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Flow Overlay</string>
    </property>
+   <property name="statusTip">
+    <string>Shows flow distribution using color coding in either absolute or relative terms </string>
+   </property>
    <property name="shortcut">
     <string>F9</string>
    </property>
@@ -1619,6 +1625,9 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Volume</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows volume distribution using color coding in either absolute or relative terms</string>
    </property>
    <property name="shortcut">
     <string>F10</string>
@@ -1638,6 +1647,9 @@ p, li { white-space: pre-wrap; }
   <action name="actionOverlayMap">
    <property name="text">
     <string>Overlay map ...</string>
+   </property>
+   <property name="statusTip">
+    <string>Shows overlay map as a matrix with constant width generation display</string>
    </property>
   </action>
   <action name="actionZoomIn">
@@ -1668,6 +1680,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Multi-Segment Vessels (128)</string>
    </property>
+   <property name="statusTip">
+    <string>This option sets each vessel in the model into 128 segments</string>
+   </property>
   </action>
   <action name="actionRigidVessels">
    <property name="checkable">
@@ -1675,6 +1690,9 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Single-Segment Vessels</string>
+   </property>
+   <property name="statusTip">
+    <string>This option sets each vessel in the model as a single segment</string>
    </property>
   </action>
   <action name="actionNavierStokes">
@@ -1693,6 +1711,9 @@ p, li { white-space: pre-wrap; }
   <action name="actionGeometricFlow">
    <property name="text">
     <string>Geometric Flow...</string>
+   </property>
+   <property name="statusTip">
+    <string>Displays flow in each generation over a range between zero flow and maximum (CO) </string>
    </property>
   </action>
   <action name="actionConvergenceSummary">
