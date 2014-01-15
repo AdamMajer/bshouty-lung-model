@@ -1,7 +1,7 @@
 /*
  *   Bshouty Lung Model - Pulmonary Circulation Simulation
- *    Copyright (c) 1989-2012 Zoheir Bshouty, MD, PhD, FRCPC
- *    Copyright (c) 2011-2012 Adam Majer
+ *    Copyright (c) 1989-2014 Zoheir Bshouty, MD, PhD, FRCPC
+ *    Copyright (c) 2011-2014 Adam Majer
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
