@@ -43,7 +43,6 @@
 /* No accuracy benefit above 128. Speed is not compromised at 128 (on 16 core machine!) */
 const int nSums = 128; // number of divisions in the integral
 const QLatin1String vessel_ini_relative("data/vessel.ini");
-#define vessel_ini (qApp->applicationDirPath() + "/" + vessel_ini_relative)
 
 #if defined(Q_OS_WIN32) && !defined(__GNUC__)
 inline double cbrt(double x) {
@@ -271,7 +270,7 @@ int Model::nVessels(Vessel::Type vessel_type,
 
 	if (artery_number[0] == 0.0) {
 		/* Initialize values */
-		QSettings s(vessel_ini, QSettings::IniFormat);
+		QSettings s(vessel_ini_relative, QSettings::IniFormat);
 		for (int i=1; i<=16; ++i) {
 			artery_number[i-1] = s.value("artery_number/gen_"+QString::number(i)).toInt();
 			vein_number[i-1] = s.value("vein_number/gen_"+QString::number(i)).toInt();
@@ -303,7 +302,7 @@ double Model::measuredDiameterRatio(Vessel::Type vessel_type,
 
 	if (artery_ratios[0] == 0.0) {
 		/* Initialize values */
-		QSettings s(vessel_ini, QSettings::IniFormat);
+		QSettings s(vessel_ini_relative, QSettings::IniFormat);
 		for (int i=1; i<=16; ++i) {
 			artery_ratios[i-1] = s.value("artery_diameter_ratios/gen_"+QString::number(i)).toDouble();
 			vein_ratios[i-1] =  s.value("vein_diameter_ratios/gen_"+QString::number(i)).toDouble();
@@ -336,7 +335,7 @@ double Model::measuredLengthRatio(Vessel::Type vessel_type,
 
 	if (artery_ratios[0] == 0.0) {
 		/* Initialize values */
-		QSettings s(vessel_ini, QSettings::IniFormat);
+		QSettings s(vessel_ini_relative, QSettings::IniFormat);
 		for (int i=1; i<=16; ++i) {
 			artery_ratios[i-1]=s.value("artery_length_ratios/gen_"+QString::number(i)).toDouble();
 			vein_ratios[i-1]=s.value("vein_length_ratios/gen_"+QString::number(i)).toDouble();

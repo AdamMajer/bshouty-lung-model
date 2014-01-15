@@ -676,12 +676,10 @@ void MainWindow::on_actionCalibrateModel_triggered()
 
 void MainWindow::on_actionOverview_triggered()
 {
-	QString path("file://" + QCoreApplication::applicationDirPath() + "/data/Overview.html");
+	QString path("file://" + QDir::currentPath() + "/data/Overview.html");
 
 #if defined(Q_OS_WIN)
-	// qDebug() << QProcess::execute(path) << " " << path;
-
-	ShellExecute(winId(), NULL, path.toStdWString().c_str(), NULL, NULL, SW_SHOW);
+	ShellExecute(reinterpret_cast<HWND>(winId()), NULL, path.toStdWString().c_str(), NULL, NULL, SW_SHOW);
 #elif defined(Q_OS_LINUX)
 	if (fork() == 0) {
 		const char *c_path = path.toLocal8Bit().constData();

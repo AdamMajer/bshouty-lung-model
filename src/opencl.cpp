@@ -66,7 +66,7 @@ OpenCL::OpenCL()
 	if (opencl.clGetPlatformIDs == NULL)
 		return;
 
-	QFile program_in(qApp->applicationDirPath() + "/vessel_integration.cl");
+	QFile program_in("vessel_integration.cl");
 	if (!program_in.open(QIODevice::ReadOnly)) {
 		memset(&opencl, 0, sizeof(opencl));
 		return;
