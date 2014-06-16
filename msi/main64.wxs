@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-  <Product Id="{44152A68-8DB4-4702-9516-04C90F1C3F2F}"
+  <Product Id="{D8C75B9D-9DDF-41f6-B857-E4664142C4E6}"
            Name="Bshouty Lung Model"
            UpgradeCode="{01BC86DD-F8AB-452D-B395-D2FB46113752}"
-           Language="1033" Version="1.72.2020" Manufacturer="Dr. Zoheir Bshouty">
+           Language="1033" Version="1.73.2021" Manufacturer="Dr. Zoheir Bshouty">
     <Package Description="Bshouty Lung Model"
              Comments="Lung Disease Computational Model"
              InstallerVersion="300" Compressed="yes"
@@ -17,11 +17,11 @@
     <Upgrade Id="{01BC86DD-F8AB-452D-B395-D2FB46113752}">
         <UpgradeVersion Minimum="1.0.0"
                         IncludeMinimum="yes"
-                        Maximum="1.72.2020"
+                        Maximum="1.73.2021"
                         IncludeMaximum="no"
                         ExcludeLanguages="yes"
                         Property="OLDVERSIONBEINGUPGRADED" />
-        <UpgradeVersion Minimum="1.72.2020"
+        <UpgradeVersion Minimum="1.73.2021"
                         OnlyDetect="yes"
                         ExcludeLanguages="yes"
                         Property="NEWERVERSIONDETECTED" />
@@ -43,12 +43,12 @@
         <Directory Id="INSTALLLOCATION" Name="Bshouty Lung Model">
 
             <!-- Application Install -->
-            <Component Id="LungModel" Guid="{28A3E62E-137B-4f3d-B521-79010C057FF7}" DiskId="1" Win64="yes">
+            <Component Id="LungModel" Guid="{279663B8-5E7A-42c6-A870-3D5D3451765B}" DiskId="1" Win64="yes">
               <File Id="source.cl" Name="vessel_integration.cl" Source="C:\src\bshouty_lung_model\vessel_integration.cl" />
               <File Id="model1.exe" Name="lung_model.exe" Source="C:\src\bshouty_lung_model\release\bshouty_model.exe" DiskId="1" KeyPath="yes" />
               <ProgId Id="modelext">
                 <Extension Id="lungmodel">
-                  <Verb Id="open" Target="[INSTALLLOCATION]lung_model.exe" Argument="%1"/>
+                  <Verb Id="open" TargetFile="model1.exe" Argument="%1"/>
                 </Extension>
               </ProgId>
 
@@ -56,12 +56,12 @@
               <Shortcut Id="LungModel_shortcut"
                         Directory="ProgramMenuFolder"
                         Name="Bshouty Lung Model"
-                        WorkingDirectory="INSTALLDIR"
+                        WorkingDirectory="INSTALLLOCATION"
                         Advertise="yes" />
               <Shortcut Id="LungModelDesktop_shortcut"
                         Directory="DesktopFolder"
                         Name="Bshouty Lung Model"
-                        WorkingDirectory="INSTALLDIR"
+                        WorkingDirectory="INSTALLLOCATION"
                         Advertise="yes" />
             </Component> 
             <!-- Core Qt componenets and drivers -->

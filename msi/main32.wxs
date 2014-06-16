@@ -47,7 +47,7 @@
               <File Id="model1.exe" Name="lung_model.exe" Source="C:\src\bshouty_lung_model\release\bshouty_model.exe" DiskId="1" KeyPath="yes" />
               <ProgId Id="modelext">
                 <Extension Id="lungmodel">
-                  <Verb Id="open" Target="[INSTALLLOCATION]lung_model.exe" Argument="%1"/>
+                  <Verb Id="open" TargetFile="model1.exe" Argument="%1"/>
                 </Extension>
               </ProgId>
 
@@ -55,12 +55,12 @@
               <Shortcut Id="LungModel_shortcut"
                         Directory="ProgramMenuFolder"
                         Name="Bshouty Lung Model"
-                        WorkingDirectory="INSTALLDIR"
+                        WorkingDirectory="INSTALLLOCATION"
                         Advertise="yes" />
               <Shortcut Id="LungModelDesktop_shortcut"
                         Directory="DesktopFolder"
                         Name="Bshouty Lung Model"
-                        WorkingDirectory="INSTALLDIR"
+                        WorkingDirectory="INSTALLLOCATION"
                         Advertise="yes" />
             </Component> 
             <!-- Core Qt componenets and drivers -->
