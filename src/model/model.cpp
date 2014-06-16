@@ -1094,7 +1094,7 @@ double Model::calibrationValue(DataType type)
 		return 1.724416861;
 
 	case Model::Krc:
-		return 1263413.976643337;
+		return 1263584;
 	case Model::CV_Diam_value:
 		return 0.0003050970013;
 
