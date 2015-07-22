@@ -56,9 +56,11 @@ struct Result {
 	float pad[1+8 + 3*16]; // pad to 256 bytes
 };
 
-__constant float Kr = 1.2501e8; // cP/um**3 => mmHg*min/l
-__constant int nSums = 128;
-// #define Kr 1.2501e8
+// __constant float Kr = 1.2501e8; // cP/um**3 => mmHg*min/l
+// __constant int nSums = 128;
+#define Kr 1.2501e8
+#define nSums 128
+#define MATH_PI 3.14159265358979323846
 
 inline float sqr(float n)
 {
@@ -147,7 +149,7 @@ __kernel void singleSegmentVesselFlow(
 		
 		D = vein.D*vein.gamma - (vein.gamma-1.0)*vein.D*exp(-Ptm*vein.phi/(vein.gamma-1.0));
 		vf = viscosityFactor(D, hct);
-		Rs = 128*Kr/M_PI * vf * vein.len / sqr(sqr(D)) * vein.vessel_ratio;
+		Rs = 128*Kr/MATH_PI * vf * vein.len / sqr(sqr(D)) * vein.vessel_ratio;
 
 		new_Pin = Pout + vein.flow * Rs;
 		new_Pin = (new_Pin + old_Pin) / 2.0;
@@ -156,7 +158,7 @@ __kernel void singleSegmentVesselFlow(
 	Rs += starling_R;
 	
 	result[vessel_index].viscosity_factor = vf;
-	result[vessel_index].volume = M_PI/4.0 * sqr(D) * vein.len / (1e9*vein.vessel_ratio); // um**3 => uL, and correct for real number of vessels
+	result[vessel_index].volume = MATH_PI/4.0 * sqr(D) * vein.len / (1e9*vein.vessel_ratio); // um**3 => uL, and correct for real number of vessels
 	result[vessel_index].Dmax = D;
 	result[vessel_index].Dmin = D;
 	result[vessel_index].D = D;
@@ -213,9 +215,9 @@ __kernel void multiSegmentedVesselFlow(
 		D = vein.D*vein.gamma - (vein.gamma-1.0)*vein.D*exp(-Ptm*vein.phi/(vein.gamma-1.0));
 		const float vf = viscosityFactor(D, hct);
 
-		const float Rs = 128*Kr/M_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
+		const float Rs = 128*Kr/MATH_PI * vf * dL / sqr(sqr(D)) * vein.vessel_ratio;
 
-		volume += M_PI_F/4.0 * sqr(D) * dL;
+		volume += MATH_PI/4.0 * sqr(D) * dL;
 		viscosity += vf;
 		D_integral += D;
 
