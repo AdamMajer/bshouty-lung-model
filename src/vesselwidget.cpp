@@ -19,6 +19,7 @@
 
 #include "vesselwidget.h"
 #include <QPaintEvent>
+#include <QPainterPath>
 #include <QPainter>
 
 void VesselWidget::paintEvent(QPaintEvent *ev)

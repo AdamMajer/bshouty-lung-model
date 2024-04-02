@@ -267,7 +267,7 @@ void LungView::paintEvent(QPaintEvent *event)
 	try {
 		dynamic_cast<ModelScene&>(*scene()).setVisibleRect(tv, v);
 	}
-	catch (std::bad_cast c) {
+	catch (std::bad_cast &c) {
 
 	}
 
@@ -674,8 +674,7 @@ void LungView::calculateVolumeOverlay(const Model &model)
 void LungView::init()
 {
 	// setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-	setOptimizationFlags(QGraphicsView::DontClipPainter |
-	                     QGraphicsView::DontAdjustForAntialiasing);
+	setOptimizationFlags(QGraphicsView::DontAdjustForAntialiasing);
 	setRenderHint(QPainter::Antialiasing);
 	setDragMode(QGraphicsView::ScrollHandDrag);
 	setTransformationAnchor(QGraphicsView::NoAnchor);

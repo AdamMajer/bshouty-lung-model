@@ -191,8 +191,8 @@ struct CL_Result {
 class opencl_exception : public std::runtime_error
 {
 public:
-	explicit opencl_exception(const std::string &name, int id=1) throw() : std::runtime_error(name) {error_no=id;}
-	explicit opencl_exception(const QString &name, int id=1) throw() : std::runtime_error(name.toStdString()) {error_no=id;}
+	explicit opencl_exception(const std::string &name, int id=1) : std::runtime_error(name) {error_no=id;}
+	explicit opencl_exception(const QString &name, int id=1) : std::runtime_error(name.toStdString()) {error_no=id;}
 
 	int error_no;
 };
@@ -210,7 +210,7 @@ public:
 	OpenCL_func functions() const;
 
 	// throws opencl_exception on error
-	static void errorCheck(cl_int status, const char *fn, int id) throw(opencl_exception);
+	static void errorCheck(cl_int status, const char *fn, int id);
 
 protected:
 	void resolveFunctions();

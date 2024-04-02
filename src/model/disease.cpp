@@ -202,7 +202,7 @@ Range Disease::paramRange(int n) const
 	if ((unsigned)n < parameters.size())
 		return parameters.at(n).range;
 
-	return Range(QString::null);
+	return Range(QString());
 }
 
 #define SET_GLOBAL_PROPERTY(a) global.setProperty("lung_"#a, model.getResult(Model::a##_value))

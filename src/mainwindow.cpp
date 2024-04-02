@@ -38,6 +38,7 @@
 #include "model/integrationhelper/cpuhelper.h"
 
 #include <QActionGroup>
+#include <QButtonGroup>
 #include <QCheckBox>
 #include <QFileDialog>
 #include <QKeyEvent>
@@ -326,7 +327,7 @@ void MainWindow::load(const QString &filename)
 			else
 				throw std::runtime_error("Cannot load file");
 		}
-		catch (std::runtime_error error) {
+		catch (std::runtime_error &error) {
 			qDebug() << error.what();
 			QMessageBox::critical(this, "Error loading file",
 			                      QString("An error occured trying to load \n%1.").arg(filename));
@@ -380,7 +381,7 @@ void MainWindow::save(const QString &filename)
 			else
 				save_error = true;
 		}
-		catch (std::runtime_error error) {
+		catch (std::runtime_error &error) {
 			qDebug() << error.what();
 			save_error = true;
 		}

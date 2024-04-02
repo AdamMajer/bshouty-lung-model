@@ -114,7 +114,7 @@ CalibrateDlg::CalibrateDlg(QWidget *parent)
 	ui->saveButton->setDisabled(true);
 //	model_runner->beginCalculation();
 
-	ui->status->setText(QString::null);
+	ui->status->setText(QString());
 }
 
 CalibrateDlg::~CalibrateDlg()

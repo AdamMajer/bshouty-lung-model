@@ -83,7 +83,7 @@ OpenCL::OpenCL()
 		for (cl_uint i=0; i<platform_nums; ++i)
 			addPlatform(platform_ids[i]);
 	}
-	catch (opencl_exception e) {
+	catch (opencl_exception &e) {
 		QString msg = QString("OpenCL Disabled due to following error:\n\n%1").arg(e.what());
 		QMessageBox::information(0, "OpenCL Error", msg );
 		memset(&opencl, 0, sizeof(opencl));
@@ -121,7 +121,7 @@ OpenCL_func OpenCL::functions() const
 	return opencl;
 }
 
-void OpenCL::errorCheck(cl_int status, const char *fn, int id) throw(opencl_exception)
+void OpenCL::errorCheck(cl_int status, const char *fn, int id)
 {
 	if (status == CL_SUCCESS)
 		return;

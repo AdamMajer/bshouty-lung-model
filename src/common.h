@@ -32,7 +32,7 @@ inline bool isinf(double x) { return _finite(x)==0; }
 
 #endif
 
-#if defined(__GNUC__) && defined(WIN32)
+#if defined(__GNUC__)
 using namespace std;
 #endif
 

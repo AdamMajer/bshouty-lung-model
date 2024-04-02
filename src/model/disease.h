@@ -42,7 +42,7 @@ struct Parameter {
 	Range range;
 	double value;
 
-	Parameter(const QString &n, const Range &r, double v=0, const QString &d=QString::null)
+	Parameter(const QString &n, const Range &r, double v=0, const QString &d=QString())
 	        :name(n), desc(d), range(r), value(v) {}
 
 	bool operator== (const Parameter &o) const {

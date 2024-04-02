@@ -143,6 +143,7 @@ QVariant DiseaseModel::data(const QModelIndex &index, int role) const
 
 		if (dis_no < disease_list.size())
 			return disease_list[dis_no].paramRange(dis_param).min();
+		break;
 	}
 	case RangeMax: {
 		int dis_param = diseaseParamNo(index.internalId());
@@ -150,6 +151,7 @@ QVariant DiseaseModel::data(const QModelIndex &index, int role) const
 
 		if (dis_no < disease_list.size())
 			return disease_list[dis_no].paramRange(dis_param).max();
+		break;
 	}
 	}
 	return QVariant();
